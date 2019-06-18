@@ -1,0 +1,26 @@
+group 'com.worldapp.coverage'
+version '0.1'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile project(':jacoco-filtering-extension')
+    compile gradleApi()
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.worldapp.coverage'
+            version = '0.1'
+
+            artifactId = 'diff-coverage'
+            from components.java
+        }
+    }
+}

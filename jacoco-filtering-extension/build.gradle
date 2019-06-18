@@ -1,0 +1,27 @@
+group 'com.worldapp.coverage'
+version '0.1'
+
+apply plugin: 'jacoco'
+apply plugin: 'maven-publish'
+
+jacoco {
+    toolVersion = "0.8.3"
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled = true
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.worldapp.coverage'
+            version = '0.1'
+
+            artifactId = 'jacoco-filtering-extension'
+            from components.java
+        }
+    }
+}

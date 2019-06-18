@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+    <Properties>
+        <Property name="log-project-name">diff-coverage</Property>
+        <Property name="log-pattern">%d{ISO8601} %-5p [%c] %m\n</Property>
+    </Properties>
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout>
+                <pattern>${log-pattern}</pattern>
+            </PatternLayout>
+        </Console>
+    </appenders>
+    <Loggers>
+        <logger name="com.worldapp" level="trace" additivity="false">
+            <AppenderRef ref="Console" />
+        </logger>
+    </Loggers>
+</configuration>
