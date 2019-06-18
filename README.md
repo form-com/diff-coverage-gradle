@@ -1,4 +1,9 @@
-Plugin setup:
+Before apply you should publish the plugin to maven local
+```
+./gradlew publishToMavenLocal
+```
+
+Setup your project with the plugin:
 ```
 buildscript {
     repositories {
