@@ -44,13 +44,18 @@ class DiffCoveragePlugin : Plugin<Project> {
                 }.first().absolutePath
                 // TODO end section
 
-                ReportGenerator(
+               ReportGenerator(
                         project.projectDir,
                         jacocoExec,
                         binDir,
                         src,
                         updatesInfo
-                ).create(reportsDir)
+                ).create(
+                        reportsDir,
+                        listOf(ViolationCoverageRulesChecker().buildRules(
+                                extension.violationRules
+                        ))
+                )
             }
         }
     }
@@ -69,19 +74,3 @@ class DiffCoveragePlugin : Plugin<Project> {
 }
 
 
-open class ChangesetCoverageConfiguration(
-        var jacocoExecFile: String? = "build/jacoco/test.exec",
-        var classesDir: String? = "build/classes/kotlin/main",
-        var srcDir: String? = "src/main/java/",
-        var reportDir: String? = null,
-        var diffFile: String? = ""
-) {
-    override fun toString(): String {
-        return "ChangesetCoverageConfiguration(j" +
-                "acocoExecFile=$jacocoExecFile, " +
-                "classesDir=$classesDir, " +
-                "srcDir=$srcDir, " +
-                "reportDir=$reportDir, " +
-                "diffFile=$diffFile)"
-    }
-}

@@ -109,12 +109,6 @@ class ModifiedLinesDiffParser {
 
         const val FILE_NAME_SIGNS = "+++"
         const val HUNK_RANGE_INFO_SIGNS = "@@"
-
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val matcher = FILE_OFFSET_PATTERN.matcher("@@ -1 +1 @@")
-            println(matcher.find())
-        }
     }
 }
 
