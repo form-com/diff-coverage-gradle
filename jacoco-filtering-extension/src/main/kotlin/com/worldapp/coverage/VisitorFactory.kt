@@ -1,15 +1,16 @@
 package com.worldapp.coverage
 
-import com.worldapp.coverage.violation.createViolationCheckVisitor
 import org.jacoco.report.FileMultiReportOutput
 import org.jacoco.report.IReportVisitor
 import org.jacoco.report.MultiReportVisitor
 import org.jacoco.report.check.Rule
+import org.jacoco.report.check.RulesChecker
 import org.jacoco.report.html.HTMLFormatter
 import java.io.File
+import java.util.*
 
 
-data class ReportConfiguration(
+data class Report(
         val buildHtmlReport: Boolean,
         val htmlReportOutputDir: File,
 
@@ -17,22 +18,45 @@ data class ReportConfiguration(
         val violationRules: List<Rule>
 )
 
-fun createVisitor(
-        reportConfiguration: ReportConfiguration
+internal fun createVisitor(
+        report: Report
 ): IReportVisitor {
     val visitors = mutableListOf<IReportVisitor>()
 
-    if(reportConfiguration.violationRules.isNotEmpty()) {
+    if(report.violationRules.isNotEmpty()) {
         visitors += createViolationCheckVisitor(
-                reportConfiguration.failOnViolation,
-                reportConfiguration.violationRules
+                report.failOnViolation,
+                report.violationRules
         )
     }
 
-    if(reportConfiguration.buildHtmlReport) {
-        val fileMultiReportOutput = FileMultiReportOutput(reportConfiguration.htmlReportOutputDir)
+    if(report.buildHtmlReport) {
+        val fileMultiReportOutput = FileMultiReportOutput(report.htmlReportOutputDir)
         visitors += HTMLFormatter().createVisitor(fileMultiReportOutput)
     }
 
     return visitors.let(::MultiReportVisitor)
+}
+
+private fun createViolationCheckVisitor(
+        failOnViolation: Boolean = true,
+        rules: List<Rule> = ArrayList()
+): IReportVisitor {
+    val violations = mutableListOf<String>()
+
+    class CoverageRulesVisitor(
+            rulesCheckerVisitor: IReportVisitor
+    ) : IReportVisitor by rulesCheckerVisitor {
+        override fun visitEnd() {
+            if (violations.isNotEmpty() && failOnViolation) {
+                throw Exception(violations.joinToString("\n"))
+            }
+        }
+    }
+
+    return RulesChecker().apply {
+        setRules(rules)
+    }.createVisitor { _, _, _, message ->
+        violations += message
+    }.let { CoverageRulesVisitor(it) }
 }

@@ -1,17 +1,14 @@
 package com.worldapp.coverage.report
 
+import com.worldapp.coverage.Report
+import com.worldapp.coverage.createVisitor
 import com.worldapp.coverage.filters.ModifiedLinesFilter
-import com.worldapp.coverage.violation.createViolationCheckVisitor
 import com.worldapp.diff.CodeUpdateInfo
 import org.jacoco.core.analysis.CoverageBuilder
 import org.jacoco.core.analysis.IBundleCoverage
 import org.jacoco.core.internal.analysis.FilteringAnalyzer
 import org.jacoco.core.tools.ExecFileLoader
 import org.jacoco.report.DirectorySourceFileLocator
-import org.jacoco.report.FileMultiReportOutput
-import org.jacoco.report.MultiReportVisitor
-import org.jacoco.report.check.Rule
-import org.jacoco.report.html.HTMLFormatter
 import java.io.File
 
 class ReportGenerator(
@@ -29,8 +26,7 @@ class ReportGenerator(
     private val sourceDirectory: File = File(src)
 
     fun create(
-            reportDirectory: File,
-            rules: List<Rule>
+            report: Report
     ) {
         val execFileLoader = ExecFileLoader().apply {
             load(executionDataFile)
@@ -38,24 +34,19 @@ class ReportGenerator(
 
         val bundleCoverage = analyzeStructure(execFileLoader)
 
-        val htmlVisitor = HTMLFormatter().createVisitor(FileMultiReportOutput(reportDirectory))
-        MultiReportVisitor(listOf(
-                htmlVisitor,
-                createViolationCheckVisitor(true, rules)
-        ))
-                .run {
-                    visitInfo(
-                            execFileLoader.sessionInfoStore.infos,
-                            execFileLoader.executionDataStore.contents
-                    )
+        createVisitor(report).run {
+            visitInfo(
+                    execFileLoader.sessionInfoStore.infos,
+                    execFileLoader.executionDataStore.contents
+            )
 
-                    visitBundle(
-                            bundleCoverage,
-                            DirectorySourceFileLocator(sourceDirectory, "utf-8", 4)
-                    )
+            visitBundle(
+                    bundleCoverage,
+                    DirectorySourceFileLocator(sourceDirectory, "utf-8", 4)
+            )
 
-                    visitEnd()
-                }
+            visitEnd()
+        }
     }
 
     private fun analyzeStructure(execFileLoader: ExecFileLoader): IBundleCoverage {

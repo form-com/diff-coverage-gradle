@@ -1,5 +1,7 @@
 package com.worldapp.coverage
 
+import com.worldapp.coverage.configuration.ChangesetCoverageConfiguration
+import com.worldapp.coverage.configuration.toReport
 import com.worldapp.coverage.report.ReportGenerator
 import com.worldapp.diff.CodeUpdateInfo
 import com.worldapp.diff.ModifiedLinesDiffParser
@@ -18,17 +20,13 @@ class DiffCoveragePlugin : Plugin<Project> {
                 ChangesetCoverageConfiguration::class.java
         )
 
-        val byType = project.extensions.getByType(JacocoPluginExtension::class.java)
+        val jacocoExtension = project.extensions.getByType(JacocoPluginExtension::class.java)
 
         project.task("diffCoverage").apply {
             group = "verification"
-            dependsOn += "test"
+//            dependsOn += "test"
 
             doLast {
-                val reportsDir = extension.reportDir
-                        ?.let(::File)
-                        ?: File(byType.reportsDir, "diffCoverage")
-
                 val updatesInfo = CodeUpdateInfo(obtainUpdatesInfo(extension.diffFile))
 
                 val jacocoTask = project.tasks.findByName("jacocoTestReport")
@@ -51,10 +49,7 @@ class DiffCoveragePlugin : Plugin<Project> {
                         src,
                         updatesInfo
                 ).create(
-                        reportsDir,
-                        listOf(ViolationCoverageRulesChecker().buildRules(
-                                extension.violationRules
-                        ))
+                       extension.toReport(jacocoExtension)
                 )
             }
         }
