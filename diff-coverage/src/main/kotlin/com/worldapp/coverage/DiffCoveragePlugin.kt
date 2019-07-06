@@ -12,7 +12,7 @@ class DiffCoveragePlugin : Plugin<Project> {
         val extension = project.getExtension<ChangesetCoverageConfiguration>(DIFF_COV_EXTENSION)
 
         project.createTask<DiffCoverageTask>(DIFF_COV_TASK).apply {
-            diffCoverageReportExtension = extension
+            diffCoverageReport = extension
         }
     }
 

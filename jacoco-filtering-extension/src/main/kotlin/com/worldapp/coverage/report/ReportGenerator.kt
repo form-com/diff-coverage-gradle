@@ -27,7 +27,7 @@ class ReportGenerator(
 
     fun create(
             report: Report
-    ) {
+    ): File {
         val execFileLoader = ExecFileLoader().apply {
             jacocoExec.forEach(this::load)
         }
@@ -47,6 +47,7 @@ class ReportGenerator(
 
             visitEnd()
         }
+        return report.htmlReportOutputDir
     }
 
     private fun analyzeStructure(execFileLoader: ExecFileLoader): IBundleCoverage {

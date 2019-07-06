@@ -13,7 +13,7 @@ import java.io.File
 
 open class DiffCoverageTask : DefaultTask() {
 
-    internal var diffCoverageReportExtension: ChangesetCoverageConfiguration? = null
+    internal lateinit var diffCoverageReport: ChangesetCoverageConfiguration
 
     init {
         group = "verification"
@@ -23,9 +23,6 @@ open class DiffCoverageTask : DefaultTask() {
 
     @TaskAction
     fun executeAction() {
-        val diffCoverageReport = diffCoverageReportExtension
-                ?: throw RuntimeException("Expected not null")
-
         val updatesInfo = CodeUpdateInfo(obtainUpdatesInfo(diffCoverageReport.diffFile))
         val report = diffCoverageReport.toReport(getJacocoExtension())
 
@@ -41,10 +38,9 @@ open class DiffCoverageTask : DefaultTask() {
     }
 
     private fun jacocoReport(): JacocoReport {
-        val jacocoReport = project.tasks.findByName("jacocoTestReport")
+        return project.tasks.findByName("jacocoTestReport")
                 as? JacocoReport
                 ?: throw IllegalStateException("jacocoTestReport task wasn't found")
-        return jacocoReport
     }
 
     private fun getJacocoExtension(): JacocoPluginExtension {
@@ -56,8 +52,8 @@ open class DiffCoverageTask : DefaultTask() {
                 ?.let(::File)
                 ?: throw RuntimeException("Diff file path not specified: $diffFilePath")
 
-        diffFile.takeIf { it.exists() }
-                ?.takeIf { it.isFile }
+        diffFile.takeIf(File::exists)
+                ?.takeIf(File::isFile)
                 ?: throw RuntimeException("No such file: $diffFile")
 
         return ModifiedLinesDiffParser().collectModifiedLines(diffFile)
