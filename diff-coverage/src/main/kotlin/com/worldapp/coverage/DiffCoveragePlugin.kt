@@ -24,7 +24,7 @@ class DiffCoveragePlugin : Plugin<Project> {
 
         project.task("diffCoverage").apply {
             group = "verification"
-//            dependsOn += "test"
+            dependsOn += "test"
 
             doLast {
                 val updatesInfo = CodeUpdateInfo(obtainUpdatesInfo(extension.diffFile))
@@ -32,21 +32,12 @@ class DiffCoveragePlugin : Plugin<Project> {
                 val jacocoTask = project.tasks.findByName("jacocoTestReport")
                         as? JacocoReport
                         ?: throw IllegalStateException("jacocoTestReport task wasn't found")
-                // TODO process all dirs
-                val binDir = jacocoTask.allClassDirs.files.filter {
-                    it.absolutePath.contains("java")
-                }.first().absolutePath
-                val jacocoExec = jacocoTask.executionData.files.first().absolutePath
-                val src = jacocoTask.allSourceDirs.files.filter {
-                    it.absolutePath.contains("java")
-                }.first().absolutePath
-                // TODO end section
 
                ReportGenerator(
                         project.projectDir,
-                        jacocoExec,
-                        binDir,
-                        src,
+                        jacocoTask.executionData.files,
+                        jacocoTask.allClassDirs.files,
+                        jacocoTask.allSourceDirs.files,
                         updatesInfo
                 ).create(
                        extension.toReport(jacocoExtension)

@@ -9,27 +9,27 @@ import org.jacoco.core.analysis.IBundleCoverage
 import org.jacoco.core.internal.analysis.FilteringAnalyzer
 import org.jacoco.core.tools.ExecFileLoader
 import org.jacoco.report.DirectorySourceFileLocator
+import org.jacoco.report.ISourceFileLocator
+import org.jacoco.report.MultiSourceFileLocator
 import java.io.File
 
 class ReportGenerator(
-        projectDirectory: File,
-        jacocoExec: String,
-        bin: String,
-        src: String,
-        private val codeUpdateInfo: CodeUpdateInfo
+        private val projectDirectory: File,
+        private val jacocoExec: Set<File>,
+        classesSources: Set<File>,
+        src: Set<File>,
+        private val codeUpdateInfo: CodeUpdateInfo,
+        private val tabWidth: Int = 4
 ) {
 
-    private val title: String = projectDirectory.name
-
-    private val executionDataFile: File = File(jacocoExec)
-    private val classesDirectory: File = File(bin)
-    private val sourceDirectory: File = File(src)
+    private val classesSources: Set<File> = classesSources.filter(File::exists).toSet()
+    private val src: Set<File> = src.filter(File::exists).toSet()
 
     fun create(
             report: Report
     ) {
         val execFileLoader = ExecFileLoader().apply {
-            load(executionDataFile)
+            jacocoExec.forEach(this::load)
         }
 
         val bundleCoverage = analyzeStructure(execFileLoader)
@@ -42,7 +42,7 @@ class ReportGenerator(
 
             visitBundle(
                     bundleCoverage,
-                    DirectorySourceFileLocator(sourceDirectory, "utf-8", 4)
+                    createSourcesLocator()
             )
 
             visitEnd()
@@ -59,8 +59,21 @@ class ReportGenerator(
                 ModifiedLinesFilter(codeUpdateInfo.getClassModifications(coverage.name))
             }
 
-            analyzer.analyzeAll(classesDirectory)
-            return builder.getBundle(title)
+            classesSources.forEach{ analyzer.analyzeAll(it) }
+
+            return builder.getBundle(projectDirectory.name)
         }
+    }
+
+    private fun createSourcesLocator(): ISourceFileLocator {
+        return src.asSequence()
+                .map {
+                    DirectorySourceFileLocator(it, "utf-8", 4)
+                }
+                .fold(MultiSourceFileLocator(tabWidth)) { accumulator, sourceLocator ->
+                    accumulator.apply {
+                        add(sourceLocator)
+                    }
+                }
     }
 }

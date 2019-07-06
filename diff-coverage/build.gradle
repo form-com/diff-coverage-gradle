@@ -1,5 +1,5 @@
 group 'com.worldapp.coverage'
-version '0.2'
+version '0.3'
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = 'com.worldapp.coverage'
-            version = '0.1'
+            version = '0.3'
 
             artifactId = 'diff-coverage'
             from components.java

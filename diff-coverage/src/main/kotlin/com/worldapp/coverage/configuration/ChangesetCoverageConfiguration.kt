@@ -21,8 +21,8 @@ open class ChangesetCoverageConfiguration(
     }
 
     override fun toString(): String {
-        return "ChangesetCoverageConfiguration(j" +
-                "acocoExecFile=$jacocoExecFile, " +
+        return "ChangesetCoverageConfiguration(" +
+                "jacocoExecFile=$jacocoExecFile, " +
                 "classesDir=$classesDir, " +
                 "srcDir=$srcDir, " +
                 "reportDir=$reportDir, " +
