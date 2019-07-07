@@ -19,7 +19,7 @@ class ModifiedLinesDiffParser {
         while (iterator.hasNext()) {
             val patchedFileRow = moveToNextFile(iterator) ?: return fileNameToChangedLines
             val patchedFileRelativePath = parseFileRelativePath(patchedFileRow)
-            log.info("Found modified file: $patchedFileRelativePath")
+            log.debug("Found modified file: $patchedFileRelativePath")
 
             val fileChangedLines = collectFilesChangedLines(iterator)
 

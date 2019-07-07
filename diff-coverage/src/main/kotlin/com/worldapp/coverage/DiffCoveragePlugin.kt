@@ -11,7 +11,7 @@ class DiffCoveragePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.getExtension<ChangesetCoverageConfiguration>(DIFF_COV_EXTENSION)
 
-        project.createTask<DiffCoverageTask>(DIFF_COV_TASK).apply {
+        project.createTask<DiffCoverageTask>(DIFF_COV_TASK) {
             diffCoverageReport = extension
         }
     }

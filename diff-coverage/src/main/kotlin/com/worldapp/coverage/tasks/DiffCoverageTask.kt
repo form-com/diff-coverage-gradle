@@ -6,9 +6,15 @@ import com.worldapp.coverage.report.ReportGenerator
 import com.worldapp.diff.CodeUpdateInfo
 import com.worldapp.diff.ModifiedLinesDiffParser
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.slf4j.LoggerFactory
 import java.io.File
 
 open class DiffCoverageTask : DefaultTask() {
@@ -37,6 +43,10 @@ open class DiffCoverageTask : DefaultTask() {
         }.create(report)
     }
 
+    private fun Project.getJacocoExtension(): JacocoPluginExtension {
+        return extensions.getByType(JacocoPluginExtension::class.java)
+    }
+
     private fun jacocoReport(): JacocoReport {
         return project.tasks.findByName("jacocoTestReport")
                 as? JacocoReport
@@ -56,6 +66,11 @@ open class DiffCoverageTask : DefaultTask() {
                 ?.takeIf(File::isFile)
                 ?: throw RuntimeException("No such file: $diffFile")
 
+        log.debug("Starting to retrieve modified lines from $diffFile")
         return ModifiedLinesDiffParser().collectModifiedLines(diffFile)
+    }
+
+    companion object {
+        val log = LoggerFactory.getLogger(DiffCoverageTask::class.java)
     }
 }

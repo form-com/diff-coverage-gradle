@@ -4,7 +4,7 @@ import org.gradle.api.Action
 
 open class ChangesetCoverageConfiguration(
         var jacocoExecFile: String = "build/jacoco/test.exec",
-        var classesDir: String = "build/classes/kotlin/main",
+        var classesDir: String = "build/classes/java/main",
         var srcDir: String = "src/main/java/",
         var reportDir: String? = null,
         var diffFile: String = "",

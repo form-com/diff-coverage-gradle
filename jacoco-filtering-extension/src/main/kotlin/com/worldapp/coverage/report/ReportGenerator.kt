@@ -11,6 +11,7 @@ import org.jacoco.core.tools.ExecFileLoader
 import org.jacoco.report.DirectorySourceFileLocator
 import org.jacoco.report.ISourceFileLocator
 import org.jacoco.report.MultiSourceFileLocator
+import org.slf4j.LoggerFactory
 import java.io.File
 
 class ReportGenerator(
@@ -29,7 +30,10 @@ class ReportGenerator(
             report: Report
     ): File {
         val execFileLoader = ExecFileLoader().apply {
-            jacocoExec.forEach(this::load)
+            jacocoExec.forEach{
+                log.debug("Loading exec data $it")
+                load(it)
+            }
         }
 
         val bundleCoverage = analyzeStructure(execFileLoader)
@@ -76,5 +80,9 @@ class ReportGenerator(
                         add(sourceLocator)
                     }
                 }
+    }
+
+    companion object {
+        val log = LoggerFactory.getLogger(ReportGenerator::class.java)
     }
 }
