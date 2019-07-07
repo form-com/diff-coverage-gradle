@@ -22,8 +22,11 @@ class DiffCoveragePlugin : Plugin<Project> {
     }
 }
 
-private inline fun <reified T: Task> Project.createTask(taskName: String): T {
-    return tasks.create(taskName, T::class.java)
+private inline fun <reified T : Task> Project.createTask(
+        taskName: String,
+        crossinline configuration: T.() -> Unit = {}
+): T = tasks.create(taskName, T::class.java) {
+    it.apply(configuration)
 }
 
 private inline fun <reified T> Project.getExtension(extensionName: String): T {
