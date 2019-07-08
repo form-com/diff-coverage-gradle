@@ -8,10 +8,12 @@ repositories {
 
 dependencies {
     compile project(':jacoco-filtering-extension')
-    compile gradleApi()
+
+    testCompile 'junit:junit:4.12'
 }
 
 apply plugin: 'maven-publish'
+apply plugin: 'java-gradle-plugin'
 
 publishing {
     publications {
@@ -24,3 +26,26 @@ publishing {
         }
     }
 }
+
+sourceSets {
+    functionalTest {
+        kotlin.srcDir file('src/funcTest/kotlin')
+        resources.srcDir file('src/funcTest/resources')
+        compileClasspath += sourceSets.main.output + configurations.testRuntime
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+task functionalTest(type: Test) {
+    description = 'Runs the functional tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    mustRunAfter test
+}
+
+gradlePlugin {
+    testSourceSets sourceSets.functionalTest
+}
+
+check.dependsOn functionalTest

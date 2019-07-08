@@ -20,16 +20,15 @@ class DiffCoveragePlugin : Plugin<Project> {
         const val DIFF_COV_EXTENSION = "diffCoverageReport"
         const val DIFF_COV_TASK = "diffCoverage"
     }
-}
 
-private inline fun <reified T : Task> Project.createTask(
-        taskName: String,
-        crossinline configuration: T.() -> Unit = {}
-): T = tasks.create(taskName, T::class.java) {
-    it.apply(configuration)
-}
+    private inline fun <reified T : Task> Project.createTask(
+            taskName: String,
+            crossinline configuration: T.() -> Unit = {}
+    ): T = tasks.create(taskName, T::class.java) {
+        it.apply(configuration)
+    }
 
-private inline fun <reified T> Project.getExtension(extensionName: String): T {
-    return extensions.create(extensionName, T::class.java)
+    private inline fun <reified T> Project.getExtension(extensionName: String): T {
+        return extensions.create(extensionName, T::class.java)
+    }
 }
-
