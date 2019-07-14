@@ -1,8 +1,10 @@
+plugins {
+    id 'jacoco'
+    id 'maven-publish'
+}
+
 group 'com.worldapp.coverage'
 version '0.3'
-
-apply plugin: 'jacoco'
-apply plugin: 'maven-publish'
 
 jacoco {
     toolVersion = "0.8.3"

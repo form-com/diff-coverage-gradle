@@ -30,10 +30,19 @@ class ModifiedLinesDiffParser {
         return fileNameToChangedLines
     }
 
+    private fun parseFileRelativePath(diffFilePath: String): String {
+        val matcher = FILE_RELATIVE_PATH_PATTERN.matcher(diffFilePath)
+        return if(matcher.find()) {
+            matcher.group(1)
+        } else {
+            throw IllegalArgumentException("Couldn't parse file relative path: $diffFilePath")
+        }
+    }
+
     private fun moveToNextFile(iterator: ListIterator<String>): String? {
         while (iterator.hasNext()) {
             val next = iterator.next()
-            if (next.startsWith(FILE_NAME_SIGNS)) {
+            if (next.startsWith(FILE_NAME_TO_SIGNS)) {
                 return next
             }
         }
@@ -57,6 +66,15 @@ class ModifiedLinesDiffParser {
         return fileChangedLines
     }
 
+    private fun parseFileDiffBlockOffset(line: String): Int {
+        val matcher = FILE_OFFSET_PATTERN.matcher(line)
+        return if(matcher.find()) {
+            matcher.group(1).toInt()
+        } else {
+            throw IllegalArgumentException("Couldn't parse file's range information: $line")
+        }
+    }
+
     private fun obtainFilesAddedOrUpdatedLines(
             iterator: ListIterator<String>,
             fileOffset: Int
@@ -66,9 +84,9 @@ class ModifiedLinesDiffParser {
         while (iterator.hasNext()) {
             val line = iterator.next()
             when {
-                line.startsWith(ADDED_LINE_SIGN) -> modifiedOrAddedLinesNumbers += lineNumber
-                line.startsWith(DELETED_LINE_SIGN) -> lineNumber -= 1
-                !line.startsWith(NO_MOD_LINE_SIGN) -> {
+                line.isLineAdded() -> modifiedOrAddedLinesNumbers += lineNumber
+                line.isLineDeleted() -> lineNumber -= 1
+                !line.isNoModLine() -> {
                     iterator.previous()
                     return modifiedOrAddedLinesNumbers
                 }
@@ -79,23 +97,9 @@ class ModifiedLinesDiffParser {
         return modifiedOrAddedLinesNumbers
     }
 
-    private fun parseFileDiffBlockOffset(line: String): Int {
-        val matcher = FILE_OFFSET_PATTERN.matcher(line)
-        return if(matcher.find()) {
-            matcher.group(1).toInt()
-        } else {
-            throw RuntimeException("Couldn't parse file's range information: $line")
-        }
-    }
-
-    private fun parseFileRelativePath(diffFilePath: String): String {
-        val matcher = FILE_RELATIVE_PATH_PATTERN.matcher(diffFilePath)
-        return if(matcher.find()) {
-            matcher.group(1)
-        } else {
-            throw RuntimeException("Couldn't parse file relative path: $diffFilePath")
-        }
-    }
+    private fun String.isLineAdded() = startsWith(ADDED_LINE_SIGN)
+    private fun String.isLineDeleted() = startsWith(DELETED_LINE_SIGN) && !startsWith(FILE_NAME_FROM_SIGNS)
+    private fun String.isNoModLine() = startsWith(NO_MOD_LINE_SIGN)
 
     private companion object {
         val FILE_OFFSET_PATTERN = Pattern.compile("^@@.*\\+(\\d+)(,\\d+)? @@")!!
@@ -107,7 +111,8 @@ class ModifiedLinesDiffParser {
         const val DELETED_LINE_SIGN = '-'
         const val NO_MOD_LINE_SIGN = ' '
 
-        const val FILE_NAME_SIGNS = "+++"
+        const val FILE_NAME_FROM_SIGNS = "---"
+        const val FILE_NAME_TO_SIGNS = "+++"
         const val HUNK_RANGE_INFO_SIGNS = "@@"
     }
 }
