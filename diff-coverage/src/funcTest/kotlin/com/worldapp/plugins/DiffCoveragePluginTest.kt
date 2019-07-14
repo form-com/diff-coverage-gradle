@@ -14,8 +14,7 @@ import java.nio.file.Paths
 
 class DiffCoveragePluginTest {
 
-    @Rule
-    @JvmField
+    @get:Rule
     var testProjectDir = TemporaryFolder()
 
     private lateinit var buildFile: File
@@ -54,7 +53,14 @@ class DiffCoveragePluginTest {
 
         gradleRunner = GradleRunner.create()
                 .withPluginClasspath()
-                .withProjectDir(testProjectDir.root).apply {
+                .withProjectDir(testProjectDir.root)
+                .withTestKitDir(testProjectDir.newFolder())
+                .apply {
+                    // gradle testkit jacoco support
+                    File("./build/testkit/testkit-gradle.properties")
+                            .copyTo(File(projectDir, "gradle.properties"))
+                }
+                .apply {
                     withArguments("test").build()
                 }
     }
