@@ -20,6 +20,7 @@ class DiffCoveragePluginTest {
 
     private lateinit var buildFile: File
     private lateinit var diffFilePath: String
+    private lateinit var gradleRunner: GradleRunner
 
     @Before
     fun setup() {
@@ -50,6 +51,12 @@ class DiffCoveragePluginTest {
                         testProjectDir.newFolder("src"),
                         true
                 )
+
+        gradleRunner = GradleRunner.create()
+                .withPluginClasspath()
+                .withProjectDir(testProjectDir.root).apply {
+                    withArguments("test").build()
+                }
     }
 
     @Test
@@ -66,11 +73,8 @@ class DiffCoveragePluginTest {
         """.trimIndent())
 
         // run
-        val result = GradleRunner.create()
-                .withPluginClasspath()
-                .withProjectDir(testProjectDir.root)
-                .withDebug(true)
-                .withArguments("test", "diffCoverage")
+        val result = gradleRunner
+                .withArguments("diffCoverage")
                 .build()
 
         // assert
@@ -98,17 +102,12 @@ class DiffCoveragePluginTest {
                     minInstructions = 0.8 
                     failOnViolation = true 
                 }
-                reports {
-                    html = true
-                }
             }
         """.trimIndent())
 
         // run
-        val result = GradleRunner.create()
-                .withPluginClasspath()
-                .withProjectDir(testProjectDir.root)
-                .withArguments("test", "diffCoverage")
+        val result = gradleRunner
+                .withArguments("diffCoverage")
                 .buildAndFail()
 
         // assert
@@ -135,11 +134,8 @@ class DiffCoveragePluginTest {
         """.trimIndent())
 
         // run
-        val result = GradleRunner.create()
-                .withPluginClasspath()
-                .withProjectDir(testProjectDir.root)
-                .withDebug(true)
-                .withArguments("test", "diffCoverage")
+        val result = gradleRunner
+                .withArguments("diffCoverage")
                 .build()
 
         // assert
