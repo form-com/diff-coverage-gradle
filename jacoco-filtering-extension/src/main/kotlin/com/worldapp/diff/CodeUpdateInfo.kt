@@ -7,7 +7,6 @@ class CodeUpdateInfo(
 
     fun getClassModifications(classRelativePath: String): ClassModifications {
         return ClassModifications(
-                classRelativePath,
                 getModInfoByClassName(classRelativePath)
         )
     }
@@ -25,13 +24,6 @@ class CodeUpdateInfo(
 }
 
 
-class ClassModifications(
-        private val className: String,
-        private val modifiedLines: Set<Int>
-) {
+class ClassModifications(private val modifiedLines: Set<Int>) {
     fun isLineModified(lineNumber: Int): Boolean = modifiedLines.contains(lineNumber)
-
-    override fun toString(): String {
-        return "ClassModifications(className='$className', modifiedLines=$modifiedLines)"
-    }
 }

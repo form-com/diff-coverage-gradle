@@ -6,6 +6,14 @@ plugins {
 group 'com.worldapp.coverage'
 version '0.3'
 
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
+}
+
 jacoco {
     toolVersion = "0.8.3"
 }

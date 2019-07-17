@@ -1,13 +1,15 @@
 package com.worldapp.diff
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import io.kotlintest.matchers.maps.shouldContainExactly
+import io.kotlintest.matchers.startWith
+import io.kotlintest.should
+import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
+import io.kotlintest.specs.StringSpec
 
-class ModifiedLinesDiffParserTest {
+class ModifiedLinesDiffParserTest: StringSpec( {
 
-    @Test
-    fun `collectModifiedLines should return empty map on empty list`() {
+    "collectModifiedLines should return empty map on empty list" {
         // setup
         val modifiedLinesDiffParser = ModifiedLinesDiffParser()
 
@@ -15,22 +17,25 @@ class ModifiedLinesDiffParserTest {
         val collectModifiedLines = modifiedLinesDiffParser.collectModifiedLines(emptyList())
 
         // assert
-        assertTrue(collectModifiedLines.isEmpty())
+        collectModifiedLines shouldBe emptyMap()
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `collectModifiedLines should throw when file path cannot be parsed`() {
+    "collectModifiedLines should throw when file path cannot be parsed" {
         // setup
         val diffContent = """
             +++path/file
         """.trimIndent().lines()
 
         // run
-        ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+        val exception = shouldThrow<IllegalArgumentException> {
+            ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+        }
+
+        // assert
+        exception.message should startWith("Couldn't parse file relative path: ")
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `collectModifiedLines should throw when offset cannot be parsed`() {
+    "collectModifiedLines should throw when offset cannot be parsed" {
         // setup
         val diffContent = """
             --- path/file
@@ -39,11 +44,15 @@ class ModifiedLinesDiffParserTest {
         """.trimIndent().lines()
 
         // run
-        ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+        val exception = shouldThrow<IllegalArgumentException> {
+            ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+        }
+
+        // assert
+        exception.message should startWith("Couldn't parse file's range information: ")
     }
 
-    @Test
-    fun `collectModifiedLines should return modified and added lines used 'git diff' format`() {
+    "collectModifiedLines should return modified and added lines used 'git diff' format" {
         // setup
         val modifiedFilePath = "some/file/path.ext"
         val toFileGitDiffFormat = "b/$modifiedFilePath"
@@ -57,7 +66,7 @@ class ModifiedLinesDiffParserTest {
              b          #2
             +add row    #3 expected
              c          #4
-            -d 
+            -d
             +d modify   #5 expected
              e          #6
             +f add      #7 expected
@@ -70,11 +79,10 @@ class ModifiedLinesDiffParserTest {
         val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(diffContent)
 
         // assert
-        assertEquals(expected, collectModifiedLines)
+        collectModifiedLines shouldContainExactly expected
     }
 
-    @Test
-    fun `collectModifiedLines should return modified and added lines when multiple modified files`() {
+    "collectModifiedLines should return modified and added lines when multiple modified files" {
         // setup
         val modifiedFile1 = "some/file/path1.ext"
         val modifiedFile3 = "some/file/path3.ext"
@@ -97,8 +105,8 @@ class ModifiedLinesDiffParserTest {
             @@ -1 +1,2 @@
             +0
              1
-            
-            some service row        
+
+            some service row
         """.trimIndent().lines()
         val expected = mapOf(
                 modifiedFile1 to setOf(2, 3, 4),
@@ -109,6 +117,6 @@ class ModifiedLinesDiffParserTest {
         val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(diffContent)
 
         // assert
-        assertEquals(expected, collectModifiedLines)
+        collectModifiedLines shouldContainExactly expected
     }
-}
+} )

@@ -28,6 +28,7 @@ hs_err_pid*
 build/
 out/
 .idea/
+.kotlintest
 *.iml
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
