@@ -27,7 +27,6 @@ subprojects{
         compile 'org.jacoco:org.jacoco.report:0.8.4'
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
-        testCompile 'junit:junit:4.12'
     }
 
     compileKotlin {
