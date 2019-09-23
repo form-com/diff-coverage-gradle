@@ -38,9 +38,10 @@ subprojects{
     }
     sourceCompatibility = 1.8
 
+    def subProjectName=it.name
     publishing {
         publications {
-            maven(MavenPublication) {
+            "${subProjectName}"(MavenPublication) {
                 from components.java
             }
         }
