@@ -1,8 +1,3 @@
-plugins {
-    id 'jacoco'
-    id 'maven-publish'
-}
-
 group 'com.worldapp.coverage'
 version '0.3'
 
@@ -21,17 +16,5 @@ jacoco {
 jacocoTestReport {
     reports {
         html.enabled = true
-    }
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.worldapp.coverage'
-            version = '0.3'
-
-            artifactId = 'jacoco-filtering-extension'
-            from components.java
-        }
     }
 }
