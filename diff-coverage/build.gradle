@@ -19,18 +19,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId = 'com.worldapp.coverage'
-            version = '0.3'
-
-            artifactId = 'diff-coverage'
-            from components.java
-        }
-    }
-}
-
 sourceSets {
     functionalTest {
         kotlin.srcDir file('src/funcTest/kotlin')
