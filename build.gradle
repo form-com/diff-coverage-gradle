@@ -38,7 +38,13 @@ subprojects{
     }
     sourceCompatibility = 1.8
 
+    def subProjectName=it.name
     publishing {
+        publications {
+            "${subProjectName}"(MavenPublication) {
+                from components.java
+            }
+        }
         if (project.hasProperty('nexusRepo')) {
             repositories {
                 maven {
