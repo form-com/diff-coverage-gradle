@@ -6,6 +6,7 @@ import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import java.io.File
 
 class ModifiedLinesDiffParserTest: StringSpec( {
 
@@ -118,5 +119,26 @@ class ModifiedLinesDiffParserTest: StringSpec( {
 
         // assert
         collectModifiedLines shouldContainExactly expected
+    }
+
+    "collectModifiedLines should not skip modified lines when patch file contains empty lines"{
+        // setup
+        val diffFileContent = ModifiedLinesDiffParserTest::class.java.classLoader
+                .getResource("testintPatch1.patch")!!.file
+                .let(::File)
+        val modifiedFileName = "jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt"
+        val modifiedLines: Set<Int> = (7..8)
+                .union(18..32)
+                .union(40..40)
+                .union(43..44)
+                .union(46..46)
+                .union(48..48)
+                .union(70..73)
+
+        // run
+        val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(diffFileContent.readLines())
+
+        // assert
+        collectModifiedLines shouldContainExactly mapOf(modifiedFileName to modifiedLines)
     }
 } )

@@ -86,7 +86,7 @@ class ModifiedLinesDiffParser {
             when {
                 line.isLineAdded() -> modifiedOrAddedLinesNumbers += lineNumber
                 line.isLineDeleted() -> lineNumber -= 1
-                !line.isNoModLine() -> {
+                line.isNotEmpty() && !line.isNoModLine() -> {
                     iterator.previous()
                     return modifiedOrAddedLinesNumbers
                 }
