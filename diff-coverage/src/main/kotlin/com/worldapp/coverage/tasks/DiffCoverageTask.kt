@@ -50,6 +50,7 @@ open class DiffCoverageTask : DefaultTask() {
         val fileNameToModifiedLineNumbers = obtainUpdatesInfo(diffCoverageReport.diffFile)
         fileNameToModifiedLineNumbers.forEach { (file, rows) ->
             log.info("File $file has ${rows.size} modified lines")
+            log.debug("File $file has modified lines $rows")
         }
         val updatesInfo = CodeUpdateInfo(fileNameToModifiedLineNumbers)
 

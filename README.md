@@ -1,13 +1,8 @@
-Before apply you should publish the plugin to maven local
-```
-./gradlew publishToMavenLocal
-```
-
 Setup your project with the plugin:
 ```
 buildscript {
     repositories {
-        mavenLocal()
+        maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
     }
     dependencies {
         classpath 'com.worldapp.coverage:diff-coverage:${VERSION}'
