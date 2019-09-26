@@ -65,6 +65,13 @@ subprojects{
         }
     }
 
+    jacocoTestReport {
+        reports {
+            html.enabled = true
+        }
+        executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    }
+
     diffCoverageReport {
         diffFile = project.hasProperty('diffFilePath') ? diffFilePath : "<NOT SPECIFIED>"
         reports {

@@ -21,6 +21,10 @@ dependencies {
     testCompile 'org.mock-server:mockserver-client-java:3.10.8'
 }
 
+test {
+    useJUnitPlatform()
+}
+
 sourceSets {
     functionalTest {
         kotlin.srcDir file('src/funcTest/kotlin')
