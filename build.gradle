@@ -65,6 +65,10 @@ subprojects{
         }
     }
 
+    jacoco {
+        toolVersion = "0.8.3"
+    }
+
     jacocoTestReport {
         reports {
             html.enabled = true

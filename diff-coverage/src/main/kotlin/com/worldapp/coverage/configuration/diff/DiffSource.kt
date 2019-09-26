@@ -4,7 +4,6 @@ import com.worldapp.coverage.configuration.DiffSourceConfiguration
 import com.worldapp.coverage.http.requestGet
 import org.slf4j.LoggerFactory
 import java.io.File
-import java.nio.file.Files
 
 
 interface DiffSource {
@@ -21,7 +20,7 @@ internal class FileDiffSource(
         return File(sourceLocation)
                 .takeIf(File::exists)
                 ?.takeIf(File::isFile)
-                ?.let { Files.readAllLines(it.toPath()) }
+                ?.readLines()
                 ?: throw RuntimeException("'$sourceLocation' not a file or doesn't exist")
     }
 }
