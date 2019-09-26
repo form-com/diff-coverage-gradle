@@ -3,19 +3,41 @@ package com.worldapp.plugins
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.mockserver.integration.ClientAndServer
+import org.mockserver.integration.ClientAndServer.startClientAndServer
+import org.mockserver.model.HttpRequest.request
+import org.mockserver.model.HttpResponse.response
 import java.io.File
 import java.nio.file.Paths
+
 
 class DiffCoveragePluginTest {
 
     @get:Rule
     var testProjectDir = TemporaryFolder()
+
+    companion object {
+
+        lateinit var mockServer: ClientAndServer
+
+        const val SERVER_PORT = 1080
+
+        @BeforeClass
+        @JvmStatic
+        fun startServer() {
+            mockServer = startClientAndServer(SERVER_PORT)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun stopServer() {
+            mockServer.stop()
+        }
+    }
 
     private lateinit var buildFile: File
     private lateinit var diffFilePath: String
@@ -71,7 +93,7 @@ class DiffCoveragePluginTest {
         buildFile.appendText("""
             
             diffCoverageReport {
-                diffFile = '$diffFilePath' 
+                diffSource.file = '$diffFilePath' 
                 reports {
                     html = true
                 }
@@ -90,7 +112,7 @@ class DiffCoveragePluginTest {
         val diffCoverageReportDir = Paths.get(
                 testProjectDir.root.absolutePath,
                 "build/reports/jacoco/diffCoverage"
-        ).toFile()!!
+        ).toFile()
 
         assertTrue(diffCoverageReportDir.list()!!.isNotEmpty())
     }
@@ -101,7 +123,7 @@ class DiffCoveragePluginTest {
         buildFile.appendText("""
             
             diffCoverageReport {
-                diffFile = '$diffFilePath' 
+                diffSource.file = '$diffFilePath' 
                 violationRules {
                     minBranches = 0.6
                     minLines = 0.7
@@ -129,7 +151,7 @@ class DiffCoveragePluginTest {
         buildFile.appendText("""
             
             diffCoverageReport {
-                diffFile = '$diffFilePath' 
+                diffSource.file = '$diffFilePath' 
                 violationRules {
                     minBranches = 1.0
                     minLines = 1.0
@@ -147,5 +169,38 @@ class DiffCoveragePluginTest {
         // assert
         assertTrue(result.output.contains("diffCoverage"))
         assertEquals(SUCCESS, result.task(":diffCoverage")!!.outcome)
+    }
+
+    @Test
+    fun `diff-coverage should get diff info by url`() {
+        // setup
+        val url = "http://localhost:$SERVER_PORT"
+        mockServer.`when`(
+                request().withMethod("GET")
+        ).respond(response().withBody(
+                File(diffFilePath).readText()
+        ))
+
+        buildFile.appendText("""
+            
+            diffCoverageReport {
+                diffSource.url = '$url'
+                violationRules {
+                    minInstructions = 1 
+                    failOnViolation = true 
+                }
+            }
+        """.trimIndent())
+
+        // run
+        val result = gradleRunner
+                .withArguments("diffCoverage")
+                .withDebug(true)
+                .buildAndFail()
+
+        // assert
+        assertTrue(result.output.contains("diffCoverage"))
+        assertTrue(result.output.contains("instructions covered ratio is 0.5, but expected minimum is 1"))
+        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
     }
 }

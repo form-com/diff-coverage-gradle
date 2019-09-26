@@ -17,6 +17,8 @@ dependencies {
     compile project(':jacoco-filtering-extension')
 
     testCompile 'junit:junit:4.12'
+    testCompile 'org.mock-server:mockserver-netty:3.10.8'
+    testCompile 'org.mock-server:mockserver-client-java:3.10.8'
 }
 
 sourceSets {
@@ -33,7 +35,7 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
-    mustRunAfter test
+    dependsOn generateJacocoTestKitProperties
 }
 
 gradlePlugin {
