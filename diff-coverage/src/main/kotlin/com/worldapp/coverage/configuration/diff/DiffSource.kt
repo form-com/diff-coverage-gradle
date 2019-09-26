@@ -17,11 +17,12 @@ internal class FileDiffSource(
         override val sourceType: String = "File"
 ) : DiffSource {
     override fun pullDiff(): List<String> {
-        return File(sourceLocation)
-                .takeIf(File::exists)
-                ?.takeIf(File::isFile)
-                ?.readLines()
-                ?: throw RuntimeException("'$sourceLocation' not a file or doesn't exist")
+        val file = File(sourceLocation)
+        return if(file.exists() && file.isFile) {
+            file.readLines()
+        } else {
+            throw RuntimeException("'$sourceLocation' not a file or doesn't exist")
+        }
     }
 }
 
