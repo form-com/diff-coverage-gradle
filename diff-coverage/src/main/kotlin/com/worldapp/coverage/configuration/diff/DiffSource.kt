@@ -2,7 +2,6 @@ package com.worldapp.coverage.configuration.diff
 
 import com.worldapp.coverage.configuration.DiffSourceConfiguration
 import com.worldapp.coverage.http.requestGet
-import org.slf4j.LoggerFactory
 import java.io.File
 
 
@@ -30,9 +29,7 @@ internal class UrlDiffSource(
         override val sourceLocation: String,
         override val sourceType: String = "URL"
 ) : DiffSource {
-    override fun pullDiff(): List<String> = requestGet(sourceLocation).lines().apply {
-        LoggerFactory.getLogger(UrlDiffSource::class.java).warn("Lines: $this")
-    }
+    override fun pullDiff(): List<String> = requestGet(sourceLocation).lines()
 }
 
 fun getDiffSource(diffConfig: DiffSourceConfiguration): DiffSource {

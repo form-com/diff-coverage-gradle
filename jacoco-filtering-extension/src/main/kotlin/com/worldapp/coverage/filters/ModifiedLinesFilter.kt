@@ -25,10 +25,10 @@ class ModifiedLinesFilter(private val classModifications: ClassModifications) : 
 
         if(log.isDebugEnabled) {
             log.debug("Modified lines in ${context.className}#${methodNode.name}")
-            val lines = groupedModifiedLines[true]
+            groupedModifiedLines[true]
                     ?.map { it.lineNode.line }
-                    ?: emptyList()
-            log.debug("\tlines: $lines")
+                    ?.takeIf { it.isNotEmpty() }
+                    ?.let { log.debug("\tlines: $it") }
         }
     }
 
