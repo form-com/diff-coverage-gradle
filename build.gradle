@@ -67,6 +67,10 @@ subprojects{
         }
     }
 
+    tasks.matching { it.name.endsWith("PublicationToNexusRepository") }.all {
+        onlyIf { project.hasProperty('release') && project.property('release').toBoolean() }
+    }
+
     jacoco {
         toolVersion = "0.8.3"
     }
