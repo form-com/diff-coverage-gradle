@@ -110,7 +110,7 @@ ext.createDiffUrl = { ->
     def file = Files.createTempFile(URLEncoder.encode(project.name, "UTF-8"), ".diff").toFile()
     def outputStream = file.newOutputStream()
     exec {
-        commandLine 'git', 'diff', '@..@^'
+        commandLine 'git', 'diff', '@^..@'
         standardOutput = outputStream
     }
     outputStream.close()
