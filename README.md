@@ -1,13 +1,8 @@
-Before apply you should publish the plugin to maven local
-```
-./gradlew publishToMavenLocal
-```
-
 Setup your project with the plugin:
 ```
 buildscript {
     repositories {
-        mavenLocal()
+        maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
     }
     dependencies {
         classpath 'com.worldapp.coverage:diff-coverage:${VERSION}'
@@ -18,7 +13,7 @@ apply plugin: 'jacoco'
 apply plugin: 'com.worldapp.diff-coverage'
 
 diffCoverageReport {
-    diffFile = ${PATH_TO_DIFF_FILE} // required
+    diffSource.file = ${PATH_TO_DIFF_FILE} // or `diffSource.url = ${URL_TO_DIFF_FILE}`. Required. 
 
     jacocoExecFile = "/path/to/jacoco/exec/file" // Optional. default `build/jacoco/test.exec`
     srcDir = "/path/to/sources" // Optional. Default "src/main/java/"

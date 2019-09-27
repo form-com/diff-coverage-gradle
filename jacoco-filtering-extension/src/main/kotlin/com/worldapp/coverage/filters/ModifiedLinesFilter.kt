@@ -4,10 +4,8 @@ import com.worldapp.diff.ClassModifications
 import org.jacoco.core.internal.analysis.filter.IFilter
 import org.jacoco.core.internal.analysis.filter.IFilterContext
 import org.jacoco.core.internal.analysis.filter.IFilterOutput
-import org.objectweb.asm.tree.AbstractInsnNode
-import org.objectweb.asm.tree.InsnList
-import org.objectweb.asm.tree.LineNumberNode
-import org.objectweb.asm.tree.MethodNode
+import org.objectweb.asm.tree.*
+import org.slf4j.LoggerFactory
 import java.util.*
 
 class ModifiedLinesFilter(private val classModifications: ClassModifications) : IFilter {
@@ -17,13 +15,21 @@ class ModifiedLinesFilter(private val classModifications: ClassModifications) : 
             context: IFilterContext,
             output: IFilterOutput
     ) {
-        collectLineNodes(methodNode.instructions)
-                .filter {
-                    !classModifications.isLineModified(it.lineNode.line)
-                }
-                .forEach {
-                    output.ignore(it.lineNode, it.lineNodeLastInstruction)
-                }
+        val groupedModifiedLines = collectLineNodes(methodNode.instructions).groupBy {
+            classModifications.isLineModified(it.lineNode.line)
+        }
+
+        groupedModifiedLines[false]?.forEach {
+            output.ignore(it.lineNode.previous, it.lineNodeLastInstruction)
+        }
+
+        if(log.isDebugEnabled) {
+            log.debug("Modified lines in ${context.className}#${methodNode.name}")
+            val lines = groupedModifiedLines[true]
+                    ?.map { it.lineNode.line }
+                    ?: emptyList()
+            log.debug("\tlines: $lines")
+        }
     }
 
     private fun collectLineNodes(instructionNodes: InsnList): Sequence<LineNode> {
@@ -31,14 +37,15 @@ class ModifiedLinesFilter(private val classModifications: ClassModifications) : 
 
         val iterator = instructionNodes.iterator()
         val nextLineNode = getNextLineNode(iterator) ?: return emptySequence()
+
         var currentNode = LineNode(nextLineNode)
         while (iterator.hasNext()) {
-            val next = iterator.next()
-            if (next is LineNumberNode) {
+            val instructionNode = iterator.next()
+            if (instructionNode is LabelNode && instructionNode.next is LineNumberNode) {
                 lineNodes.add(currentNode)
-                currentNode = LineNode(next)
+                currentNode = LineNode(instructionNode.next as LineNumberNode)
             } else {
-                currentNode.lineNodeLastInstruction = next
+                currentNode.lineNodeLastInstruction = instructionNode
             }
         }
         lineNodes.add(currentNode)
@@ -60,4 +67,8 @@ class ModifiedLinesFilter(private val classModifications: ClassModifications) : 
             val lineNode: LineNumberNode,
             var lineNodeLastInstruction: AbstractInsnNode = lineNode
     )
+
+    private companion object {
+        val log = LoggerFactory.getLogger( ModifiedLinesFilter::class.java )
+    }
 }

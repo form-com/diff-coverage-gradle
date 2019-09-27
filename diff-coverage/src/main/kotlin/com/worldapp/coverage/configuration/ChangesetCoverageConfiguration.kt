@@ -7,7 +7,7 @@ open class ChangesetCoverageConfiguration(
         var classesDir: String = "build/classes/java/main",
         var srcDir: String = "src/main/java/",
         var reportDir: String? = null,
-        var diffFile: String = "",
+        var diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
         val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
         val violationRules: ViolationRules = ViolationRules()
 ) {
@@ -20,16 +20,25 @@ open class ChangesetCoverageConfiguration(
         action.execute(violationRules)
     }
 
+    fun diffSource(action: Action<in DiffSourceConfiguration>) {
+        action.execute(diffSource)
+    }
+
     override fun toString(): String {
         return "ChangesetCoverageConfiguration(" +
                 "jacocoExecFile=$jacocoExecFile, " +
                 "classesDir=$classesDir, " +
                 "srcDir=$srcDir, " +
                 "reportDir=$reportDir, " +
-                "diffFile=$diffFile, " +
+                "diffSource=$diffSource, " +
                 "violationRules=$violationRules)"
     }
 }
+
+open class DiffSourceConfiguration(
+        var file: String = "",
+        var url: String = ""
+)
 
 open class ReportsConfiguration(
         var html: Boolean = false

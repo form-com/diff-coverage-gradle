@@ -4,9 +4,11 @@ buildscript {
     repositories {
         jcenter()
         mavenCentral()
+        maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "com.worldapp.coverage:diff-coverage:0.4.3"
     }
 }
 
@@ -16,6 +18,7 @@ subprojects{
     apply plugin: 'kotlin'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
+    apply plugin: 'com.worldapp.diff-coverage'
 
     repositories {
         jcenter()
@@ -28,6 +31,9 @@ subprojects{
         compile 'org.jacoco:org.jacoco.report:0.8.4'
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
+
+        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
+        testImplementation "io.mockk:mockk:1.9.3.kotlin12"
     }
 
     compileKotlin {
@@ -56,6 +62,31 @@ subprojects{
                     }
                 }
             }
+        }
+    }
+
+    jacoco {
+        toolVersion = "0.8.3"
+    }
+
+    jacocoTestReport {
+        reports {
+            html.enabled = true
+        }
+        executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    }
+
+    diffCoverageReport {
+        diffFile = project.hasProperty('diffFilePath') ? diffFilePath : "<NOT SPECIFIED>"
+        reports {
+            html = true
+        }
+
+        violationRules {
+            minBranches = 1
+            minLines = 1
+            minInstructions = 1
+            failOnViolation = false
         }
     }
 }
