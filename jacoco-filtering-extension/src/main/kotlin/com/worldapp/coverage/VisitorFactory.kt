@@ -50,7 +50,7 @@ private fun createViolationCheckVisitor(
             rulesCheckerVisitor: IReportVisitor
     ) : IReportVisitor by rulesCheckerVisitor {
         override fun visitEnd() {
-            log.info("Fail on violations: $failOnViolation. Found violations: ${violations.size}.")
+            log.warn("Fail on violations: $failOnViolation. Found violations: ${violations.size}.")
             if (violations.isNotEmpty() && failOnViolation) {
                 throw Exception(violations.joinToString("\n"))
             }

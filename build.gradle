@@ -86,7 +86,7 @@ subprojects{
             minBranches = 1
             minLines = 1
             minInstructions = 1
-            failOnViolation = true
+            failOnViolation = false
         }
     }
 }
