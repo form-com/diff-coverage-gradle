@@ -1,5 +1,7 @@
 package org.jacoco.core.internal.analysis
 
+import com.worldapp.diff.ClassFile
+import jdk.internal.org.objectweb.asm.ClassReader
 import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.IClassCoverage
 import org.jacoco.core.analysis.ICoverageVisitor
@@ -16,7 +18,7 @@ import java.io.IOException
 class FilteringAnalyzer(
         private val executionData: ExecutionDataStore,
         private val coverageVisitor: ICoverageVisitor,
-        private val classFilter: (String) -> Boolean,
+        private val classFilter: (ClassFile) -> Boolean,
         private val customFilterProvider: (IClassCoverage) -> IFilter
 ) : Analyzer(executionData, coverageVisitor) {
 
@@ -37,7 +39,11 @@ class FilteringAnalyzer(
         if (reader.access and Opcodes.ACC_SYNTHETIC != 0) {
             return
         }
-        if (classFilter(reader.className)) {
+        val shouldComputeClassCoverage = SourceFileNameReader(source).readFileName()
+                ?.let { ClassFile(it, reader.className) }
+                ?.let { classFilter(it) }
+                ?: false
+        if (shouldComputeClassCoverage) {
             reader.accept(
                     createAnalyzingVisitor(classId, reader.className),
                     0
@@ -62,8 +68,6 @@ class FilteringAnalyzer(
                 false
         )
     }
-
-
 
     private fun buildClassAnalyzer(
             coverage: ClassCoverageImpl,
@@ -92,4 +96,41 @@ class FilteringAnalyzer(
             val probes: BooleanArray?,
             val noMatch: Boolean
     )
+
+    private class SourceFileNameReader(source: ByteArray): ClassReader(source) {
+
+        fun readFileName(): String? {
+            val charBuffer = CharArray(maxStringLength)
+            var shift = computeAttributesShift()
+            for (i in readUnsignedShort(shift) downTo 1) {
+                val attrName = readUTF8(shift + 2, charBuffer)
+                if ("SourceFile" == attrName) {
+                    return readUTF8(shift + 8, charBuffer)
+                }
+                shift += 6 + readInt(shift + 4)
+            }
+            return null
+        }
+
+        private fun computeAttributesShift(): Int {
+            // skips the header
+            var shift = header + 8 + readUnsignedShort(header + 6) * 2
+            // skips fields and methods
+            for (i in readUnsignedShort(shift) downTo 1) {
+                for (j in readUnsignedShort(shift + 8) downTo 1) {
+                    shift += 6 + readInt(shift + 12)
+                }
+                shift += 8
+            }
+            shift += 2
+            for (i in readUnsignedShort(shift) downTo 1) {
+                for (j in readUnsignedShort(shift + 8) downTo 1) {
+                    shift += 6 + readInt(shift + 12)
+                }
+                shift += 8
+            }
+            // the attribute_info structure starts just after the methods
+            return shift + 2
+        }
+    }
 }

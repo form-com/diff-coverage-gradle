@@ -60,8 +60,8 @@ class ReportGenerator(
                     execFileLoader.executionDataStore,
                     builder,
                     codeUpdateInfo::isInfoExists
-            ) { coverage ->
-                ModifiedLinesFilter(codeUpdateInfo.getClassModifications(coverage.name))
+            ) {
+                ModifiedLinesFilter(codeUpdateInfo)
             }
 
             classesSources.forEach{ analyzer.analyzeAll(it) }
