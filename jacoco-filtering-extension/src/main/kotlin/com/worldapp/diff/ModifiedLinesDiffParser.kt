@@ -1,16 +1,10 @@
 package com.worldapp.diff
 
 import org.slf4j.LoggerFactory
-import java.io.File
-import java.nio.file.Files
 import java.util.*
 import java.util.regex.Pattern
 
 class ModifiedLinesDiffParser {
-
-    fun collectModifiedLines(filePath: File): Map<String, Set<Int>> {
-        return collectModifiedLines(Files.readAllLines(filePath.toPath()))
-    }
 
     fun collectModifiedLines(lines: List<String>): Map<String, Set<Int>> {
         val iterator = lines.listIterator()
