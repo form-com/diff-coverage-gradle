@@ -14,13 +14,14 @@ buildscript {
     }
 }
 
+apply plugin: 'com.worldapp.diff-coverage'
+
 group 'com.worldapp'
 
 subprojects{
     apply plugin: 'kotlin'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
-    apply plugin: 'com.worldapp.diff-coverage'
 
     repositories {
         jcenter()
@@ -79,23 +80,27 @@ subprojects{
         reports {
             html.enabled = true
         }
-        executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+        executionData.from fileTree(buildDir).include("/jacoco/*.exec")
+    }
+}
+
+diffCoverageReport {
+    afterEvaluate {
+        diffSource.url = createDiffUrl()
+    }
+    // TODO uncomment when 0.5.0 will be released
+//    jacocoExecFiles = files(subprojects.jacocoTestReport.executionData)
+//    classesDirs = files(subprojects.jacocoTestReport.classDirectories)
+//    srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
+    reports {
+        html = true
     }
 
-    diffCoverageReport {
-        afterEvaluate {
-            diffSource.url = createDiffUrl()
-        }
-        reports {
-            html = true
-        }
-
-        violationRules {
-            minBranches = 1
-            minLines = 1
-            minInstructions = 1
-            failOnViolation = false
-        }
+    violationRules {
+        minBranches = 1
+        minLines = 1
+        minInstructions = 1
+        failOnViolation = false
     }
 }
 
