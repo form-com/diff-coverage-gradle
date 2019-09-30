@@ -93,7 +93,9 @@ class DiffCoveragePluginTest {
         buildFile.appendText("""
             
             diffCoverageReport {
-                diffSource.file = '$diffFilePath' 
+                diffSource {
+                    file = '$diffFilePath'
+                }
                 reports {
                     html = true
                 }
