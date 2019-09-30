@@ -1,7 +1,6 @@
 package org.jacoco.core.internal.analysis
 
 import com.worldapp.diff.ClassFile
-import jdk.internal.org.objectweb.asm.ClassReader
 import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.IClassCoverage
 import org.jacoco.core.analysis.ICoverageVisitor
@@ -10,9 +9,9 @@ import org.jacoco.core.internal.analysis.filter.IFilter
 import org.jacoco.core.internal.data.CRC64
 import org.jacoco.core.internal.flow.ClassProbesAdapter
 import org.jacoco.core.internal.instr.InstrSupport
+import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes
-
 import java.io.IOException
 
 class FilteringAnalyzer(
