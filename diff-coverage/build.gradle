@@ -1,12 +1,12 @@
 plugins {
     id 'java-gradle-plugin'
     id 'maven-publish'
-    id "pl.droidsonroids.jacoco.testkit" version "1.0.4"
+    id "pl.droidsonroids.jacoco.testkit" version "1.0.5"
     id 'jacoco'
 }
 
 group 'com.worldapp.coverage'
-version '0.5.0'
+version '0.5.1'
 
 repositories {
     mavenCentral()
@@ -41,6 +41,7 @@ task functionalTest(type: Test) {
     classpath = sourceSets.functionalTest.runtimeClasspath
     dependsOn generateJacocoTestKitProperties
 }
+generateJacocoTestKitProperties.destinationFile=file("$buildDir.absolutePath/jacoco/integration.exec")
 
 gradlePlugin {
     testSourceSets sourceSets.functionalTest
