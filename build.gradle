@@ -128,3 +128,9 @@ ext.createDiffUrl = { ->
     outputStream.close()
     return file.toURI().toURL()
 }
+
+task clean {
+    doLast {
+        delete project.buildDir
+    }
+}
