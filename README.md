@@ -33,28 +33,35 @@ diffCoverageReport {
 }
 ```
 
-Computable diff
+The function below can work in two mods: `latest commit of the current` branch and `merge request`
+* `latest commit of the current` - works by default. Can be run locally. Takes changes from the latest commit to the current branch
+* `merge request` - Teamcity only mode. Takes properties from merge-request build and computes changes provided by the merge request
+
+Usage
 ```
 diffCoverageReport {
     afterEvaluate {
         diffSource.url =  createDiffUrl()
     }
+    ...
 }
-
+```
+The function
+```
 ext.createDiffUrl = { ->
-    // getting merge request diff(for teamcity build)
-    def vcsRootUrlParameter = 'vcsroot.url'
-    def mergeBranchProperty = "teamcity.build.branch"
-    if(project.hasProperty(vcsRootUrlParameter) && project.hasProperty(mergeBranchProperty)) {
-        def projectIdMatcher = project.property(vcsRootUrlParameter) =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
-        def buildBranchMatcher = project.property(mergeBranchProperty) =~ /merge-requests\/(\d+)(\/head)?/
+    if(project.hasProperty('teamcity')) {
+        Properties properties = new Properties()
+        file(project.teamcity['teamcity.configuration.properties.file']).withInputStream {
+            properties.load(it)
+        }
+        def projectIdMatcher = properties."vcsroot.url" =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
+        def buildBranchMatcher = properties."teamcity.build.branch" =~ /merge-requests\/(\d+)(\/head)?/
 
         if (buildBranchMatcher.find() && projectIdMatcher.find()) {
             return "http://gitlab.t1.tenet/${projectIdMatcher.group(1)}/merge_requests/${buildBranchMatcher.group(1)}.diff"
         }
     }
 
-    // getting diff of the last commit. Can be used locally and by a teamcity build
     def file = Files.createTempFile(URLEncoder.encode(project.name, "UTF-8"), ".diff").toFile()
     def outputStream = file.newOutputStream()
     exec {
