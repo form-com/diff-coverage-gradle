@@ -102,12 +102,12 @@ subprojects{
 }
 
 ext.createDiffUrl = { ->
-    def vcsRootUrlParameter = 'vcsroot.url'
-    def mergeBranchProperty = "teamcity.build.branch"
-    println "afterEvaluate vcsroot.url=${rootProject.properties.get('vcsroot.url')}"
-    if(project.hasProperty(vcsRootUrlParameter) && project.hasProperty(mergeBranchProperty)) {
-        def projectIdMatcher = project.property(vcsRootUrlParameter) =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
-        def buildBranchMatcher = project.property(mergeBranchProperty) =~ /merge-requests\/(\d+)(\/head)?/
+    println "project.hasProperty('teamcity'): ${project.hasProperty('teamcity')}"
+    if(project.hasProperty('teamcity')) {
+        println "vcsroot.url=${project.teamcity['vcsroot.url']}"
+        println "teamcity.build.branch=${project.teamcity['teamcity.build.branch']}"
+        def projectIdMatcher = project.teamcity['vcsroot.url'] =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
+        def buildBranchMatcher = project.teamcity["teamcity.build.branch"] =~ /merge-requests\/(\d+)(\/head)?/
 
         if (buildBranchMatcher.find() && projectIdMatcher.find()) {
             return "http://gitlab.t1.tenet/${projectIdMatcher.group(1)}/merge_requests/${buildBranchMatcher.group(1)}.diff"
