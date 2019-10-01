@@ -83,9 +83,7 @@ subprojects{
     }
 
     diffCoverageReport {
-        println "vcsroot.url=${rootProject.properties.get('vcsroot.url')}"
         afterEvaluate {
-            println "afterEvaluate vcsroot.url=${rootProject.properties.get('vcsroot.url')}"
             diffSource.url = createDiffUrl()
         }
         reports {
@@ -104,9 +102,15 @@ subprojects{
 ext.createDiffUrl = { ->
     println "project.hasProperty('teamcity'): ${project.hasProperty('teamcity')}"
     if(project.hasProperty('teamcity')) {
-        println "teamcity=${project.teamcity}"
-        println "vcsroot.url=${project.teamcity['vcsroot.url']}"
-        println "teamcity.build.branch=${project.teamcity['teamcity.build.branch']}"
+        println "teamcity.runner.properties.file"
+        println file(project.teamcity['teamcity.runner.properties.file']).text
+
+        println "teamcity.configuration.properties.file"
+        println file(project.teamcity['teamcity.configuration.properties.file']).text
+
+        println "teamcity.build.properties.file"
+        println file(project.teamcity['teamcity.build.properties.file']).text
+
         def projectIdMatcher = project.teamcity['vcsroot.url'] =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
         def buildBranchMatcher = project.teamcity["teamcity.build.branch"] =~ /merge-requests\/(\d+)(\/head)?/
 
