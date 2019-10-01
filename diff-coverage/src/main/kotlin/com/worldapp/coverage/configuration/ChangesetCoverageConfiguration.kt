@@ -1,11 +1,12 @@
 package com.worldapp.coverage.configuration
 
 import org.gradle.api.Action
+import org.gradle.api.file.FileCollection
 
 open class ChangesetCoverageConfiguration(
-        var jacocoExecFile: String = "build/jacoco/test.exec",
-        var classesDir: String = "build/classes/java/main",
-        var srcDir: String = "src/main/java/",
+        var jacocoExecFiles: FileCollection? = null,
+        var classesDirs: FileCollection? = null,
+        var srcDirs: FileCollection? = null,
         var reportDir: String? = null,
         var diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
         val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
@@ -26,9 +27,9 @@ open class ChangesetCoverageConfiguration(
 
     override fun toString(): String {
         return "ChangesetCoverageConfiguration(" +
-                "jacocoExecFile=$jacocoExecFile, " +
-                "classesDir=$classesDir, " +
-                "srcDir=$srcDir, " +
+                "jacocoExecFiles=$jacocoExecFiles, " +
+                "classesDir=$classesDirs, " +
+                "srcDir=$srcDirs, " +
                 "reportDir=$reportDir, " +
                 "diffSource=$diffSource, " +
                 "violationRules=$violationRules)"

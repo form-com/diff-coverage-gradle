@@ -7,7 +7,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.kotlintest.tables.row
 
-class ClassModificationsTest: StringSpec( {
+class ClassModificationsTest : StringSpec({
 
     "isLineModified should return true or false depends on line is modified or not" {
         forall(
@@ -24,20 +24,21 @@ class ClassModificationsTest: StringSpec( {
             classModifications.isLineModified(line) shouldBe isModified
         }
     }
-} )
+})
 
-class CodeUpdateInfoTest: StringSpec( {
+class CodeUpdateInfoTest : StringSpec({
 
-    val className = "Class"
     "getClassModifications should return empty ClassModifications when no such info" {
-        assertAll(positiveIntegers()) { line  ->
+        assertAll(positiveIntegers()) { line ->
             // setup
             val codeUpdateInfo = CodeUpdateInfo(
-                    mapOf(className to setOf(12))
+                    mapOf("com/package/Class.java" to setOf(12))
             )
 
             // run
-            val classModifications = codeUpdateInfo.getClassModifications("UnknownClass")
+            val classModifications = codeUpdateInfo.getClassModifications(
+                    ClassFile("UnknownClass.java", "com/package/UnknownClass")
+            )
 
             // assert
             classModifications.isLineModified(line) shouldBe false
@@ -52,32 +53,72 @@ class CodeUpdateInfoTest: StringSpec( {
         ) { set ->
             // setup
             val codeUpdateInfo = CodeUpdateInfo(
-                    mapOf(className to set)
+                    mapOf("module/src/main/java/com/package/Class.java" to set)
             )
 
             // run
-            val infoExists = codeUpdateInfo.isInfoExists(className)
+            val infoExists = codeUpdateInfo.isInfoExists(
+                    ClassFile("Class.java", "com/package/Class")
+            )
 
             // assert
             infoExists shouldBe true
         }
     }
 
+    "getClassModifications should return modifications for class when there is similar class name exists" {
+        // setup
+        val expectedLineNumber = 1
+        val requestedLineNumber1 = 2
+        val requestedLineNumber2 = 3
+        val codeUpdateInfo = CodeUpdateInfo(
+                mapOf(
+                        "src/com/package/ClassSuffix.java" to setOf(requestedLineNumber1),
+                        "src/com/package/Class.java" to setOf(expectedLineNumber),
+                        "src/com/package/PrefixClass.java" to setOf(requestedLineNumber2)
+                )
+        )
+
+        // run
+        val modifications = codeUpdateInfo.getClassModifications(
+                ClassFile("Class.java", "com/package/Class")
+        )
+
+        // assert
+        modifications.isLineModified(2) shouldBe false
+        modifications.isLineModified(3) shouldBe false
+        modifications.isLineModified(1) shouldBe true
+    }
+
     "isInfoExists should return false when modifications info doesn't exist for class" {
         forall(
-                row("UnknownClass", mapOf(className to setOf(1, 2, 3))),
-                row(className, mapOf(className to setOf())),
-                row(className, mapOf())
-        ) { classNameToCheck, mapOfModifiedLines ->
+                row(
+                        "OtherClass.java",
+                        "com/package/OtherClass",
+                        mapOf("src/java/com/package/Class.java" to setOf(1, 2, 3))
+                ),
+                row(
+                        "Class.java",
+                        "com/package/Class",
+                        mapOf("src/java/com/package/Class.java" to setOf())
+                ),
+                row(
+                        "Class.java",
+                        "com/package/Class",
+                        mapOf()
+                )
+        ) { classSourceFile, classNameToCheck, mapOfModifiedLines ->
             // setup
             val codeUpdateInfo = CodeUpdateInfo(mapOfModifiedLines)
 
             // run
-            val infoExists = codeUpdateInfo.isInfoExists(classNameToCheck)
+            val infoExists = codeUpdateInfo.isInfoExists(
+                    ClassFile(classSourceFile, classNameToCheck)
+            )
 
             // assert
             infoExists shouldBe false
         }
     }
 
-} )
+})

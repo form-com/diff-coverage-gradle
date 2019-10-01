@@ -5,24 +5,23 @@ class CodeUpdateInfo(
         private val fileNameToModifiedLineNumbers: Map<String, Set<Int>>
 ) {
 
-    fun getClassModifications(classRelativePath: String): ClassModifications {
+    fun getClassModifications(classFile: ClassFile): ClassModifications {
         return ClassModifications(
-                getModInfoByClassName(classRelativePath)
+                getModInfoByClass(classFile)
         )
     }
 
-    fun isInfoExists(relativePath: String): Boolean {
-        return getModInfoByClassName(relativePath).isNotEmpty()
+    fun isInfoExists(classFile: ClassFile): Boolean {
+        return getModInfoByClass(classFile).isNotEmpty()
     }
 
-    private fun getModInfoByClassName(classRelativePath: String): Set<Int> {
+    private fun getModInfoByClass(classFile: ClassFile): Set<Int> {
         return fileNameToModifiedLineNumbers.asSequence()
-                .filter { it.key.contains(classRelativePath) }
+                .filter { it.key.endsWith(classFile.path) }
                 .map { it.value }
                 .firstOrNull() ?: emptySet()
     }
 }
-
 
 class ClassModifications(private val modifiedLines: Set<Int>) {
     fun isLineModified(lineNumber: Int): Boolean = modifiedLines.contains(lineNumber)

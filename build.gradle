@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.worldapp.coverage:diff-coverage:0.4.4"
+        classpath "com.worldapp.coverage:diff-coverage:0.4.5"
     }
 }
 
@@ -100,11 +100,13 @@ subprojects{
 }
 
 ext.createDiffUrl = { ->
-    def vcsRootUrlParameter = 'vcsroot.url'
-    def mergeBranchProperty = "teamcity.build.branch"
-    if(project.hasProperty(vcsRootUrlParameter) && project.hasProperty(mergeBranchProperty)) {
-        def projectIdMatcher = project.property(vcsRootUrlParameter) =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
-        def buildBranchMatcher = project.property(mergeBranchProperty) =~ /merge-requests\/(\d+)(\/head)?/
+    if(project.hasProperty('teamcity')) {
+        Properties properties = new Properties()
+        file(project.teamcity['teamcity.configuration.properties.file']).withInputStream {
+            properties.load(it)
+        }
+        def projectIdMatcher = properties."vcsroot.url" =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
+        def buildBranchMatcher = properties."teamcity.build.branch" =~ /merge-requests\/(\d+)(\/head)?/
 
         if (buildBranchMatcher.find() && projectIdMatcher.find()) {
             return "http://gitlab.t1.tenet/${projectIdMatcher.group(1)}/merge_requests/${buildBranchMatcher.group(1)}.diff"

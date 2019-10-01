@@ -5,7 +5,7 @@ buildscript {
         maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
     }
     dependencies {
-        classpath 'com.worldapp.coverage:diff-coverage:0.4.4'
+        classpath 'com.worldapp.coverage:diff-coverage:0.5.0'
     }
 }
 
@@ -15,9 +15,9 @@ apply plugin: 'com.worldapp.diff-coverage'
 diffCoverageReport {
     diffSource.file = ${PATH_TO_DIFF_FILE} // or `diffSource.url = ${URL_TO_DIFF_FILE}`. Required. 
 
-    jacocoExecFile = "/path/to/jacoco/exec/file" // Optional. default `build/jacoco/test.exec`
-    srcDir = "/path/to/sources" // Optional. Default "src/main/java/"
-    classesDir = "/path/to/compiled/classes" // Optional
+    jacocoExecFiles = file("/path/to/jacoco/exec/file") // Optional. default `build/jacoco/test.exec`
+    srcDirs = file("/path/to/sources")  // Optional. Default "src/main/java/"
+    classesDirs = file("/path/to/compiled/classes") // Optional 
     reportDir = "/path/dir/to/store/reports" // Optional. Default - jacoco report dir
 
     reports {

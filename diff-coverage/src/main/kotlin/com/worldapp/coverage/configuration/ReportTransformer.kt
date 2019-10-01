@@ -1,18 +1,17 @@
 package com.worldapp.coverage.configuration
 
 import com.worldapp.coverage.Report
-import org.gradle.testing.jacoco.plugins.JacocoPluginExtension
 import org.jacoco.core.analysis.ICoverageNode
 import org.jacoco.report.check.Limit
 import org.jacoco.report.check.Rule
 import java.io.File
 
-fun ChangesetCoverageConfiguration.toReport(jacocoPluginExtension: JacocoPluginExtension): Report {
+fun ChangesetCoverageConfiguration.toReport(reportDirPath: String): Report {
     return Report(
             reportConfiguration.html,
             reportDir
                     ?.let(::File)
-                    ?: File(jacocoPluginExtension.reportsDir, "diffCoverage"),
+                    ?: File(reportDirPath),
 
             violationRules.failOnViolation,
             listOf(buildRules(violationRules))

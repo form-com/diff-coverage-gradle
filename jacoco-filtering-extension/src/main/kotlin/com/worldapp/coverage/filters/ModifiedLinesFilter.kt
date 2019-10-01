@@ -1,6 +1,7 @@
 package com.worldapp.coverage.filters
 
-import com.worldapp.diff.ClassModifications
+import com.worldapp.diff.ClassFile
+import com.worldapp.diff.CodeUpdateInfo
 import org.jacoco.core.internal.analysis.filter.IFilter
 import org.jacoco.core.internal.analysis.filter.IFilterContext
 import org.jacoco.core.internal.analysis.filter.IFilterOutput
@@ -8,13 +9,17 @@ import org.objectweb.asm.tree.*
 import org.slf4j.LoggerFactory
 import java.util.*
 
-class ModifiedLinesFilter(private val classModifications: ClassModifications) : IFilter {
+class ModifiedLinesFilter(private val codeUpdateInfo: CodeUpdateInfo) : IFilter {
 
     override fun filter(
             methodNode: MethodNode,
             context: IFilterContext,
             output: IFilterOutput
     ) {
+        val classModifications = codeUpdateInfo.getClassModifications(ClassFile(
+                context.sourceFileName,
+                context.className
+        ))
         val groupedModifiedLines = collectLineNodes(methodNode.instructions).groupBy {
             classModifications.isLineModified(it.lineNode.line)
         }
@@ -24,11 +29,13 @@ class ModifiedLinesFilter(private val classModifications: ClassModifications) : 
         }
 
         if(log.isDebugEnabled) {
-            log.debug("Modified lines in ${context.className}#${methodNode.name}")
             groupedModifiedLines[true]
                     ?.map { it.lineNode.line }
                     ?.takeIf { it.isNotEmpty() }
-                    ?.let { log.debug("\tlines: $it") }
+                    ?.let {
+                        log.debug("Modified lines in ${context.className}#${methodNode.name}")
+                        log.debug("\tlines: $it")
+                    }
         }
     }
 
@@ -51,7 +58,6 @@ class ModifiedLinesFilter(private val classModifications: ClassModifications) : 
         lineNodes.add(currentNode)
         return lineNodes.asSequence()
     }
-
 
     private fun getNextLineNode(instructionNodes: ListIterator<AbstractInsnNode>): LineNumberNode? {
         while (instructionNodes.hasNext()) {
