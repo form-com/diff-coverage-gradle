@@ -82,6 +82,8 @@ subprojects{
         }
         executionData.from fileTree(buildDir).include("/jacoco/*.exec")
     }
+
+    diffCoverage.dependsOn += it.check
 }
 
 diffCoverageReport {
