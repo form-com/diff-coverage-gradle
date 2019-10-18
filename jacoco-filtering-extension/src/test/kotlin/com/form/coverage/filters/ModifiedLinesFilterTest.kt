@@ -17,7 +17,7 @@ class ModifiedLinesFilterTest : StringSpec({
 
     "filter should ignore all non-modified lines" {
         // setup
-        val classPackage = "com/worldapp"
+        val classPackage = "com/form"
         val classFileName = "Class.java"
         val contextClassName = "$classPackage/Class"
         val classUpdateInfo = CodeUpdateInfo(
