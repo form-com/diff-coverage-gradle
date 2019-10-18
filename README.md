@@ -50,25 +50,25 @@ The function
 ```
 ext.createDiffUrl = { ->
     if(project.hasProperty('teamcity')) {
-        Properties properties = new Properties()
-        file(project.teamcity['teamcity.configuration.properties.file']).withInputStream {
-            properties.load(it)
-        }
-        def projectIdMatcher = properties."vcsroot.url" =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
-        def buildBranchMatcher = properties."teamcity.build.branch" =~ /merge-requests\/(\d+)(\/head)?/
+        def projectIdMatcher = System.getenv('teamcity_vcsroot_url') =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
+        def buildBranchMatcher = System.getenv('teamcity_build_branch') =~ /merge-requests\/(\d+)(\/head)?/
 
         if (buildBranchMatcher.find() && projectIdMatcher.find()) {
             return "http://gitlab.t1.tenet/${projectIdMatcher.group(1)}/merge_requests/${buildBranchMatcher.group(1)}.diff"
         }
     }
 
-    def file = Files.createTempFile(URLEncoder.encode(project.name, "UTF-8"), ".diff").toFile()
-    def outputStream = file.newOutputStream()
-    exec {
-        commandLine 'git', 'diff', '@^..@'
-        standardOutput = outputStream
+    if(project.hasProperty('diffSourceFile')) {
+        return file(project.'diffSourceFile').toURI().toURL()
     }
-    outputStream.close()
+
+    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
+    file.withOutputStream { out ->
+        exec {
+            commandLine 'git', 'diff', '@^..@'
+            standardOutput = out
+        }
+    }
     return file.toURI().toURL()
 }
 ```
