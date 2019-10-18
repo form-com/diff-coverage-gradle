@@ -137,7 +137,7 @@ class ModifiedLinesDiffParserTest: StringSpec( {
         val diffFileContent = ModifiedLinesDiffParserTest::class.java.classLoader
                 .getResource("testintPatch1.patch")!!.file
                 .let(::File)
-        val modifiedFileName = "jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt"
+        val modifiedFileName = "jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt"
         val modifiedLines: Set<Int> = (7..8)
                 .union(18..32)
                 .union(40..40)
