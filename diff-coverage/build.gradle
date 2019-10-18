@@ -5,8 +5,8 @@ plugins {
     id 'jacoco'
 }
 
-group 'com.worldapp.coverage'
-version '0.5.1'
+group 'com.form.coverage'
+version '0.5.2'
 
 repositories {
     mavenCentral()
@@ -39,7 +39,7 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
-    dependsOn generateJacocoTestKitProperties
+    dependsOn += generateJacocoTestKitProperties
 }
 generateJacocoTestKitProperties.destinationFile=file("$buildDir.absolutePath/jacoco/integration.exec")
 

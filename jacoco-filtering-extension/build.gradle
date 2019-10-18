@@ -1,5 +1,5 @@
-group 'com.worldapp.coverage'
-version '0.5.1'
+group 'com.form.coverage'
+version '0.5.2'
 
 test {
     useJUnitPlatform()
