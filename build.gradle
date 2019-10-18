@@ -10,11 +10,11 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.worldapp.coverage:diff-coverage:0.5.1"
+        classpath "com.form.coverage:diff-coverage:0.5.2"
     }
 }
 
-apply plugin: 'com.worldapp.diff-coverage'
+apply plugin: 'com.form.diff-coverage'
 
 group 'com.form'
 
