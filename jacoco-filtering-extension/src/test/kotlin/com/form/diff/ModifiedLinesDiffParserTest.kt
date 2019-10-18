@@ -24,7 +24,7 @@ class ModifiedLinesDiffParserTest: StringSpec( {
     "collectModifiedLines should throw when file path cannot be parsed" {
         // setup
         val diffContent = """
-            +++path/file
+            +++ 
         """.trimIndent().lines()
 
         // run
@@ -34,6 +34,17 @@ class ModifiedLinesDiffParserTest: StringSpec( {
 
         // assert
         exception.message should startWith("Couldn't parse file relative path: ")
+    }
+
+    "collectModifiedLines should return empty map when diff file has few line breaks" {
+        // setup
+        val lines = listOf("", "")
+
+        // run
+        val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(lines)
+
+        // assert
+        collectModifiedLines shouldBe emptyMap()
     }
 
     "collectModifiedLines should throw when offset cannot be parsed" {
@@ -140,5 +151,36 @@ class ModifiedLinesDiffParserTest: StringSpec( {
 
         // assert
         collectModifiedLines shouldContainExactly mapOf(modifiedFileName to modifiedLines)
+    }
+
+    "collectModifiedLines should successfully parse diff of a patch file" {
+        // setup
+        val filePath = "jacoco-filtering-extension/src/test/resources/testintPatch1.patch"
+
+        val diffContent = """
+            --- jacoco-filtering-extension/src/test/resources/testintPatch1.patch
+            +++ jacoco-filtering-extension/src/test/resources/testintPatch1.patch
+            @@ -1,10 +1,10 @@
+            -Index: jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
+            +Index: jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
+             IDEA additional info:
+             Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+             <+>UTF-8
+             ===================================================================
+            ---- jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
+            -+++ jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
+            +--- jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
+            ++++ jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
+             @@ -4,10 +4,8 @@
+              import org.jacoco.core.internal.analysis.filter.IFilter
+              import org.jacoco.core.internal.analysis.filter.IFilterContext
+              
+        """.trimIndent().lines()
+
+        // run
+        val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+
+        // assert
+        collectModifiedLines shouldContainExactly mapOf(filePath to setOf(1, 6, 7))
     }
 } )

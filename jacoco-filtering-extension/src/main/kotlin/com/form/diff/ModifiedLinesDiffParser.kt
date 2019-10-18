@@ -105,8 +105,8 @@ class ModifiedLinesDiffParser {
         const val DELETED_LINE_SIGN = '-'
         const val NO_MOD_LINE_SIGN = ' '
 
-        const val FILE_NAME_FROM_SIGNS = "---"
-        const val FILE_NAME_TO_SIGNS = "+++"
+        const val FILE_NAME_FROM_SIGNS = "--- "
+        const val FILE_NAME_TO_SIGNS = "+++ "
         const val HUNK_RANGE_INFO_SIGNS = "@@"
     }
 }
