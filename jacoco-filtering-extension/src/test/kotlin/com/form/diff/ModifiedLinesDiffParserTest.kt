@@ -137,7 +137,7 @@ class ModifiedLinesDiffParserTest: StringSpec( {
         val diffFileContent = ModifiedLinesDiffParserTest::class.java.classLoader
                 .getResource("testintPatch1.patch")!!.file
                 .let(::File)
-        val modifiedFileName = "jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt"
+        val modifiedFileName = "jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt"
         val modifiedLines: Set<Int> = (7..8)
                 .union(18..32)
                 .union(40..40)
@@ -161,14 +161,14 @@ class ModifiedLinesDiffParserTest: StringSpec( {
             --- jacoco-filtering-extension/src/test/resources/testintPatch1.patch
             +++ jacoco-filtering-extension/src/test/resources/testintPatch1.patch
             @@ -1,10 +1,10 @@
-            -Index: jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
+            -Index: jacoco-filtering-extension/src/main/kotlin/com/prev/coverage/filters/ModifiedLinesFilter.kt
             +Index: jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
              IDEA additional info:
              Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
              <+>UTF-8
              ===================================================================
-            ---- jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
-            -+++ jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
+            ---- jacoco-filtering-extension/src/main/kotlin/com/prev/coverage/filters/ModifiedLinesFilter.kt
+            -+++ jacoco-filtering-extension/src/main/kotlin/com/prev/coverage/filters/ModifiedLinesFilter.kt
             +--- jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
             ++++ jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
              @@ -4,10 +4,8 @@

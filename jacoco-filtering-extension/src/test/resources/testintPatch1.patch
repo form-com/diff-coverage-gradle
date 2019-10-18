@@ -1,10 +1,10 @@
-Index: jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt
+Index: jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt
 IDEA additional info:
 Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
 <+>UTF-8
 ===================================================================
---- jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt	(revision 7c5d3c0103a70a47a9fa119cb620045957f9fc77)
-+++ jacoco-filtering-extension/src/main/kotlin/com/worldapp/coverage/filters/ModifiedLinesFilter.kt	(revision 4623b37b5e759386f58cb3c38d87a8ddb247a17d)
+--- jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt	(revision 7c5d3c0103a70a47a9fa119cb620045957f9fc77)
++++ jacoco-filtering-extension/src/main/kotlin/com/form/coverage/filters/ModifiedLinesFilter.kt	(revision 4623b37b5e759386f58cb3c38d87a8ddb247a17d)
 @@ -4,10 +4,8 @@
  import org.jacoco.core.internal.analysis.filter.IFilter
  import org.jacoco.core.internal.analysis.filter.IFilterContext
