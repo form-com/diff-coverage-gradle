@@ -5,12 +5,12 @@ buildscript {
         maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
     }
     dependencies {
-        classpath 'com.worldapp.coverage:diff-coverage:0.5.0'
+        classpath 'com.form.coverage:diff-coverage:0.5.2'
     }
 }
 
 apply plugin: 'jacoco'
-apply plugin: 'com.worldapp.diff-coverage'
+apply plugin: 'com.form.diff-coverage'
 
 diffCoverageReport {
     diffSource.file = ${PATH_TO_DIFF_FILE} // or `diffSource.url = ${URL_TO_DIFF_FILE}`. Required. 

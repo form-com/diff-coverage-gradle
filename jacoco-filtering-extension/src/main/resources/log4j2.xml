@@ -12,7 +12,7 @@
         </Console>
     </appenders>
     <Loggers>
-        <logger name="com.worldapp" level="trace" additivity="false">
+        <logger name="com.form" level="trace" additivity="false">
             <AppenderRef ref="Console" />
         </logger>
     </Loggers>
