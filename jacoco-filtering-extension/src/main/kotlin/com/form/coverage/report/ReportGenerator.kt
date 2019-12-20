@@ -1,44 +1,56 @@
 package com.form.coverage.report
 
-import com.form.coverage.Report
-import com.form.coverage.createVisitor
-import com.form.coverage.filters.ModifiedLinesFilter
-import com.form.diff.CodeUpdateInfo
+import com.form.coverage.report.analyzable.AnalyzableReport
+import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.CoverageBuilder
 import org.jacoco.core.analysis.IBundleCoverage
-import org.jacoco.core.internal.analysis.FilteringAnalyzer
+import org.jacoco.core.analysis.ICoverageVisitor
 import org.jacoco.core.tools.ExecFileLoader
 import org.jacoco.report.DirectorySourceFileLocator
 import org.jacoco.report.ISourceFileLocator
 import org.jacoco.report.MultiSourceFileLocator
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.io.IOException
 
 class ReportGenerator(
         private val projectDirectory: File,
         private val jacocoExec: Set<File>,
         classesSources: Set<File>,
-        src: Set<File>,
-        private val codeUpdateInfo: CodeUpdateInfo,
-        private val tabWidth: Int = 4
+        src: Set<File>
 ) {
+    private val tabWidth: Int = 4
 
     private val classesSources: Set<File> = classesSources.filter(File::exists).toSet()
     private val src: Set<File> = src.filter(File::exists).toSet()
 
-    fun create(
-            report: Report
-    ): File {
-        val execFileLoader = ExecFileLoader().apply {
-            jacocoExec.forEach{
-                log.debug("Loading exec data $it")
-                load(it)
+    fun create(analyzableReports: Set<AnalyzableReport>) {
+        val execFileLoader = loadExecFiles()
+
+        analyzableReports.forEach {
+            create(execFileLoader, it)
+        }
+    }
+
+    private fun loadExecFiles(): ExecFileLoader {
+        val execFileLoader = ExecFileLoader()
+        jacocoExec.forEach {
+            log.debug("Loading exec data $it")
+            try {
+                execFileLoader.load(it)
+            } catch (e: IOException) {
+                throw RuntimeException("Cannot load coverage data from file: $it", e)
             }
         }
+        return execFileLoader
+    }
 
-        val bundleCoverage = analyzeStructure(execFileLoader)
+    private fun create(execFileLoader: ExecFileLoader, analyzableReport: AnalyzableReport) {
+        val bundleCoverage = analyzeStructure { coverageVisitor ->
+            analyzableReport.buildAnalyzer(execFileLoader.executionDataStore, coverageVisitor)
+        }
 
-        createVisitor(report).run {
+        analyzableReport.buildVisitor().run {
             visitInfo(
                     execFileLoader.sessionInfoStore.infos,
                     execFileLoader.executionDataStore.contents
@@ -51,18 +63,14 @@ class ReportGenerator(
 
             visitEnd()
         }
-        return report.htmlReportOutputDir
     }
 
-    private fun analyzeStructure(execFileLoader: ExecFileLoader): IBundleCoverage {
+    private fun analyzeStructure(
+            createAnalyzer: (ICoverageVisitor) -> Analyzer
+    ): IBundleCoverage {
         CoverageBuilder().let { builder ->
-            val analyzer = FilteringAnalyzer(
-                    execFileLoader.executionDataStore,
-                    builder,
-                    codeUpdateInfo::isInfoExists
-            ) {
-                ModifiedLinesFilter(codeUpdateInfo)
-            }
+
+            val analyzer = createAnalyzer(builder)
 
             classesSources.forEach{ analyzer.analyzeAll(it) }
 

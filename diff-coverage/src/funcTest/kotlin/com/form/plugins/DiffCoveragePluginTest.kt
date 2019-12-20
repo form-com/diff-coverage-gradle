@@ -4,8 +4,6 @@ import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.*
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.rules.TemporaryFolder
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
@@ -13,6 +11,10 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import java.io.File
 import java.nio.file.Paths
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 
 
 class DiffCoveragePluginTest {
@@ -88,8 +90,9 @@ class DiffCoveragePluginTest {
     }
 
     @Test
-    fun `diff-coverage should create diffCoverage dir with html report`() {
+    fun `diff-coverage should create diffCoverage dir and full coverage with html report`() {
         // setup
+        val baseReportDir = "build/custom/reports/dir/jacoco/"
         buildFile.appendText("""
             
             diffCoverageReport {
@@ -98,25 +101,45 @@ class DiffCoveragePluginTest {
                 }
                 reports {
                     html = true
+                    fullCoverageReport = true
+                    baseReportDir = '$baseReportDir'
                 }
             }
         """.trimIndent())
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
+                .withArguments("diffCoverage", "--info")
+                .withDebug(true)
                 .build()
 
         // assert
         assertTrue(result.output.contains("diffCoverage"))
         assertEquals(SUCCESS, result.task(":diffCoverage")!!.outcome)
 
-        val diffCoverageReportDir = Paths.get(
+        val reportDir = Paths.get(
                 testProjectDir.root.absolutePath,
-                "build/reports/jacoco/diffCoverage"
-        ).toFile()
+                baseReportDir
+        )
 
-        assertTrue(diffCoverageReportDir.list()!!.isNotEmpty())
+        val expectedFiles = arrayOf(
+                "com.java.test",
+                "index.html",
+                "jacoco-resources",
+                "jacoco-sessions.html"
+        )
+
+        val diffCoverageReportDir = reportDir.resolve(
+                Paths.get("diffCoverage", "html")
+        ).toFile()
+        assertThat(diffCoverageReportDir.list())
+                .containsExactlyInAnyOrder(*expectedFiles)
+
+        val fullReportDir = reportDir.resolve(
+                Paths.get("fullReport", "html")
+        ).toFile()
+        assertThat(fullReportDir.list())
+                .containsExactlyInAnyOrder(*expectedFiles)
     }
 
     @Test
