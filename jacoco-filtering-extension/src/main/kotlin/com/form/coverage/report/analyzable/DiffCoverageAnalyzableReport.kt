@@ -11,7 +11,6 @@ import org.jacoco.report.MultiReportVisitor
 import org.jacoco.report.check.Rule
 import org.jacoco.report.check.RulesChecker
 import org.slf4j.LoggerFactory
-import java.util.*
 
 internal class DiffCoverageAnalyzableReport(
         private val reportMode: DiffReport
@@ -46,8 +45,8 @@ internal class DiffCoverageAnalyzableReport(
     }
 
     private fun createViolationCheckVisitor(
-            failOnViolation: Boolean = true,
-            rules: List<Rule> = ArrayList()
+            failOnViolation: Boolean,
+            rules: List<Rule>
     ): IReportVisitor {
         val log = LoggerFactory.getLogger("ViolationRules")
         val violations = mutableListOf<String>()
