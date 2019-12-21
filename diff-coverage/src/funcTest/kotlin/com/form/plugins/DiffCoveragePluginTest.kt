@@ -1,9 +1,12 @@
 package com.form.plugins
 
+import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.rules.TemporaryFolder
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
@@ -11,10 +14,6 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import java.io.File
 import java.nio.file.Paths
-
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 
 
 class DiffCoveragePluginTest {
@@ -27,6 +26,13 @@ class DiffCoveragePluginTest {
         lateinit var mockServer: ClientAndServer
 
         const val SERVER_PORT = 1080
+
+        val expectedReportFiles = arrayOf(
+                "com.java.test",
+                "index.html",
+                "jacoco-resources",
+                "jacoco-sessions.html"
+        )
 
         @BeforeClass
         @JvmStatic
@@ -122,33 +128,36 @@ class DiffCoveragePluginTest {
                 baseReportDir
         )
 
-        val expectedFiles = arrayOf(
-                "com.java.test",
-                "index.html",
-                "jacoco-resources",
-                "jacoco-sessions.html"
-        )
-
         val diffCoverageReportDir = reportDir.resolve(
                 Paths.get("diffCoverage", "html")
         ).toFile()
         assertThat(diffCoverageReportDir.list())
-                .containsExactlyInAnyOrder(*expectedFiles)
+                .containsExactlyInAnyOrder(*expectedReportFiles)
 
         val fullReportDir = reportDir.resolve(
                 Paths.get("fullReport", "html")
         ).toFile()
         assertThat(fullReportDir.list())
-                .containsExactlyInAnyOrder(*expectedFiles)
+                .containsExactlyInAnyOrder(*expectedReportFiles)
     }
 
     @Test
-    fun `diff-coverage should fail on violation`() {
+    fun `diff-coverage should fail on violation and generate html report`() {
         // setup
+        val absolutePathBaseReportDir = testProjectDir.root.toPath()
+                .resolve("build/absolute/path/reports/jacoco/")
+                .toAbsolutePath()
+                .toString()
+                .replace("\\", "/")
+        println(absolutePathBaseReportDir)
         buildFile.appendText("""
             
             diffCoverageReport {
                 diffSource.file = '$diffFilePath' 
+                reports {
+                    html = true
+                    baseReportDir = '$absolutePathBaseReportDir'
+                }
                 violationRules {
                     minBranches = 0.6
                     minLines = 0.7
@@ -168,6 +177,10 @@ class DiffCoveragePluginTest {
         assertTrue(result.output.contains("branches covered ratio is 0.5, but expected minimum is 0.6"))
         assertTrue(result.output.contains("lines covered ratio is 0.6, but expected minimum is 0.7"))
         assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
+
+        val diffCoverageReportDir = Paths.get(absolutePathBaseReportDir, "diffCoverage", "html").toFile()
+        assertThat(diffCoverageReportDir.list())
+                .containsExactlyInAnyOrder(*expectedReportFiles)
     }
 
     @Test

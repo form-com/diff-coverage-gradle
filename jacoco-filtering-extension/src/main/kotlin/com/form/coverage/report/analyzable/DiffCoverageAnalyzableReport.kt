@@ -21,12 +21,10 @@ internal class DiffCoverageAnalyzableReport(
                 super.buildVisitor()
         )
 
-        if (reportMode.violation.violationRules.isNotEmpty()) {
-            visitors += createViolationCheckVisitor(
-                    reportMode.violation.failOnViolation,
-                    reportMode.violation.violationRules
-            )
-        }
+        visitors += createViolationCheckVisitor(
+                reportMode.violation.failOnViolation,
+                reportMode.violation.violationRules
+        )
 
         return MultiReportVisitor(visitors)
     }
