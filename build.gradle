@@ -95,13 +95,14 @@ diffCoverageReport {
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
     reports {
         html = true
+        fullCoverageReport = true
     }
 
     violationRules {
-        minBranches = 1
-        minLines = 1
-        minInstructions = 1
-        failOnViolation = false
+        minBranches = 0.9
+        minLines = 0.9
+        minInstructions = 0.9
+        failOnViolation = true
     }
 }
 
@@ -119,13 +120,16 @@ ext.createDiffUrl = { ->
         }
     }
 
-    def file = Files.createTempFile(URLEncoder.encode(project.name, "UTF-8"), ".diff").toFile()
-    def outputStream = file.newOutputStream()
-    exec {
-        commandLine 'git', 'diff', '@^..@'
-        standardOutput = outputStream
+    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
+    logger.warn("Computing coverage for changes between $diffBase and current state (including uncommitted)")
+
+    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
+    file.withOutputStream { out ->
+        exec {
+            commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
+            standardOutput = out
+        }
     }
-    outputStream.close()
     return file.toURI().toURL()
 }
 
