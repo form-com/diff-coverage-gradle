@@ -67,7 +67,7 @@ class DiffCoveragePluginTest {
 
         diffFilePath = getResourceFile<DiffCoveragePluginTest>("test.diff.file")
                 .copyTo(testProjectDir.newFile("1.diff"), true)
-                .absolutePath
+                .absolutePath.replace("\\", "/")
 
         getResourceFile<DiffCoveragePluginTest>("src")
                 .copyRecursively(

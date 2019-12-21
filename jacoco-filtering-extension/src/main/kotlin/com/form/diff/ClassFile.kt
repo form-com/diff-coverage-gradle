@@ -7,5 +7,7 @@ class ClassFile(
         private val className: String
 ) {
     val path: String
-        get() = "${Paths.get(className).parent}/${sourceFileName}"
+        get() = Paths.get(className).parent
+                .resolve(sourceFileName).toString()
+                .replace("\\", "/")
 }
