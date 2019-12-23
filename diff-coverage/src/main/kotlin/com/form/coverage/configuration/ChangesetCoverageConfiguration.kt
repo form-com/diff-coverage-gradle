@@ -2,12 +2,12 @@ package com.form.coverage.configuration
 
 import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
+import java.nio.file.Paths
 
 open class ChangesetCoverageConfiguration(
         var jacocoExecFiles: FileCollection? = null,
         var classesDirs: FileCollection? = null,
         var srcDirs: FileCollection? = null,
-        var reportDir: String? = null,
         var diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
         val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
         val violationRules: ViolationRules = ViolationRules()
@@ -28,10 +28,10 @@ open class ChangesetCoverageConfiguration(
     override fun toString(): String {
         return "ChangesetCoverageConfiguration(" +
                 "jacocoExecFiles=$jacocoExecFiles, " +
-                "classesDir=$classesDirs, " +
-                "srcDir=$srcDirs, " +
-                "reportDir=$reportDir, " +
+                "classesDirs=$classesDirs, " +
+                "srcDirs=$srcDirs, " +
                 "diffSource=$diffSource, " +
+                "reportConfiguration=$reportConfiguration, " +
                 "violationRules=$violationRules)"
     }
 }
@@ -39,11 +39,21 @@ open class ChangesetCoverageConfiguration(
 open class DiffSourceConfiguration(
         var file: String = "",
         var url: String = ""
-)
+) {
+    override fun toString(): String {
+        return "DiffSourceConfiguration(file='$file', url='$url')"
+    }
+}
 
 open class ReportsConfiguration(
-        var html: Boolean = false
-)
+        var html: Boolean = false,
+        var baseReportDir: String = Paths.get("build", "reports", "jacoco").toString(),
+        var fullCoverageReport: Boolean = false
+) {
+    override fun toString(): String {
+        return "ReportsConfiguration(html=$html, baseReportDir='$baseReportDir', fullCoverageReport=$fullCoverageReport)"
+    }
+}
 
 open class ViolationRules(
         var minLines: Double = 0.0,
