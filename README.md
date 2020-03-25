@@ -5,7 +5,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.form.coverage:diff-coverage:0.6.0'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.6.0'
     }
 }
 
@@ -34,12 +34,7 @@ diffCoverageReport {
 }
 ```
 
-The function below can work in two mods: `current & 'diffBase' branches diff` and `merge request`
-* `current & 'diffBase' branches diff` - works by default. Can be run locally. Takes changes from the the current branch and specified 'diffBase'.
-    If 'diffBase' is not specified then 'HEAD' will be used.
-* `merge request` - Teamcity only mode. Takes properties from merge-request build and computes changes provided by the merge request
-
-Usage
+Diff file creation example
 ```
 diffCoverageReport {
     afterEvaluate {
@@ -50,6 +45,7 @@ diffCoverageReport {
 ```
 The function
 ```
+// Takes changes from the the current branch and specified 'diffBase'. If 'diffBase' is not specified then 'HEAD' will be used.
 ext.createDiffUrl = { ->
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
     logger.warn("Computing coverage for changes between $diffBase and current state (including uncommitted)")
