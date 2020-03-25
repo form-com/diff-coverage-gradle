@@ -2,7 +2,7 @@ Setup your project with the plugin:
 ```
 buildscript {
     repositories {
-        maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.form.coverage:diff-coverage:0.6.0'
@@ -51,15 +51,6 @@ diffCoverageReport {
 The function
 ```
 ext.createDiffUrl = { ->
-    if(project.hasProperty('teamcity')) {
-        def projectIdMatcher = System.getenv('teamcity_vcsroot_url') =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
-        def buildBranchMatcher = System.getenv('teamcity_build_branch') =~ /merge-requests\/(\d+)(\/head)?/
-
-        if (buildBranchMatcher.find() && projectIdMatcher.find()) {
-            return "http://gitlab.t1.tenet/${projectIdMatcher.group(1)}/merge_requests/${buildBranchMatcher.group(1)}.diff"
-        }
-    }
-
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
     logger.warn("Computing coverage for changes between $diffBase and current state (including uncommitted)")
 

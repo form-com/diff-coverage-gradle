@@ -1,26 +1,20 @@
-import java.nio.file.Files
-
 buildscript {
-    ext.kotlin_version = '1.3.61'
+    ext.kotlin_version = '1.3.70'
 
     repositories {
         jcenter()
         mavenCentral()
-        maven { url "http://nexus.t1.tenet/nexus/content/repositories/public/" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "com.form.coverage:diff-coverage:0.5.2"
     }
 }
-
-apply plugin: 'com.form.diff-coverage'
 
 group 'com.form'
 
 subprojects{
     apply plugin: 'kotlin'
-    apply plugin: 'maven-publish'
+    apply plugin: 'maven'
     apply plugin: 'jacoco'
 
     repositories {
@@ -47,33 +41,23 @@ subprojects{
     }
     sourceCompatibility = 1.8
 
-    def subProjectName=it.name
-    publishing {
-        publications {
-            "${subProjectName}"(MavenPublication) {
-                from components.java
-            }
-        }
-        if (project.hasProperty('nexusRepo')) {
-            repositories {
-                maven {
-                    name 'nexus'
-                    url "$nexusRepo/content/repositories/releases/"
-                    credentials {
-                        username = nexusUsername
-                        password = nexusPassword
-                    }
-                }
-            }
-        }
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier 'sources'
+        from sourceSets.main.allSource
     }
 
-    tasks.matching { it.name.endsWith("PublicationToNexusRepository") }.all {
-        onlyIf { project.hasProperty('release') && project.property('release').toBoolean() }
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    artifacts {
+        archives sourcesJar
+        archives javadocJar
     }
 
     jacoco {
-        toolVersion = "0.8.3"
+        toolVersion = "0.8.5"
     }
 
     jacocoTestReport {
@@ -81,59 +65,5 @@ subprojects{
             html.enabled = true
         }
         executionData.from fileTree(buildDir).include("/jacoco/*.exec")
-    }
-
-    diffCoverage.dependsOn += it.check
-}
-
-diffCoverageReport {
-    afterEvaluate {
-        diffSource.url = createDiffUrl()
-    }
-    jacocoExecFiles = files(subprojects.jacocoTestReport.executionData)
-    classesDirs = files(subprojects.jacocoTestReport.classDirectories)
-    srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
-    reports {
-        html = true
-    }
-
-    violationRules {
-        minBranches = 0.9
-        minLines = 0.9
-        minInstructions = 0.9
-        failOnViolation = true
-    }
-}
-
-ext.createDiffUrl = { ->
-    if(project.hasProperty('teamcity')) {
-        Properties properties = new Properties()
-        file(project.teamcity['teamcity.configuration.properties.file']).withInputStream {
-            properties.load(it)
-        }
-        def projectIdMatcher = properties."vcsroot.url" =~ /http:\/\/gitlab\.t1\.tenet\/(.+)\.git/
-        def buildBranchMatcher = properties."teamcity.build.branch" =~ /merge-requests\/(\d+)(\/head)?/
-
-        if (buildBranchMatcher.find() && projectIdMatcher.find()) {
-            return "http://gitlab.t1.tenet/${projectIdMatcher.group(1)}/merge_requests/${buildBranchMatcher.group(1)}.diff"
-        }
-    }
-
-    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-    logger.warn("Computing coverage for changes between $diffBase and current state (including uncommitted)")
-
-    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
-    file.withOutputStream { out ->
-        exec {
-            commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
-            standardOutput = out
-        }
-    }
-    return file.toURI().toURL()
-}
-
-task clean {
-    doLast {
-        delete project.buildDir
     }
 }
