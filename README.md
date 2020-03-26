@@ -54,7 +54,9 @@ import java.nio.file.Files
 // Takes changes from the the current branch and specified 'diffBase'. If 'diffBase' is not specified then 'HEAD' will be used.
 ext.createDiffUrl = { ->
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-    logger.warn("Computing coverage for changes between $diffBase and current state (including uncommitted)")
+    afterEvaluate {
+        logger.info("Computing coverage for changes between $diffBase and current state (including uncommitted)")
+    }
 
     def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
     file.withOutputStream { out ->

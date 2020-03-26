@@ -98,8 +98,9 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
 
 ext.createDiffUrl = { ->
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-    logger.warn("Computing coverage for changes between $diffBase and current state (including uncommitted)")
-
+    afterEvaluate {
+        logger.info("Computing coverage for changes between $diffBase and current state (including uncommitted)")
+    }
     def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
     file.withOutputStream { out ->
         exec {
