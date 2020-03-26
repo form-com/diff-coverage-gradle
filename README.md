@@ -1,4 +1,9 @@
 [![](https://jitpack.io/v/form-com/diff-coverage-gradle.svg)](https://jitpack.io/#form-com/diff-coverage-gradle)
+[![GitHub stars](https://img.shields.io/github/stars/form-com/diff-coverage-gradle?style=flat-square)](https://github.com/form-com/diff-coverage-gradle/stargazers)
+
+![CI](https://github.com/form-com/diff-coverage-gradle/workflows/CI/badge.svg)
+[![GitHub issues](https://img.shields.io/github/issues/form-com/diff-coverage-gradle)](https://github.com/form-com/diff-coverage-gradle/issues)
+
 
 Setup your project with the plugin:
 ```
