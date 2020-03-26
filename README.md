@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/form-com/diff-coverage-gradle.svg)](https://jitpack.io/#form-com/diff-coverage-gradle)
+
 Setup your project with the plugin:
 ```
 buildscript {
@@ -45,6 +47,10 @@ diffCoverageReport {
 ```
 The function
 ```
+import java.nio.file.Files
+
+...
+
 // Takes changes from the the current branch and specified 'diffBase'. If 'diffBase' is not specified then 'HEAD' will be used.
 ext.createDiffUrl = { ->
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
