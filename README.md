@@ -59,6 +59,8 @@ diffCoverageReport {
             classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.6.0'
         }
     }
+    
+    apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'com.form.diff-coverage'
 
@@ -86,13 +88,6 @@ diffCoverageReport {
     
         reports {
             html = true
-        }
-    
-        violationRules {
-            minBranches = 0.9
-            minLines = 0.9
-            minInstructions = 0.9
-            failOnViolation = true 
         }
     }
   ```  
