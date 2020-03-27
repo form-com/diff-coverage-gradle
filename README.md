@@ -11,9 +11,6 @@ Why should I use it?
 * helps to increase total code coverage(especially useful for old legacy projects)
 * reduces time during code review(you don't need to waste your time to track what code is covered)
 
-Reports
-Violations
-
 ## Installation
 Add plugin dependency  
 ```
@@ -42,11 +39,6 @@ diffCoverageReport {
 
     reports {
         html = true
-    }
-
-    violationRules {
-        minLines = 0.9
-        failOnViolation = true
     }
 }
 ```
@@ -109,6 +101,9 @@ diffCoverageReport {
 
 ## Parameters description
 
+## Configure violations
+Violations
+
 ## Execute
 
 ```
@@ -116,7 +111,13 @@ diffCoverageReport {
 ```
 
 ## HTML report example
+
 Diff coverage HTML report
-![diff Coverage](https://user-images.githubusercontent.com/8483470/77778911-a7e5cc00-7049-11ea-89b3-eff3ec8ad6a7.png)
-JaCoCo HTML report
-![JaCoCo Full report](https://user-images.githubusercontent.com/8483470/77778976-be8c2300-7049-11ea-93d0-d0e23b34ba75.png)
+
+<img src="https://user-images.githubusercontent.com/8483470/77781538-a74f3480-704d-11ea-9e39-051f1001b88a.png" width=500 />
+
+<details>
+  <summary>JaCoCo HTML report</summary> 
+  <img src="https://user-images.githubusercontent.com/8483470/77781534-a61e0780-704d-11ea-871e-879fb45757cd.png" width=500 />        
+</details>
+
