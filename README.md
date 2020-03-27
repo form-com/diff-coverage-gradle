@@ -1,8 +1,9 @@
 # Diff coverage gradle plugin 
 [![](https://jitpack.io/v/form-com/diff-coverage-gradle.svg)](https://jitpack.io/#form-com/diff-coverage-gradle) 
-[![GitHub stars](https://img.shields.io/github/stars/form-com/diff-coverage-gradle?style=flat-square)](https://github.com/form-com/diff-coverage-gradle/stargazers) 
 ![CI](https://github.com/form-com/diff-coverage-gradle/workflows/CI/badge.svg) 
+[![codecov](https://codecov.io/gh/form-com/diff-coverage-gradle/branch/master/graph/badge.svg)](https://codecov.io/gh/form-com/diff-coverage-gradle)
 [![GitHub issues](https://img.shields.io/github/issues/form-com/diff-coverage-gradle)](https://github.com/form-com/diff-coverage-gradle/issues)
+[![GitHub stars](https://img.shields.io/github/stars/form-com/diff-coverage-gradle?style=flat-square)](https://github.com/form-com/diff-coverage-gradle/stargazers) 
 
 `Diff coverage` is JaCoCo extension that computes code coverage of new/modified code based on a provided [diff](https://en.wikipedia.org/wiki/Diff#Unified_format) file. 
 
