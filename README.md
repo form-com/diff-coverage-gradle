@@ -68,10 +68,11 @@ ext.createDiffUrl = { ->
 }
 ```
 
-
 <details>
-  <summary>Full example</summary>
-    ```
+  <summary>Full example</summary> 
+   
+   
+  ```
     buildscript {
         repositories {
             maven { url 'https://jitpack.io' }
@@ -115,10 +116,12 @@ ext.createDiffUrl = { ->
             failOnViolation = true 
         }
     }
-    ```  
+  ```  
+    
 </details>
 
-##Parameters description
+
+## Parameters description
 
 ## Execute
 
@@ -126,5 +129,5 @@ ext.createDiffUrl = { ->
 ./gradlew clean check diffCoverage -PdiffBase=master
 ```
 
-##HTML report example
+## HTML report example
 
