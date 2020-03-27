@@ -116,4 +116,7 @@ diffCoverageReport {
 ```
 
 ## HTML report example
-
+Diff coverage HTML report
+![diff Coverage](https://user-images.githubusercontent.com/8483470/77778911-a7e5cc00-7049-11ea-89b3-eff3ec8ad6a7.png)
+JaCoCo HTML report
+![JaCoCo Full report](https://user-images.githubusercontent.com/8483470/77778976-be8c2300-7049-11ea-93d0-d0e23b34ba75.png)
