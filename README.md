@@ -50,29 +50,14 @@ diffCoverageReport {
     }
 }
 ```
-Generation of diff file using `git diff` tool
-```
-import java.nio.file.Files
-
-// Takes changes from the the current branch and specified 'diffBase'. If 'diffBase' is not specified then 'HEAD' will be used.
-ext.createDiffUrl = { ->
-    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
-    file.withOutputStream { out ->
-        exec {
-            commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
-            standardOutput = out
-        }
-    }
-    return file.toURI().toURL()
-}
-```
 
 <details>
   <summary>Full example</summary> 
    
    
   ```
+    import java.nio.file.Files
+
     buildscript {
         repositories {
             maven { url 'https://jitpack.io' }
@@ -83,7 +68,8 @@ ext.createDiffUrl = { ->
     }
     apply plugin: 'jacoco'
     apply plugin: 'com.form.diff-coverage'
-    
+
+    // Generate diff file using `git diff` tool    
     ext.createDiffUrl = { ->
         def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
         def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
