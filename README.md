@@ -29,7 +29,7 @@ Apply `JaCoCo`(for coverage data generation) and `Diff Coverage`(for diff report
 apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
 ```
-Configure `Diff Coverage` plugin
+## Configuration
 ```
 diffCoverageReport {
     diffSource.file = ${PATH_TO_DIFF_FILE} 
@@ -161,7 +161,7 @@ Failed:
 
 ## HTML report example
 
-`DiffCoverage` plugin generates standard JaCoCo HTML report, but highlights only modified code
+`Diff Coverage` plugin generates standard JaCoCo HTML report, but highlights only modified code
 
 <img src="https://user-images.githubusercontent.com/8483470/77781538-a74f3480-704d-11ea-9e39-051f1001b88a.png" width=500  alt="DiffCoverage HTML report"/>
 
