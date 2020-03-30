@@ -9,9 +9,9 @@
 `Diff coverage` is JaCoCo extension that computes code coverage of new/modified code based on a provided [diff](https://en.wikipedia.org/wiki/Diff#Unified_format) file. 
 
 Why should I use it?
-* makes each developer to be responsible of the own code quality(see [diffCoverage task](#gradle-task-description))
+* forces each developer to be responsible for its own code quality(see [diffCoverage task](#gradle-task-description))
 * helps to increase total code coverage(especially useful for old legacy projects)
-* reduces time during code review(you don't need to waste your time to track what code is covered)
+* reduces time of code review(you don't need to waste your time to track what code is covered)
 
 ## Installation
 Add plugin dependency  
