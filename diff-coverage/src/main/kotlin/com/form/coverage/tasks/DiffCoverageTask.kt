@@ -59,7 +59,10 @@ open class DiffCoverageTask : DefaultTask() {
     @TaskAction
     fun executeAction() {
         log.info("DiffCoverage configuration: $diffCoverageReport")
-        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(diffCoverageReport.diffSource)
+        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(
+                project.rootProject.projectDir,
+                diffCoverageReport.diffSource
+        )
         fileNameToModifiedLineNumbers.forEach { (file, rows) ->
             log.info("File $file has ${rows.size} modified lines")
             log.debug("File $file has modified lines $rows")
@@ -103,9 +106,9 @@ open class DiffCoverageTask : DefaultTask() {
         return project.tasks.findByName("jacocoTestReport") as? JacocoReport
     }
 
-    private fun obtainUpdatesInfo(diffFilePath: DiffSourceConfiguration): Map<String, Set<Int>> {
-        val diffSource = getDiffSource(diffFilePath).apply {
-            log.debug("Starting to retrieve modified lines from $sourceType $sourceLocation")
+    private fun obtainUpdatesInfo(projectRoot: File, diffFilePath: DiffSourceConfiguration): Map<String, Set<Int>> {
+        val diffSource = getDiffSource(projectRoot, diffFilePath).apply {
+            log.debug("Starting to retrieve modified lines from $sourceType '$sourceLocation'")
         }
 
         return ModifiedLinesDiffParser().collectModifiedLines(
