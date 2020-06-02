@@ -1,5 +1,6 @@
 package com.form.plugins
 
+import com.form.coverage.Git
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
@@ -115,8 +116,7 @@ class DiffCoveragePluginTest {
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage", "--info")
-                .withDebug(true)
+                .withArguments("diffCoverage")
                 .build()
 
         // assert
@@ -142,6 +142,54 @@ class DiffCoveragePluginTest {
     }
 
     @Test
+    fun `diff-coverage should use git to generate diff`() {
+        // setup
+        File("../.gitignore").copyTo(testProjectDir.root.resolve(".gitignore"))
+        val git = Git(testProjectDir.root)
+        git.apply {
+            exec("init")
+            exec("add", ".gitignore")
+            exec("commit", "-m", "\"initial commit\"")
+        }
+
+        testProjectDir.root.toPath().resolve("src/main/java/com/java/test/Class1.java").let {
+            getResourceFile<DiffCoveragePluginTest>("Class1GitTest.java")
+                    .copyTo(it.toFile(), true)
+        }
+        git.apply {
+            exec("add", ".")
+            exec("commit", "-m", "\"add all\"")
+        }
+
+        getResourceFile<DiffCoveragePluginTest>("src").copyRecursively(
+                testProjectDir.root.resolve(File("src")),
+                true
+        )
+
+        buildFile.appendText("""
+            
+            diffCoverageReport {
+                diffSource {
+                    git.compareWith 'HEAD'
+                }
+                violationRules {
+                    minLines = 0.7
+                    failOnViolation = true 
+                }
+            }
+        """.trimIndent())
+
+        // run
+        val result = gradleRunner
+                .withArguments("diffCoverage")
+                .buildAndFail()
+
+        // assert
+        assertTrue(result.output.contains("lines covered ratio is 0.6, but expected minimum is 0.7"))
+        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
+    }
+
+    @Test
     fun `diff-coverage should fail on violation and generate html report`() {
         // setup
         val absolutePathBaseReportDir = testProjectDir.root.toPath()
@@ -149,7 +197,7 @@ class DiffCoveragePluginTest {
                 .toAbsolutePath()
                 .toString()
                 .replace("\\", "/")
-        println(absolutePathBaseReportDir)
+
         buildFile.appendText("""
             
             diffCoverageReport {

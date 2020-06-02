@@ -1,12 +1,14 @@
 package com.form.coverage.configuration.diff
 
 import com.form.coverage.configuration.DiffSourceConfiguration
+import com.form.coverage.configuration.GitConfiguration
 import io.kotlintest.matchers.startWith
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.should
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.StringSpec
+import java.io.File
 
 class DiffSourceKtTest : StringSpec({
 
@@ -16,7 +18,7 @@ class DiffSourceKtTest : StringSpec({
         val diffConfig = DiffSourceConfiguration(file = filePath)
 
         // run
-        val diffSource = getDiffSource(diffConfig)
+        val diffSource = getDiffSource(File("."), diffConfig)
 
         // assert
         diffSource.shouldBeTypeOf<FileDiffSource>()
@@ -30,7 +32,7 @@ class DiffSourceKtTest : StringSpec({
         val diffConfig = DiffSourceConfiguration(url = url)
 
         // run
-        val diffSource = getDiffSource(diffConfig)
+        val diffSource = getDiffSource(File("."), diffConfig)
 
         // assert
         diffSource.shouldBeTypeOf<UrlDiffSource>()
@@ -44,23 +46,25 @@ class DiffSourceKtTest : StringSpec({
 
         // run
         val exception = shouldThrow<IllegalStateException> {
-            getDiffSource(diffConfig)
+            getDiffSource(File("."), diffConfig)
         }
 
         // assert
-        exception.message should startWith("Expected file or URL diff source but both are blank")
+        exception.message should startWith("Expected Git configuration or file or URL diff source but all are blank")
     }
 
     "getDiffSource should throw when both source specified" {
         // setup
-        val diffConfig = DiffSourceConfiguration(file = "file", url = "url")
+        val diffConfig = DiffSourceConfiguration(file = "file", url = "url", git = GitConfiguration("master"))
 
         // run
         val exception = shouldThrow<IllegalStateException> {
-            getDiffSource(diffConfig)
+            getDiffSource(File("."), diffConfig)
         }
 
         // assert
-        exception.message should startWith("Expected only file or URL diff source but found both:")
+        exception.message should startWith(
+                "Expected only Git configuration or file or URL diff source more than one:"
+        )
     }
 })
