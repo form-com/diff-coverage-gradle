@@ -22,8 +22,7 @@ class DiffSourceKtTest : StringSpec({
 
         // assert
         diffSource.shouldBeTypeOf<FileDiffSource>()
-        diffSource.sourceType shouldBe "File"
-        diffSource.sourceLocation shouldBe filePath
+        diffSource.sourceDescription shouldBe "File: $filePath"
     }
 
     "getDiffSource should return url diff source" {
@@ -36,8 +35,20 @@ class DiffSourceKtTest : StringSpec({
 
         // assert
         diffSource.shouldBeTypeOf<UrlDiffSource>()
-        diffSource.sourceType shouldBe "URL"
-        diffSource.sourceLocation shouldBe url
+        diffSource.sourceDescription shouldBe "URL: $url"
+    }
+
+    "getDiffSource should return git diff source" {
+        // setup
+        val compareWith = "develop"
+        val diffConfig = DiffSourceConfiguration(git = GitConfiguration(diffBase = compareWith))
+
+        // run
+        val diffSource = getDiffSource(File("."), diffConfig)
+
+        // assert
+        diffSource.shouldBeTypeOf<GitDiffSource>()
+        diffSource.sourceDescription shouldBe "Git: diff $compareWith"
     }
 
     "getDiffSource should throw when no source specified" {

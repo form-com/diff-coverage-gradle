@@ -108,7 +108,7 @@ open class DiffCoverageTask : DefaultTask() {
 
     private fun obtainUpdatesInfo(projectRoot: File, diffFilePath: DiffSourceConfiguration): Map<String, Set<Int>> {
         val diffSource = getDiffSource(projectRoot, diffFilePath).apply {
-            log.debug("Starting to retrieve modified lines from $sourceType '$sourceLocation'")
+            log.debug("Starting to retrieve modified lines from $sourceDescription'")
         }
 
         return ModifiedLinesDiffParser().collectModifiedLines(

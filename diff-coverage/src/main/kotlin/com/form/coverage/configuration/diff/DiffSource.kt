@@ -7,43 +7,42 @@ import java.io.File
 
 
 interface DiffSource {
-    val sourceType: String
-    val sourceLocation: String
+    val sourceDescription: String
     fun pullDiff(): List<String>
 }
 
 internal class FileDiffSource(
-        override val sourceLocation: String
+        private val filePath: String
 ) : DiffSource {
 
-    override val sourceType: String = "File"
+    override val sourceDescription = "File: $filePath"
 
     override fun pullDiff(): List<String> {
-        val file = File(sourceLocation)
-        return if(file.exists() && file.isFile) {
+        val file = File(filePath)
+        return if (file.exists() && file.isFile) {
             file.readLines()
         } else {
-            throw RuntimeException("'$sourceLocation' not a file or doesn't exist")
+            throw RuntimeException("'$filePath' not a file or doesn't exist")
         }
     }
 }
 
 internal class UrlDiffSource(
-        override val sourceLocation: String
+        private val url: String
 ) : DiffSource {
-    override val sourceType: String = "URL"
+    override val sourceDescription = "URL: $url"
 
-    override fun pullDiff(): List<String> = requestGet(sourceLocation).lines()
+    override fun pullDiff(): List<String> = requestGet(url).lines()
 }
 
 internal class GitDiffSource(
         private val projectRoot: File,
-        override val sourceLocation: String
+        private val compareWith: String
 ) : DiffSource {
-    override val sourceType: String = "Git"
+    override val sourceDescription = "Git: diff $compareWith"
 
     override fun pullDiff(): List<String> {
-        val result = Git(projectRoot).exec("diff", "--no-color", "--minimal", sourceLocation)
+        val result = Git(projectRoot).exec("diff", "--no-color", "--minimal", compareWith)
         if (result.first != 0) {
             throw Exception("Git command 'git diff' exited with code: '${result.first}'. Output: ${result.second}")
         }
@@ -51,18 +50,19 @@ internal class GitDiffSource(
     }
 }
 
-fun getDiffSource(projectRoot: File, diffConfig: DiffSourceConfiguration): DiffSource {
+fun getDiffSource(
+        projectRoot: File,
+        diffConfig: DiffSourceConfiguration
+): DiffSource = when {
 
-    return when {
-        diffConfig.file.isNotBlank() && diffConfig.url.isNotBlank() -> throw IllegalStateException(
-                "Expected only Git configuration or file or URL diff source more than one: " +
-                        "git.diffBase=${diffConfig.git.diffBase} file=${diffConfig.file}, url=${diffConfig.url}"
-        )
+    diffConfig.file.isNotBlank() && diffConfig.url.isNotBlank() -> throw IllegalStateException(
+            "Expected only Git configuration or file or URL diff source more than one: " +
+                    "git.diffBase=${diffConfig.git.diffBase} file=${diffConfig.file}, url=${diffConfig.url}"
+    )
 
-        diffConfig.file.isNotBlank() -> FileDiffSource(diffConfig.file)
-        diffConfig.url.isNotBlank() -> UrlDiffSource(diffConfig.url)
-        diffConfig.git.diffBase.isNotBlank() -> GitDiffSource(projectRoot, diffConfig.git.diffBase)
+    diffConfig.file.isNotBlank() -> FileDiffSource(diffConfig.file)
+    diffConfig.url.isNotBlank() -> UrlDiffSource(diffConfig.url)
+    diffConfig.git.diffBase.isNotBlank() -> GitDiffSource(projectRoot, diffConfig.git.diffBase)
 
-        else -> throw IllegalStateException("Expected Git configuration or file or URL diff source but all are blank")
-    }
+    else -> throw IllegalStateException("Expected Git configuration or file or URL diff source but all are blank")
 }

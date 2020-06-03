@@ -42,13 +42,17 @@ open class DiffSourceConfiguration(
         val git: GitConfiguration = GitConfiguration()
 ) {
     override fun toString(): String {
-        return "DiffSourceConfiguration(file='$file', url='$url')"
+        return "DiffSourceConfiguration(file='$file', url='$url', git=$git)"
     }
 }
 
 open class GitConfiguration(var diffBase: String = "") {
     fun compareWith(diffBase: String) {
         this.diffBase = diffBase
+    }
+
+    override fun toString(): String {
+        return "GitConfiguration(diffBase='$diffBase')"
     }
 }
 
