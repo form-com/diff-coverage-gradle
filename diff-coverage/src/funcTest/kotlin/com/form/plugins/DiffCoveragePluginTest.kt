@@ -152,12 +152,13 @@ class DiffCoveragePluginTest {
             exec("commit", "-m", "\"initial commit\"")
         }
 
-        testProjectDir.root.toPath().resolve("src/main/java/com/java/test/Class1.java").let {
+        val oldVersionFile = "src/main/java/com/java/test/Class1.java"
+        testProjectDir.root.toPath().resolve(oldVersionFile).let {
             getResourceFile<DiffCoveragePluginTest>("Class1GitTest.java")
                     .copyTo(it.toFile(), true)
         }
         git.apply {
-            exec("add", ".")
+            exec("add", oldVersionFile)
             exec("commit", "-m", "\"add all\"")
         }
 
