@@ -191,6 +191,28 @@ class DiffCoveragePluginTest {
     }
 
     @Test
+    fun `diff-coverage should fail when git is not available`() {
+        // setup
+        buildFile.appendText("""
+            
+            diffCoverageReport {
+                diffSource {
+                    git.diffBase = 'HEAD'
+                }
+            }
+        """.trimIndent())
+
+        // run
+        val result = gradleRunner
+                .withArguments("diffCoverage")
+                .buildAndFail()
+
+        // assert
+        assertTrue(result.output.contains("Git command 'git diff' exited with code: '129'."))
+        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
+    }
+
+    @Test
     fun `diff-coverage should fail on violation and generate html report`() {
         // setup
         val absolutePathBaseReportDir = testProjectDir.root.toPath()
