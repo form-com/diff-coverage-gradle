@@ -1,6 +1,5 @@
 package com.form.plugins
 
-import com.form.coverage.Git
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
@@ -144,8 +143,10 @@ class DiffCoveragePluginTest {
     @Test
     fun `diff-coverage should use git to generate diff`() {
         // setup
-        File("../.gitignore").copyTo(testProjectDir.root.resolve(".gitignore"))
-        val git = Git(testProjectDir.root)
+        File("../.gitignore").copyTo(testProjectDir.root.resolve(".gitignore")).apply {
+            appendText("caches/")
+        }
+        val git = NativeGit(testProjectDir.root)
         git.apply {
             exec("init")
             exec("add", ".gitignore")
@@ -208,7 +209,8 @@ class DiffCoveragePluginTest {
                 .buildAndFail()
 
         // assert
-        assertTrue(result.output.contains("Git command 'git diff' exited with code: '129'."))
+        val expectedErrorMessage = "Git directory not found in the project root ${testProjectDir.root.absolutePath}"
+        assertTrue(result.output.contains(expectedErrorMessage))
         assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
     }
 

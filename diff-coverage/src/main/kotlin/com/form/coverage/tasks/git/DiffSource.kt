@@ -1,6 +1,5 @@
-package com.form.coverage.configuration.diff
+package com.form.coverage.tasks.git
 
-import com.form.coverage.Git
 import com.form.coverage.configuration.DiffSourceConfiguration
 import com.form.coverage.http.requestGet
 import java.io.File
@@ -42,11 +41,9 @@ internal class GitDiffSource(
     override val sourceDescription = "Git: diff $compareWith"
 
     override fun pullDiff(): List<String> {
-        val result = Git(projectRoot).exec("diff", "--no-color", "--minimal", compareWith)
-        if (result.first != 0) {
-            throw Exception("Git command 'git diff' exited with code: '${result.first}'. Output: ${result.second}")
-        }
-        return result.second.lines()
+        return JgitDiff(projectRoot.resolve(".git"))
+                .obtain(compareWith)
+                .lines()
     }
 }
 
