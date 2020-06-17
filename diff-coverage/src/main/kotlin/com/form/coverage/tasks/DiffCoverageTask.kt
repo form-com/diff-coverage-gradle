@@ -3,7 +3,7 @@ package com.form.coverage.tasks
 import com.form.coverage.FullReport
 import com.form.coverage.configuration.ChangesetCoverageConfiguration
 import com.form.coverage.configuration.DiffSourceConfiguration
-import com.form.coverage.configuration.diff.getDiffSource
+import com.form.coverage.tasks.git.getDiffSource
 import com.form.coverage.configuration.toReports
 import com.form.coverage.report.ReportGenerator
 import com.form.coverage.report.analyzable.AnalyzableReportFactory

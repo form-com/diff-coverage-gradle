@@ -1,11 +1,11 @@
-package com.form.coverage
+package com.form.plugins
 
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 
-class Git(private val projectRoot: File) {
+class NativeGit(private val projectRoot: File) {
     fun exec(vararg commands: String): Pair<Int, String> {
         val command = mutableListOf("git").apply { this += commands }
 

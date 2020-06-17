@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     compile project(':jacoco-filtering-extension')
+    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.7.0.202003110725-r'
 
     testCompile 'org.assertj:assertj-core:3.11.1'
     testCompile 'junit:junit:4.12'

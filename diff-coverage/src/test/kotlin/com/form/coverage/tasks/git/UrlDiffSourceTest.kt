@@ -1,4 +1,4 @@
-package com.form.coverage.configuration.diff
+package com.form.coverage.tasks.git
 
 import com.form.coverage.http.requestGet
 import io.kotlintest.matchers.collections.shouldContainExactly

@@ -1,7 +1,11 @@
-package com.form.coverage.configuration.diff
+package com.form.coverage.tasks.git
 
 import com.form.coverage.configuration.DiffSourceConfiguration
 import com.form.coverage.configuration.GitConfiguration
+import com.form.coverage.tasks.git.FileDiffSource
+import com.form.coverage.tasks.git.GitDiffSource
+import com.form.coverage.tasks.git.UrlDiffSource
+import com.form.coverage.tasks.git.getDiffSource
 import io.kotlintest.matchers.startWith
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.should
