@@ -54,9 +54,7 @@ class JgitDiff(workingDir: File) {
             }
         }
 
-        return String(diffContent.toByteArray()).apply {
-            println(this)
-        }
+        return String(diffContent.toByteArray())
     }
 
     private fun DiffFormatter.initialize() {
