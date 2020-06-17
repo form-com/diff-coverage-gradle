@@ -4,10 +4,13 @@ import com.form.coverage.configuration.DiffSourceConfiguration
 import com.form.coverage.http.requestGet
 import java.io.File
 
+const val DEFAULT_PATCH_FILE_NAME: String = "diff.patch"
 
 interface DiffSource {
+
     val sourceDescription: String
     fun pullDiff(): List<String>
+    fun saveDiffTo(dir: File): File
 }
 
 internal class FileDiffSource(
@@ -24,6 +27,10 @@ internal class FileDiffSource(
             throw RuntimeException("'$filePath' not a file or doesn't exist")
         }
     }
+
+    override fun saveDiffTo(dir: File): File {
+        return File(filePath).copyTo(dir.resolve(DEFAULT_PATCH_FILE_NAME), true)
+    }
 }
 
 internal class UrlDiffSource(
@@ -31,19 +38,34 @@ internal class UrlDiffSource(
 ) : DiffSource {
     override val sourceDescription = "URL: $url"
 
-    override fun pullDiff(): List<String> = requestGet(url).lines()
+    private val diffContent: String by lazy { requestGet(url) }
+
+    override fun pullDiff(): List<String> = diffContent.lines()
+
+    override fun saveDiffTo(dir: File): File {
+        return dir.resolve(DEFAULT_PATCH_FILE_NAME).apply {
+            writeText(diffContent)
+        }
+    }
 }
 
 internal class GitDiffSource(
         private val projectRoot: File,
         private val compareWith: String
 ) : DiffSource {
+
+    private val diffContent: String by lazy {
+        JgitDiff(projectRoot.resolve(".git")).obtain(compareWith)
+    }
+
     override val sourceDescription = "Git: diff $compareWith"
 
-    override fun pullDiff(): List<String> {
-        return JgitDiff(projectRoot.resolve(".git"))
-                .obtain(compareWith)
-                .lines()
+    override fun pullDiff(): List<String> = diffContent.lines()
+
+    override fun saveDiffTo(dir: File): File {
+        return dir.resolve(DEFAULT_PATCH_FILE_NAME).apply {
+            writeText(diffContent)
+        }
     }
 }
 
