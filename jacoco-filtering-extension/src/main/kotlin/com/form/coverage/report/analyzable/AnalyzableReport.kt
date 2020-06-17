@@ -14,7 +14,7 @@ interface AnalyzableReport {
 }
 
 class AnalyzableReportFactory {
-    fun createCoverageAnalyzerFactory(reports: Set<FullReport>): Set<AnalyzableReport> {
+    fun create(reports: Set<FullReport>): Set<AnalyzableReport> {
         return reports.map { reportMode ->
             when(reportMode) {
                 is DiffReport -> DiffCoverageAnalyzableReport(reportMode)

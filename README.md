@@ -94,7 +94,7 @@ diffCoverageReport {
     diffSource { // Required. Only one of `file`, `url` or git must be spesified
         file = 'path/to/file.diff' //  Path to diff file 
         url = 'http://domain.com/file.diff' // URL to retrieve diff by
-        git.compareWith 'develop' // Compares current HEAD and all uncommited with provided branch, commit or tag 
+        git.compareWith 'develop' // Compares current HEAD and all uncommited with provided branch, revision or tag 
     }
     jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required
     srcDirs = files('/path/to/sources')  // Required
