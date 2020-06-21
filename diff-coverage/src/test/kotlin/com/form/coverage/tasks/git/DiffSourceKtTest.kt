@@ -6,12 +6,12 @@ import com.form.coverage.tasks.git.FileDiffSource
 import com.form.coverage.tasks.git.GitDiffSource
 import com.form.coverage.tasks.git.UrlDiffSource
 import com.form.coverage.tasks.git.getDiffSource
-import io.kotlintest.matchers.startWith
-import io.kotlintest.matchers.types.shouldBeTypeOf
-import io.kotlintest.should
-import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.startWith
+import io.kotest.matchers.types.shouldBeTypeOf
 import java.io.File
 
 class DiffSourceKtTest : StringSpec({

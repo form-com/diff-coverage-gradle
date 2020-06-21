@@ -1,6 +1,12 @@
 package com.form.plugins
 
+import com.form.coverage.tasks.git.getCrlf
 import org.assertj.core.api.Assertions.assertThat
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ConfigConstants
+import org.eclipse.jgit.lib.CoreConfig
+import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
@@ -143,40 +149,48 @@ class DiffCoveragePluginTest {
     @Test
     fun `diff-coverage should use git to generate diff`() {
         // setup
-        File("../.gitignore").copyTo(testProjectDir.root.resolve(".gitignore")).apply {
-            appendText("caches/")
+        testProjectDir.root.resolve(".gitignore").apply {
+            appendText("\n*")
+            appendText("\n!*.java")
+            appendText("\n!gitignore")
+            appendText("\n!*/")
         }
-        val git = NativeGit(testProjectDir.root)
-        git.apply {
-            exec("init")
-            exec("add", ".gitignore")
-            exec("commit", "-m", "\"initial commit\"")
+        val repository: Repository = FileRepositoryBuilder.create(File(testProjectDir.root, ".git")).apply {
+            config.setEnum(
+                    ConfigConstants.CONFIG_CORE_SECTION,
+                    null,
+                    ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                    getCrlf()
+            )
+            create()
         }
+        Git(repository).use { git ->
+            git.add().addFilepattern(".").call()
+            git.commit().setMessage("Add all").call()
 
-        val oldVersionFile = "src/main/java/com/java/test/Class1.java"
-        testProjectDir.root.toPath().resolve(oldVersionFile).let {
-            getResourceFile<DiffCoveragePluginTest>("Class1GitTest.java")
-                    .copyTo(it.toFile(), true)
-        }
-        git.apply {
-            exec("add", oldVersionFile)
-            exec("commit", "-m", "\"add all\"")
-        }
+            val oldVersionFile = "src/main/java/com/java/test/Class1.java"
+            testProjectDir.root.toPath().resolve(oldVersionFile).let {
+                getResourceFile<DiffCoveragePluginTest>("Class1GitTest.java")
+                        .copyTo(it.toFile(), true)
+            }
+            git.add().addFilepattern(oldVersionFile).call()
+            git.commit().setMessage("Added old file version").call()
 
-        getResourceFile<DiffCoveragePluginTest>("src").copyRecursively(
-                testProjectDir.root.resolve(File("src")),
-                true
-        )
+            getResourceFile<DiffCoveragePluginTest>("src").copyRecursively(
+                    testProjectDir.root.resolve(File("src")),
+                    true
+            )
+        }
 
         buildFile.appendText("""
-            
+
             diffCoverageReport {
                 diffSource {
                     git.compareWith 'HEAD'
                 }
                 violationRules {
                     minLines = 0.7
-                    failOnViolation = true 
+                    failOnViolation = true
                 }
             }
         """.trimIndent())
@@ -188,29 +202,6 @@ class DiffCoveragePluginTest {
 
         // assert
         assertTrue(result.output.contains("lines covered ratio is 0.6, but expected minimum is 0.7"))
-        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
-    }
-
-    @Test
-    fun `diff-coverage should fail when git is not available`() {
-        // setup
-        buildFile.appendText("""
-            
-            diffCoverageReport {
-                diffSource {
-                    git.diffBase = 'HEAD'
-                }
-            }
-        """.trimIndent())
-
-        // run
-        val result = gradleRunner
-                .withArguments("diffCoverage")
-                .buildAndFail()
-
-        // assert
-        val expectedErrorMessage = "Git directory not found in the project root ${testProjectDir.root.absolutePath}"
-        assertTrue(result.output.contains(expectedErrorMessage))
         assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
     }
 

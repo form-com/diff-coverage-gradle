@@ -41,8 +41,10 @@ subprojects{
         compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
         compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
 
-        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
-        testImplementation "io.mockk:mockk:1.9.3.kotlin12"
+        testImplementation 'io.kotest:kotest-runner-junit5-jvm:4.0.7'
+        testImplementation 'io.kotest:kotest-assertions-core-jvm:4.0.7'
+        testImplementation 'io.kotest:kotest-property-jvm:4.0.7'
+        testImplementation 'io.mockk:mockk:1.10.0'
     }
 
     compileKotlin {
