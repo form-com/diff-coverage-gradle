@@ -26,8 +26,8 @@ class JgitDiff(workingDir: File) {
 
     private fun initRepository(workingDir: File): Repository = try {
         FileRepositoryBuilder().apply {
-            readEnvironment()
             findGitDir(workingDir)
+            readEnvironment()
             isMustExist = true
         }.build()
     } catch (e: IllegalArgumentException) {
@@ -63,7 +63,7 @@ class JgitDiff(workingDir: File) {
                 ConfigConstants.CONFIG_CORE_SECTION,
                 null,
                 ConfigConstants.CONFIG_KEY_AUTOCRLF,
-                CoreConfig.AutoCRLF.TRUE
+                getCrlf()
         )
         pathFilter = TreeFilter.ALL
     }

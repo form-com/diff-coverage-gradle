@@ -1,16 +1,15 @@
 package com.form.diff
 
-import io.kotlintest.data.forall
-import io.kotlintest.properties.Gen.Companion.positiveIntegers
-import io.kotlintest.properties.assertAll
-import io.kotlintest.shouldBe
-import io.kotlintest.specs.StringSpec
-import io.kotlintest.tables.row
+import io.kotest.data.blocking.forAll
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.data.row
+import io.kotest.matchers.shouldBe
+import io.kotest.property.checkAll
 
 class ClassModificationsTest : StringSpec({
 
     "isLineModified should return true or false depends on line is modified or not" {
-        forall(
+        forAll(
                 row(true, 1, setOf(1, 2, 3)),
                 row(false, 1, setOf()),
                 row(false, 0, setOf(1, 2)),
@@ -29,7 +28,7 @@ class ClassModificationsTest : StringSpec({
 class CodeUpdateInfoTest : StringSpec({
 
     "getClassModifications should return empty ClassModifications when no such info" {
-        assertAll(positiveIntegers()) { line ->
+        checkAll<Int>(10) { lineNumber ->
             // setup
             val codeUpdateInfo = CodeUpdateInfo(
                     mapOf("com/package/Class.java" to setOf(12))
@@ -41,13 +40,13 @@ class CodeUpdateInfoTest : StringSpec({
             )
 
             // assert
-            classModifications.isLineModified(line) shouldBe false
+            classModifications.isLineModified(lineNumber) shouldBe false
         }
     }
 
 
     "isInfoExists should return true when modifications info exists for class" {
-        forall(
+        forAll(
                 row(setOf(1, 2, 3)),
                 row(setOf(1, 2))
         ) { set ->
@@ -91,7 +90,7 @@ class CodeUpdateInfoTest : StringSpec({
     }
 
     "isInfoExists should return false when modifications info doesn't exist for class" {
-        forall(
+        forAll(
                 row(
                         "OtherClass.java",
                         "com/package/OtherClass",

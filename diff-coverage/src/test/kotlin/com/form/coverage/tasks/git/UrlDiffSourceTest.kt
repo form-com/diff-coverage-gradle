@@ -1,9 +1,9 @@
 package com.form.coverage.tasks.git
 
 import com.form.coverage.http.requestGet
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.every
 import io.mockk.mockkStatic
 import java.net.MalformedURLException
