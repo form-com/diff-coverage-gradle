@@ -2,8 +2,7 @@ package com.form.coverage.tasks
 
 import com.form.coverage.FullReport
 import com.form.coverage.configuration.ChangesetCoverageConfiguration
-import com.form.coverage.configuration.DiffSourceConfiguration
-import com.form.coverage.configuration.diff.getDiffSource
+import com.form.coverage.tasks.git.getDiffSource
 import com.form.coverage.configuration.toReports
 import com.form.coverage.report.ReportGenerator
 import com.form.coverage.report.analyzable.AnalyzableReportFactory
@@ -59,34 +58,32 @@ open class DiffCoverageTask : DefaultTask() {
     @TaskAction
     fun executeAction() {
         log.info("DiffCoverage configuration: $diffCoverageReport")
-        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(diffCoverageReport.diffSource)
+        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(
+                project.rootProject.projectDir,
+                diffCoverageReport
+        )
         fileNameToModifiedLineNumbers.forEach { (file, rows) ->
             log.info("File $file has ${rows.size} modified lines")
             log.debug("File $file has modified lines $rows")
         }
 
-        val analyzableReportFactory = AnalyzableReportFactory()
-
         val reports: Set<FullReport> = diffCoverageReport.toReports(
                 project.getReportOutputDir(),
                 CodeUpdateInfo(fileNameToModifiedLineNumbers)
         )
-
         log.info("Starting task with configuration:")
         reports.forEach {
             log.info("\t$it")
         }
 
-        val factories = reports.let {
-            analyzableReportFactory.createCoverageAnalyzerFactory(it)
-        }
+        val analyzableReports = reports.let(AnalyzableReportFactory()::create)
 
         ReportGenerator(
                 project.projectDir,
                 getExecFiles().files.filter(File::exists).toSet(),
                 getClassesFiles().files.filter(File::exists).toSet(),
                 getSourcesFiles().files.filter(File::exists).toSet()
-        ).create(factories)
+        ).create(analyzableReports)
     }
 
     private fun Project.getReportOutputDir(): Path {
@@ -103,11 +100,16 @@ open class DiffCoverageTask : DefaultTask() {
         return project.tasks.findByName("jacocoTestReport") as? JacocoReport
     }
 
-    private fun obtainUpdatesInfo(diffFilePath: DiffSourceConfiguration): Map<String, Set<Int>> {
-        val diffSource = getDiffSource(diffFilePath).apply {
-            log.debug("Starting to retrieve modified lines from $sourceType $sourceLocation")
+    private fun obtainUpdatesInfo(
+            projectRoot: File,
+            configuration: ChangesetCoverageConfiguration
+    ): Map<String, Set<Int>> {
+        val diffSource = getDiffSource(projectRoot, configuration.diffSource).apply {
+            log.debug("Starting to retrieve modified lines from $sourceDescription'")
+            saveDiffTo(projectRoot.resolve(configuration.reportConfiguration.baseReportDir)).apply {
+                log.info("diff content saved to '$absolutePath'")
+            }
         }
-
         return ModifiedLinesDiffParser().collectModifiedLines(
                 diffSource.pullDiff()
         )

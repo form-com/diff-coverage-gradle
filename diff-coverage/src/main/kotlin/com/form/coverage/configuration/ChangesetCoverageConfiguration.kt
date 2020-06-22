@@ -8,7 +8,7 @@ open class ChangesetCoverageConfiguration(
         var jacocoExecFiles: FileCollection? = null,
         var classesDirs: FileCollection? = null,
         var srcDirs: FileCollection? = null,
-        var diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
+        val diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
         val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
         val violationRules: ViolationRules = ViolationRules()
 ) {
@@ -38,10 +38,21 @@ open class ChangesetCoverageConfiguration(
 
 open class DiffSourceConfiguration(
         var file: String = "",
-        var url: String = ""
+        var url: String = "",
+        val git: GitConfiguration = GitConfiguration()
 ) {
     override fun toString(): String {
-        return "DiffSourceConfiguration(file='$file', url='$url')"
+        return "DiffSourceConfiguration(file='$file', url='$url', git=$git)"
+    }
+}
+
+open class GitConfiguration(var diffBase: String = "") {
+    fun compareWith(diffBase: String) {
+        this.diffBase = diffBase
+    }
+
+    override fun toString(): String {
+        return "GitConfiguration(diffBase='$diffBase')"
     }
 }
 

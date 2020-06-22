@@ -6,7 +6,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/form-com/diff-coverage-gradle?style=flat-square)](https://github.com/form-com/diff-coverage-gradle/stargazers) 
 [![](https://jitpack.io/v/form-com/diff-coverage-gradle/month.svg)](https://jitpack.io/#form-com/diff-coverage-gradle)
 
-`Diff coverage` is JaCoCo extension that computes code coverage of new/modified code based on a provided [diff](https://en.wikipedia.org/wiki/Diff#Unified_format) file. 
+`Diff coverage` is JaCoCo extension that computes code coverage of new/modified code based on a provided [diff](https://en.wikipedia.org/wiki/Diff#Unified_format). 
+The diff content can be provided via path to patch file, URL or using embedded git(see [parameters description](#Parameters-description)).   
 
 Why should I use it?
 * forces each developer to be responsible for its own code quality(see [diffCoverage task](#gradle-task-description))
@@ -50,8 +51,6 @@ diffCoverageReport {
    
    
   ```
-    import java.nio.file.Files
-
     buildscript {
         repositories {
             maven { url 'https://jitpack.io' }
@@ -64,24 +63,11 @@ diffCoverageReport {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'com.form.diff-coverage'
-
-    // Generate diff file using `git diff` tool    
-    ext.createDiffUrl = { ->
-        def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-        def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
-        file.withOutputStream { out ->
-            exec {
-                commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
-                standardOutput = out
-            }
-        }
-        return file.toURI().toURL()
-    }
     
     diffCoverageReport {
-        afterEvaluate {
-            diffSource.url =  createDiffUrl()
-        } 
+        diffSource {
+            git.compareWith 'develop'
+        }
         
         jacocoExecFiles = files(jacocoTestReport.executionData)
         classesDirs = files(jacocoTestReport.classDirectories)
@@ -105,9 +91,10 @@ diffCoverageReport {
 ## Parameters description
 ```
 diffCoverageReport {
-    diffSource {
-        file = 'path/to/file.diff' // Required. Only one of `file` or `url` must be spesified 
-        url = 'http://domain.com/file.diff' // Required. Only one of `file` or `url` must be spesified
+    diffSource { // Required. Only one of `file`, `url` or git must be spesified
+        file = 'path/to/file.diff' //  Path to diff file 
+        url = 'http://domain.com/file.diff' // URL to retrieve diff by
+        git.compareWith 'develop' // Compares current HEAD and all uncommited with provided branch, revision or tag 
     }
     jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required
     srcDirs = files('/path/to/sources')  // Required
