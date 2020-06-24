@@ -8,11 +8,7 @@ import org.jacoco.report.check.Rule
 import java.nio.file.Path
 
 fun ChangesetCoverageConfiguration.toReports(baseReportDir: Path, codeUpdateInfo: CodeUpdateInfo): Set<FullReport> {
-    val reports: MutableSet<Report> = mutableSetOf()
-
-    if (reportConfiguration.html) {
-        reports += Report(ReportType.HTML)
-    }
+    val reports: Set<Report> = toReportTypes()
 
     val report: MutableSet<FullReport> = mutableSetOf(
             DiffReport(
@@ -35,6 +31,14 @@ fun ChangesetCoverageConfiguration.toReports(baseReportDir: Path, codeUpdateInfo
 
     return report
 }
+
+private fun ChangesetCoverageConfiguration.toReportTypes(): Set<Report> = sequenceOf(
+        ReportType.HTML to reportConfiguration.html,
+        ReportType.CSV to reportConfiguration.csv,
+        ReportType.XML to reportConfiguration.xml
+).filter { it.second }.map {
+    Report(it.first)
+}.toSet()
 
 private fun buildRules(
         violationRules: ViolationRules

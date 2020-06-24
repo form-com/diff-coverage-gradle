@@ -30,7 +30,7 @@ data class Report(
 )
 
 enum class ReportType {
-    HTML
+    HTML, XML, CSV
 }
 
 data class Violation(
