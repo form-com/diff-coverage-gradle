@@ -96,7 +96,7 @@ class DiffCoveragePluginTest {
     }
 
     @Test
-    fun `diff-coverage should create diffCoverage dir and full coverage with html report`() {
+    fun `diff-coverage should create diffCoverage dir and full coverage with html, csv and xml reports`() {
         // setup
         val baseReportDir = "build/custom/reports/dir/jacoco/"
         buildFile.appendText("""
@@ -107,6 +107,8 @@ class DiffCoveragePluginTest {
                 }
                 reports {
                     html = true
+                    xml = true
+                    csv = true
                     fullCoverageReport = true
                     baseReportDir = '$baseReportDir'
                 }
@@ -123,21 +125,16 @@ class DiffCoveragePluginTest {
         assertTrue(result.output.contains("diffCoverage"))
         assertEquals(SUCCESS, result.task(":diffCoverage")!!.outcome)
 
-        val reportDir = Paths.get(
-                testProjectDir.root.absolutePath,
-                baseReportDir
-        )
+        testProjectDir.root.resolve(baseReportDir).apply {
+            assertAllReportsCreated(resolve("diffCoverage"))
+            assertAllReportsCreated(resolve("fullReport"))
+        }
+    }
 
-        val diffCoverageReportDir = reportDir.resolve(
-                Paths.get("diffCoverage", "html")
-        ).toFile()
-        assertThat(diffCoverageReportDir.list())
-                .containsExactlyInAnyOrder(*expectedReportFiles)
-
-        val fullReportDir = reportDir.resolve(
-                Paths.get("fullReport", "html")
-        ).toFile()
-        assertThat(fullReportDir.list())
+    private fun assertAllReportsCreated(baseReportDir: File) {
+        assertThat(baseReportDir.list())
+                .containsExactlyInAnyOrder("report.xml", "report.csv", "html")
+        assertThat(baseReportDir.resolve("html").list())
                 .containsExactlyInAnyOrder(*expectedReportFiles)
     }
 
