@@ -26,7 +26,7 @@ class DiffReport(
 
 data class Report(
         val reportType: ReportType,
-        val reportDirName: String = reportType.name.toLowerCase()
+        val reportDirName: String
 )
 
 enum class ReportType {

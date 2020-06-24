@@ -37,8 +37,14 @@ private fun ChangesetCoverageConfiguration.toReportTypes(): Set<Report> = sequen
         ReportType.CSV to reportConfiguration.csv,
         ReportType.XML to reportConfiguration.xml
 ).filter { it.second }.map {
-    Report(it.first)
+    Report(it.first, it.first.defaultOutputFileName())
 }.toSet()
+
+private fun ReportType.defaultOutputFileName(): String = when(this) {
+    ReportType.XML -> "report.xml"
+    ReportType.CSV -> "report.csv"
+    ReportType.HTML -> "html"
+}
 
 private fun buildRules(
         violationRules: ViolationRules
