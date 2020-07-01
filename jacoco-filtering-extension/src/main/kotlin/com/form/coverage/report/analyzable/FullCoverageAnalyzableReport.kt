@@ -8,7 +8,10 @@ import org.jacoco.core.data.ExecutionDataStore
 import org.jacoco.report.FileMultiReportOutput
 import org.jacoco.report.IReportVisitor
 import org.jacoco.report.MultiReportVisitor
+import org.jacoco.report.csv.CSVFormatter
 import org.jacoco.report.html.HTMLFormatter
+import org.jacoco.report.xml.XMLFormatter
+import java.io.FileOutputStream
 
 internal open class FullCoverageAnalyzableReport(
         private val report: FullReport
@@ -16,11 +19,11 @@ internal open class FullCoverageAnalyzableReport(
 
     override fun buildVisitor(): IReportVisitor {
         return report.reports.map {
+            val reportFile = report.resolveReportAbsolutePath(it).toFile()
             when(it.reportType) {
-                ReportType.HTML -> report.resolveReportAbsolutePath(it)
-                        .toFile().let(::FileMultiReportOutput)
-                        .let(HTMLFormatter()::createVisitor)
-
+                ReportType.HTML -> FileMultiReportOutput(reportFile).let(HTMLFormatter()::createVisitor)
+                ReportType.XML -> FileOutputStream(reportFile).let(XMLFormatter()::createVisitor)
+                ReportType.CSV -> FileOutputStream(reportFile).let(CSVFormatter()::createVisitor)
             }
         }.let(::MultiReportVisitor)
     }

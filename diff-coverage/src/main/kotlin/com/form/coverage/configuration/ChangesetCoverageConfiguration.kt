@@ -58,6 +58,8 @@ open class GitConfiguration(var diffBase: String = "") {
 
 open class ReportsConfiguration(
         var html: Boolean = false,
+        var xml: Boolean = false,
+        var csv: Boolean = false,
         var baseReportDir: String = Paths.get("build", "reports", "jacoco").toString(),
         var fullCoverageReport: Boolean = false
 ) {
