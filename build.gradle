@@ -29,6 +29,8 @@ subprojects{
     apply plugin: 'maven'
     apply plugin: 'jacoco'
 
+    version '0.7.1'
+
     repositories {
         jcenter()
         mavenCentral()
