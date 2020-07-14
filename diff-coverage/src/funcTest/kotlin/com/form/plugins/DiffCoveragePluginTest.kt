@@ -4,20 +4,17 @@ import com.form.coverage.tasks.git.getCrlf
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants
-import org.eclipse.jgit.lib.CoreConfig
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import org.mockserver.integration.ClientAndServer
-import org.mockserver.integration.ClientAndServer.startClientAndServer
-import org.mockserver.model.HttpRequest.request
-import org.mockserver.model.HttpResponse.response
 import java.io.File
 import java.nio.file.Paths
 
@@ -28,29 +25,12 @@ class DiffCoveragePluginTest {
     var testProjectDir = TemporaryFolder()
 
     companion object {
-
-        lateinit var mockServer: ClientAndServer
-
-        const val SERVER_PORT = 1080
-
         val expectedReportFiles = arrayOf(
                 "com.java.test",
                 "index.html",
                 "jacoco-resources",
                 "jacoco-sessions.html"
         )
-
-        @BeforeClass
-        @JvmStatic
-        fun startServer() {
-            mockServer = startClientAndServer(SERVER_PORT)
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun stopServer() {
-            mockServer.stop()
-        }
     }
 
     private lateinit var buildFile: File
@@ -273,17 +253,10 @@ class DiffCoveragePluginTest {
     @Test
     fun `diff-coverage should get diff info by url`() {
         // setup
-        val url = "http://localhost:$SERVER_PORT"
-        mockServer.`when`(
-                request().withMethod("GET")
-        ).respond(response().withBody(
-                File(diffFilePath).readText()
-        ))
-
         buildFile.appendText("""
             
             diffCoverageReport {
-                diffSource.url = '$url'
+                diffSource.url = '${File(diffFilePath).toURI().toURL()}'
                 violationRules {
                     minInstructions = 1 
                     failOnViolation = true 
