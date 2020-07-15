@@ -1,4 +1,4 @@
-package com.form.coverage.tasks.git
+package com.form.coverage.diff.git
 
 import org.eclipse.jgit.lib.CoreConfig
 

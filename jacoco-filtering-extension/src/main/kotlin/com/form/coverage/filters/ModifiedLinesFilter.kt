@@ -1,7 +1,7 @@
 package com.form.coverage.filters
 
-import com.form.diff.ClassFile
-import com.form.diff.CodeUpdateInfo
+import com.form.coverage.diff.parser.ClassFile
+import com.form.coverage.diff.parser.CodeUpdateInfo
 import org.jacoco.core.internal.analysis.filter.IFilter
 import org.jacoco.core.internal.analysis.filter.IFilterContext
 import org.jacoco.core.internal.analysis.filter.IFilterOutput

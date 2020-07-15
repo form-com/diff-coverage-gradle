@@ -1,10 +1,9 @@
 package com.form.plugins
 
-import com.form.coverage.tasks.git.getCrlf
+import com.form.coverage.diff.git.getCrlf
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants
-import org.eclipse.jgit.lib.CoreConfig
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.testkit.runner.GradleRunner

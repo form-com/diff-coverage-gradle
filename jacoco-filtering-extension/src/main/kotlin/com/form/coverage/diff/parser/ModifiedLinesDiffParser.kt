@@ -1,4 +1,4 @@
-package com.form.diff
+package com.form.coverage.diff.parser
 
 import org.slf4j.LoggerFactory
 import java.util.*

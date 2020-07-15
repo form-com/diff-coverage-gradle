@@ -1,6 +1,6 @@
-package com.form.coverage
+package com.form.coverage.report
 
-import com.form.diff.CodeUpdateInfo
+import com.form.coverage.diff.parser.CodeUpdateInfo
 import org.jacoco.report.check.Rule
 import java.nio.file.Path
 

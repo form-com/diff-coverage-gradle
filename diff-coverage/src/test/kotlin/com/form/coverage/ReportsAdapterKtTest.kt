@@ -1,11 +1,8 @@
-package com.form.coverage.tasks.git
+package com.form.coverage
 
-import com.form.coverage.configuration.DiffSourceConfiguration
-import com.form.coverage.configuration.GitConfiguration
-import com.form.coverage.tasks.git.FileDiffSource
-import com.form.coverage.tasks.git.GitDiffSource
-import com.form.coverage.tasks.git.UrlDiffSource
-import com.form.coverage.tasks.git.getDiffSource
+import com.form.coverage.diff.FileDiffSource
+import com.form.coverage.diff.GitDiffSource
+import com.form.coverage.diff.UrlDiffSource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
@@ -14,7 +11,7 @@ import io.kotest.matchers.string.startWith
 import io.kotest.matchers.types.shouldBeTypeOf
 import java.io.File
 
-class DiffSourceKtTest : StringSpec({
+class ReportsAdapterKtTest : StringSpec({
 
     "getDiffSource should return file diff source" {
         // setup

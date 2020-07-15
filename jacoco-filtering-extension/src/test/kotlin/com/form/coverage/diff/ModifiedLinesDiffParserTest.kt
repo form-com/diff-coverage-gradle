@@ -1,5 +1,6 @@
-package com.form.diff
+package com.form.coverage.diff
 
+import com.form.coverage.diff.parser.ModifiedLinesDiffParser
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.maps.shouldContainExactly

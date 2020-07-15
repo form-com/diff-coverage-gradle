@@ -15,12 +15,13 @@ import java.io.IOException
 
 class ReportGenerator(
         private val projectDirectory: File,
-        private val jacocoExec: Set<File>,
+        jacocoExec: Set<File>,
         classesSources: Set<File>,
         src: Set<File>
 ) {
     private val tabWidth: Int = 4
 
+    private val jacocoExec: Set<File> = jacocoExec.filter(File::exists).toSet()
     private val classesSources: Set<File> = classesSources.filter(File::exists).toSet()
     private val src: Set<File> = src.filter(File::exists).toSet()
 

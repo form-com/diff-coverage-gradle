@@ -1,13 +1,8 @@
-package com.form.coverage.tasks.git
+package com.form.coverage.diff.git
 
-import com.form.coverage.configuration.DiffSourceConfiguration
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import org.eclipse.jgit.lib.CoreConfig
-import org.junit.Test
-
-import org.junit.Assert.*
-import java.io.File
 
 class CrlfStrategyTest : StringSpec({
 

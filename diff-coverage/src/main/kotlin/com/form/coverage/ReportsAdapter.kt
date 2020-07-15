@@ -1,10 +1,15 @@
-package com.form.coverage.configuration
+package com.form.coverage
 
-import com.form.coverage.*
-import com.form.diff.CodeUpdateInfo
+import com.form.coverage.diff.parser.CodeUpdateInfo
+import com.form.coverage.diff.DiffSource
+import com.form.coverage.diff.FileDiffSource
+import com.form.coverage.diff.GitDiffSource
+import com.form.coverage.diff.UrlDiffSource
+import com.form.coverage.report.*
 import org.jacoco.core.analysis.ICoverageNode
 import org.jacoco.report.check.Limit
 import org.jacoco.report.check.Rule
+import java.io.File
 import java.nio.file.Path
 
 fun ChangesetCoverageConfiguration.toReports(baseReportDir: Path, codeUpdateInfo: CodeUpdateInfo): Set<FullReport> {
@@ -44,6 +49,20 @@ private fun ReportType.defaultOutputFileName(): String = when(this) {
     ReportType.XML -> "report.xml"
     ReportType.CSV -> "report.csv"
     ReportType.HTML -> "html"
+}
+
+fun getDiffSource(projectRoot: File, diffConfig: DiffSourceConfiguration): DiffSource = when {
+
+    diffConfig.file.isNotBlank() && diffConfig.url.isNotBlank() -> throw IllegalStateException(
+            "Expected only Git configuration or file or URL diff source more than one: " +
+                    "git.diffBase=${diffConfig.git.diffBase} file=${diffConfig.file}, url=${diffConfig.url}"
+    )
+
+    diffConfig.file.isNotBlank() -> FileDiffSource(diffConfig.file)
+    diffConfig.url.isNotBlank() -> UrlDiffSource(diffConfig.url)
+    diffConfig.git.diffBase.isNotBlank() -> GitDiffSource(projectRoot, diffConfig.git.diffBase)
+
+    else -> throw IllegalStateException("Expected Git configuration or file or URL diff source but all are blank")
 }
 
 private fun buildRules(

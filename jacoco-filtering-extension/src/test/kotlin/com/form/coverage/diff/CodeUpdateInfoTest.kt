@@ -1,5 +1,8 @@
-package com.form.diff
+package com.form.coverage.diff
 
+import com.form.coverage.diff.parser.ClassFile
+import com.form.coverage.diff.parser.ClassModifications
+import com.form.coverage.diff.parser.CodeUpdateInfo
 import io.kotest.data.blocking.forAll
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.row

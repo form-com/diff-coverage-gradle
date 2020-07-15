@@ -1,5 +1,5 @@
 @file:JvmName("CodeUpdateInfo")
-package com.form.diff
+package com.form.coverage.diff.parser
 
 class CodeUpdateInfo(
         private val fileNameToModifiedLineNumbers: Map<String, Set<Int>>

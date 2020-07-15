@@ -1,13 +1,10 @@
-package com.form.coverage.tasks
+package com.form.coverage
 
-import com.form.coverage.FullReport
-import com.form.coverage.configuration.ChangesetCoverageConfiguration
-import com.form.coverage.tasks.git.getDiffSource
-import com.form.coverage.configuration.toReports
 import com.form.coverage.report.ReportGenerator
 import com.form.coverage.report.analyzable.AnalyzableReportFactory
-import com.form.diff.CodeUpdateInfo
-import com.form.diff.ModifiedLinesDiffParser
+import com.form.coverage.diff.parser.CodeUpdateInfo
+import com.form.coverage.diff.parser.ModifiedLinesDiffParser
+import com.form.coverage.report.FullReport
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
@@ -80,9 +77,9 @@ open class DiffCoverageTask : DefaultTask() {
 
         ReportGenerator(
                 project.projectDir,
-                getExecFiles().files.filter(File::exists).toSet(),
-                getClassesFiles().files.filter(File::exists).toSet(),
-                getSourcesFiles().files.filter(File::exists).toSet()
+                getExecFiles().files.toSet(),
+                getClassesFiles().files.toSet(),
+                getSourcesFiles().files.toSet()
         ).create(analyzableReports)
     }
 

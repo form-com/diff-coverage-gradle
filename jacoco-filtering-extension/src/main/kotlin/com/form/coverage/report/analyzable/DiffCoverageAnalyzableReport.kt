@@ -1,6 +1,6 @@
 package com.form.coverage.report.analyzable
 
-import com.form.coverage.DiffReport
+import com.form.coverage.report.DiffReport
 import com.form.coverage.filters.ModifiedLinesFilter
 import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.ICoverageVisitor

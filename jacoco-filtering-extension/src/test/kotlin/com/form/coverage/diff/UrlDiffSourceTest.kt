@@ -1,11 +1,8 @@
-package com.form.coverage.tasks.git
+package com.form.coverage.diff
 
-import com.form.coverage.http.requestGet
+import com.form.coverage.diff.UrlDiffSource
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.collections.shouldContainExactly
-import io.mockk.every
-import io.mockk.mockkStatic
 import java.net.MalformedURLException
 import java.net.UnknownHostException
 
@@ -32,21 +29,6 @@ class UrlDiffSourceTest : StringSpec() {
             shouldThrow<UnknownHostException> {
                 urlDiffSource.pullDiff()
             }
-        }
-
-        "pullDiff should return content as lines" {
-            // setup
-            mockkStatic("com.form.coverage.http.HttpRequestUtilsKt")
-            val expectedLines = listOf("1", "3", "0")
-            every { requestGet(any()) } returns expectedLines.joinToString("\n")
-
-            val urlDiffSource = UrlDiffSource("http://ok-url.com")
-
-            // run
-            val diffLines = urlDiffSource.pullDiff()
-
-            // assert
-            diffLines shouldContainExactly expectedLines
         }
     }
 }

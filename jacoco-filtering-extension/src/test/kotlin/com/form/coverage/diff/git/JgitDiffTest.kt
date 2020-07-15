@@ -1,11 +1,8 @@
-package com.form.coverage.tasks.git
+package com.form.coverage.diff.git
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.core.spec.tempfile
 import io.kotest.matchers.should
-import io.kotest.matchers.string.endWith
 import io.kotest.matchers.string.startWith
 import java.io.File
 import java.lang.IllegalArgumentException

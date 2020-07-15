@@ -1,4 +1,4 @@
-package com.form.coverage.configuration
+package com.form.coverage
 
 import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
