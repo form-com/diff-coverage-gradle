@@ -1,9 +1,8 @@
 package com.form.coverage
 
+import com.form.coverage.diff.DiffSource
 import com.form.coverage.report.ReportGenerator
 import com.form.coverage.report.analyzable.AnalyzableReportFactory
-import com.form.coverage.diff.parser.CodeUpdateInfo
-import com.form.coverage.diff.parser.ModifiedLinesDiffParser
 import com.form.coverage.report.FullReport
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -55,18 +54,12 @@ open class DiffCoverageTask : DefaultTask() {
     @TaskAction
     fun executeAction() {
         log.info("DiffCoverage configuration: $diffCoverageReport")
-        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(
-                project.rootProject.projectDir,
-                diffCoverageReport
-        )
-        fileNameToModifiedLineNumbers.forEach { (file, rows) ->
-            log.info("File $file has ${rows.size} modified lines")
-            log.debug("File $file has modified lines $rows")
-        }
-
         val reports: Set<FullReport> = diffCoverageReport.toReports(
                 project.getReportOutputDir(),
-                CodeUpdateInfo(fileNameToModifiedLineNumbers)
+                buildDiffSource(
+                        project.rootProject.projectDir,
+                        diffCoverageReport
+                )
         )
         log.info("Starting task with configuration:")
         reports.forEach {
@@ -97,19 +90,16 @@ open class DiffCoverageTask : DefaultTask() {
         return project.tasks.findByName("jacocoTestReport") as? JacocoReport
     }
 
-    private fun obtainUpdatesInfo(
+    private fun buildDiffSource(
             projectRoot: File,
             configuration: ChangesetCoverageConfiguration
-    ): Map<String, Set<Int>> {
-        val diffSource = getDiffSource(projectRoot, configuration.diffSource).apply {
+    ): DiffSource {
+        return getDiffSource(projectRoot, configuration.diffSource).apply {
             log.debug("Starting to retrieve modified lines from $sourceDescription'")
             saveDiffTo(projectRoot.resolve(configuration.reportConfiguration.baseReportDir)).apply {
                 log.info("diff content saved to '$absolutePath'")
             }
         }
-        return ModifiedLinesDiffParser().collectModifiedLines(
-                diffSource.pullDiff()
-        )
     }
 
     companion object {

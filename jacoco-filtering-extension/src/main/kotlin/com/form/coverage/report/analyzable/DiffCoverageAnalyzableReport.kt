@@ -1,5 +1,7 @@
 package com.form.coverage.report.analyzable
 
+import com.form.coverage.diff.parser.CodeUpdateInfo
+import com.form.coverage.diff.parser.ModifiedLinesDiffParser
 import com.form.coverage.report.DiffReport
 import com.form.coverage.filters.ModifiedLinesFilter
 import org.jacoco.core.analysis.Analyzer
@@ -13,15 +15,15 @@ import org.jacoco.report.check.RulesChecker
 import org.slf4j.LoggerFactory
 
 internal class DiffCoverageAnalyzableReport(
-        private val reportMode: DiffReport
-) : FullCoverageAnalyzableReport(reportMode) {
+        private val diffReport: DiffReport
+) : FullCoverageAnalyzableReport(diffReport) {
 
     override fun buildVisitor(): IReportVisitor {
         val visitors: MutableList<IReportVisitor> = mutableListOf(super.buildVisitor())
 
         visitors += createViolationCheckVisitor(
-                reportMode.violation.failOnViolation,
-                reportMode.violation.violationRules
+                diffReport.violation.failOnViolation,
+                diffReport.violation.violationRules
         )
 
         return MultiReportVisitor(visitors)
@@ -31,12 +33,17 @@ internal class DiffCoverageAnalyzableReport(
             executionDataStore: ExecutionDataStore,
             coverageVisitor: ICoverageVisitor
     ): Analyzer {
+        val codeUpdateInfo = CodeUpdateInfo(
+                ModifiedLinesDiffParser().collectModifiedLines(
+                        diffReport.diffSource.pullDiff()
+                )
+        )
         return FilteringAnalyzer(
                 executionDataStore,
                 coverageVisitor,
-                reportMode.codeUpdateInfo::isInfoExists
+                codeUpdateInfo::isInfoExists
         ) {
-            ModifiedLinesFilter(reportMode.codeUpdateInfo)
+            ModifiedLinesFilter(codeUpdateInfo)
         }
     }
 

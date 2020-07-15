@@ -1,5 +1,6 @@
 package com.form.coverage.report
 
+import com.form.coverage.diff.DiffSource
 import com.form.coverage.diff.parser.CodeUpdateInfo
 import org.jacoco.report.check.Rule
 import java.nio.file.Path
@@ -20,7 +21,7 @@ open class FullReport(
 class DiffReport(
         baseReportDir: Path,
         reports: Set<Report>,
-        val codeUpdateInfo: CodeUpdateInfo,
+        val diffSource: DiffSource,
         val violation: Violation
 ) : FullReport(baseReportDir, reports)
 

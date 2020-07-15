@@ -12,14 +12,14 @@ import org.jacoco.report.check.Rule
 import java.io.File
 import java.nio.file.Path
 
-fun ChangesetCoverageConfiguration.toReports(baseReportDir: Path, codeUpdateInfo: CodeUpdateInfo): Set<FullReport> {
+fun ChangesetCoverageConfiguration.toReports(baseReportDir: Path, diffSource: DiffSource): Set<FullReport> {
     val reports: Set<Report> = toReportTypes()
 
     val report: MutableSet<FullReport> = mutableSetOf(
             DiffReport(
                     baseReportDir.resolve("diffCoverage"),
                     reports,
-                    codeUpdateInfo,
+                    diffSource,
                     Violation(
                             violationRules.failOnViolation,
                             listOf(buildRules(violationRules))

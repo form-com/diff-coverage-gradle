@@ -4,7 +4,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.regex.Pattern
 
-class ModifiedLinesDiffParser {
+internal class ModifiedLinesDiffParser {
 
     fun collectModifiedLines(lines: List<String>): Map<String, Set<Int>> {
         val iterator = lines.listIterator()
