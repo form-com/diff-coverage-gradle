@@ -10,7 +10,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.6.0'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.0'
     }
 }
 
@@ -100,28 +100,14 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     }
 }
 
-ext.createDiffUrl = { ->
-    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-    afterEvaluate {
-        logger.info("Computing coverage for changes between $diffBase and current state (including uncommitted)")
-    }
-    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
-    file.withOutputStream { out ->
-        exec {
-            commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
-            standardOutput = out
-        }
-    }
-    return file.toURI().toURL()
-}
-
 diffCoverageReport {
-    afterEvaluate {
-        diffSource.url = createDiffUrl()
-    }
+    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
+
+    diffSource.git.compareWith diffBase
     jacocoExecFiles = files(subprojects.jacocoTestReport.executionData)
     classesDirs = files(subprojects.jacocoTestReport.classDirectories)
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
+
     reports {
         html = true
     }
