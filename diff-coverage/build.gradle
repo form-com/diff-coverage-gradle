@@ -5,7 +5,6 @@ plugins {
 }
 
 group 'com.form.coverage'
-version '0.7.0'
 
 repositories {
     mavenCentral()
@@ -18,8 +17,6 @@ dependencies {
 
     testCompile 'org.assertj:assertj-core:3.11.1'
     testCompile 'junit:junit:4.12'
-    testCompile 'org.mock-server:mockserver-netty:3.10.8'
-    testCompile 'org.mock-server:mockserver-client-java:3.10.8'
 }
 
 test {
