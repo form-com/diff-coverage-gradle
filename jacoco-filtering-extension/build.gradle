@@ -1,5 +1,4 @@
 group 'com.form.coverage'
-version '0.7.0'
 
 test {
     useJUnitPlatform()
