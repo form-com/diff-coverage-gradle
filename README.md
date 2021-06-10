@@ -22,7 +22,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.0'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.2'
     }
 }
 ```
@@ -56,7 +56,7 @@ diffCoverageReport {
             maven { url 'https://jitpack.io' }
         }
         dependencies {
-            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.0'
+            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.2'
         }
     }
     
