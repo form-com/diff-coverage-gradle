@@ -17,9 +17,7 @@ internal class DiffCoverageAnalyzableReport(
 ) : FullCoverageAnalyzableReport(reportMode) {
 
     override fun buildVisitor(): IReportVisitor {
-        val visitors: MutableList<IReportVisitor> = mutableListOf(
-                super.buildVisitor()
-        )
+        val visitors: MutableList<IReportVisitor> = mutableListOf(super.buildVisitor())
 
         visitors += createViolationCheckVisitor(
                 reportMode.violation.failOnViolation,

@@ -1,9 +1,9 @@
 package com.form.coverage.filters
 
 import com.form.diff.CodeUpdateInfo
-import io.kotlintest.data.forall
-import io.kotlintest.specs.StringSpec
-import io.kotlintest.tables.row
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.data.forAll
+import io.kotest.data.row
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkClass
@@ -111,7 +111,7 @@ class ModifiedLinesFilterTest : StringSpec({
     }
 
     "filter should correctly fetch class modifications" {
-        forall(
+        forAll(
                 row("com/wa/ModClass"),
                 row("com/wa/ModClass\$InnerClass"),
                 row("com/wa/ModClass\$InnerClass\$Lambda"),

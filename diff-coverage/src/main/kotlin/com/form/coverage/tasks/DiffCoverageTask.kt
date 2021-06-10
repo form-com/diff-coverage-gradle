@@ -2,21 +2,18 @@ package com.form.coverage.tasks
 
 import com.form.coverage.FullReport
 import com.form.coverage.configuration.ChangesetCoverageConfiguration
-import com.form.coverage.configuration.DiffSourceConfiguration
-import com.form.coverage.configuration.diff.getDiffSource
 import com.form.coverage.configuration.toReports
 import com.form.coverage.report.ReportGenerator
 import com.form.coverage.report.analyzable.AnalyzableReportFactory
+import com.form.coverage.tasks.git.getDiffSource
 import com.form.diff.CodeUpdateInfo
 import com.form.diff.ModifiedLinesDiffParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
@@ -24,23 +21,24 @@ import java.nio.file.Paths
 
 open class DiffCoverageTask : DefaultTask() {
 
-    internal lateinit var diffCoverageReport: ChangesetCoverageConfiguration
+    @Nested
+    var diffCoverageReport: ChangesetCoverageConfiguration = ChangesetCoverageConfiguration()
 
     @InputFiles
     fun getExecFiles(): FileCollection {
         return (diffCoverageReport.jacocoExecFiles ?: jacocoReport()?.executionData)
-                ?: throw IllegalStateException("Execution data files not specified")
+            ?: throw IllegalStateException("Execution data files not specified")
     }
 
     @InputFiles
     fun getClassesFiles(): FileCollection {
         return (diffCoverageReport.classesDirs ?: jacocoReport()?.allClassDirs)
-                ?: throw IllegalStateException("Classes directory not specified")
+            ?: throw IllegalStateException("Classes directory not specified")
     }
 
     private fun getSourcesFiles(): FileCollection {
         return (diffCoverageReport.srcDirs ?: jacocoReport()?.allSourceDirs)
-                ?: throw IllegalStateException("Sources directory not specified")
+            ?: throw IllegalStateException("Sources directory not specified")
     }
 
     @Input
@@ -59,34 +57,32 @@ open class DiffCoverageTask : DefaultTask() {
     @TaskAction
     fun executeAction() {
         log.info("DiffCoverage configuration: $diffCoverageReport")
-        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(diffCoverageReport.diffSource)
+        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(
+            project.rootProject.projectDir,
+            diffCoverageReport
+        )
         fileNameToModifiedLineNumbers.forEach { (file, rows) ->
             log.info("File $file has ${rows.size} modified lines")
             log.debug("File $file has modified lines $rows")
         }
 
-        val analyzableReportFactory = AnalyzableReportFactory()
-
         val reports: Set<FullReport> = diffCoverageReport.toReports(
-                project.getReportOutputDir(),
-                CodeUpdateInfo(fileNameToModifiedLineNumbers)
+            project.getReportOutputDir(),
+            CodeUpdateInfo(fileNameToModifiedLineNumbers)
         )
-
         log.info("Starting task with configuration:")
         reports.forEach {
             log.info("\t$it")
         }
 
-        val factories = reports.let {
-            analyzableReportFactory.createCoverageAnalyzerFactory(it)
-        }
+        val analyzableReports = reports.let(AnalyzableReportFactory()::create)
 
         ReportGenerator(
-                project.projectDir,
-                getExecFiles().files.filter(File::exists).toSet(),
-                getClassesFiles().files.filter(File::exists).toSet(),
-                getSourcesFiles().files.filter(File::exists).toSet()
-        ).create(factories)
+            project.projectDir,
+            getExecFiles().files.filter(File::exists).toSet(),
+            getClassesFiles().files.filter(File::exists).toSet(),
+            getSourcesFiles().files.filter(File::exists).toSet()
+        ).create(analyzableReports)
     }
 
     private fun Project.getReportOutputDir(): Path {
@@ -103,17 +99,22 @@ open class DiffCoverageTask : DefaultTask() {
         return project.tasks.findByName("jacocoTestReport") as? JacocoReport
     }
 
-    private fun obtainUpdatesInfo(diffFilePath: DiffSourceConfiguration): Map<String, Set<Int>> {
-        val diffSource = getDiffSource(diffFilePath).apply {
-            log.debug("Starting to retrieve modified lines from $sourceType $sourceLocation")
+    private fun obtainUpdatesInfo(
+        projectRoot: File,
+        configuration: ChangesetCoverageConfiguration
+    ): Map<String, Set<Int>> {
+        val diffSource = getDiffSource(projectRoot, configuration.diffSource).apply {
+            log.debug("Starting to retrieve modified lines from $sourceDescription'")
+            saveDiffTo(projectRoot.resolve(configuration.reportConfiguration.baseReportDir)).apply {
+                log.info("diff content saved to '$absolutePath'")
+            }
         }
-
         return ModifiedLinesDiffParser().collectModifiedLines(
-                diffSource.pullDiff()
+            diffSource.pullDiff()
         )
     }
 
     companion object {
-        val log = LoggerFactory.getLogger(DiffCoverageTask::class.java)
+        val log: Logger = LoggerFactory.getLogger(DiffCoverageTask::class.java)
     }
 }

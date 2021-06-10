@@ -6,9 +6,11 @@ name: CI
 # events but only for the master branch
 on:
   push:
-    branches: [ master, develop ]
+    branches:
+      - 'master'
   pull_request:
-    branches: [ master, develop ]
+    branches:
+      - '*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -21,7 +23,9 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-    
+      with:
+        fetch-depth: 0
+
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
       with:
@@ -32,7 +36,10 @@ jobs:
       
     - name: build & test
       run: ./gradlew check    
-      
+
+    - name: run diff coverage check
+      run: ./gradlew diffCoverage -PdiffBase=refs/remotes/origin/master
+
     - name: create coverage report
       run: ./gradlew jacocoRootReport
     

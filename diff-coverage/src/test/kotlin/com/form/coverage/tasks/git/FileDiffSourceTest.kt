@@ -1,18 +1,27 @@
-package com.form.coverage.configuration.diff
+package com.form.coverage.tasks.git
 
-import io.kotlintest.matchers.collections.shouldContainExactly
-import io.kotlintest.matchers.endWith
-import io.kotlintest.should
-import io.kotlintest.shouldThrow
-import io.kotlintest.specs.StringSpec
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.tempfile
+import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.should
+import io.kotest.matchers.string.endWith
+import io.kotest.matchers.string.startWith
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.junit.rules.TemporaryFolder
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
 class FileDiffSourceTest : StringSpec() {
 
-    private val testProjectDir = TemporaryFolder().apply {
-        create()
+    private val testProjectDir : File by lazy {
+        val file = Files.createTempDirectory("JgitDiffTest").toFile()
+        afterSpec {
+            file.delete()
+        }
+        file
     }
 
     init {
@@ -46,11 +55,9 @@ class FileDiffSourceTest : StringSpec() {
             // setup
             val expectedLines = listOf( "1", "2", "3" )
             val newFile = testProjectDir.newFile().apply {
-                Files.write(
-                        toPath(),
-                        expectedLines,
-                        StandardOpenOption.APPEND
-                )
+                withContext(Dispatchers.IO) {
+                    Files.write(toPath(), expectedLines, StandardOpenOption.APPEND)
+                }
             }
 
             val fileDiffSource = FileDiffSource(newFile.absolutePath)
@@ -64,9 +71,16 @@ class FileDiffSourceTest : StringSpec() {
 
     }
 
-    override fun closeResources() {
-        super.closeResources()
-        testProjectDir.delete()
+    private fun File.newFolder(): File {
+        return resolve("${System.nanoTime()}").apply {
+            mkdir()
+        }
+    }
+
+    private fun File.newFile(): File {
+        return resolve("${System.nanoTime()}").apply {
+            createNewFile()
+        }
     }
 }
 
