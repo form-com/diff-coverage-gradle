@@ -2,15 +2,19 @@ package com.form.coverage.configuration
 
 import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 import java.nio.file.Paths
 
 open class ChangesetCoverageConfiguration(
-        var jacocoExecFiles: FileCollection? = null,
-        var classesDirs: FileCollection? = null,
-        var srcDirs: FileCollection? = null,
-        val diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
-        val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
-        val violationRules: ViolationRules = ViolationRules()
+    @Optional @InputFiles var jacocoExecFiles: FileCollection? = null,
+    @Optional @InputFiles var classesDirs: FileCollection? = null,
+    @Optional @InputFiles var srcDirs: FileCollection? = null,
+    @Nested val diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
+    @Nested val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
+    @Nested val violationRules: ViolationRules = ViolationRules()
 ) {
 
     fun reports(action: Action<in ReportsConfiguration>) {
@@ -37,16 +41,16 @@ open class ChangesetCoverageConfiguration(
 }
 
 open class DiffSourceConfiguration(
-        var file: String = "",
-        var url: String = "",
-        val git: GitConfiguration = GitConfiguration()
+    @Input var file: String = "",
+    @Input var url: String = "",
+    @Nested val git: GitConfiguration = GitConfiguration()
 ) {
     override fun toString(): String {
         return "DiffSourceConfiguration(file='$file', url='$url', git=$git)"
     }
 }
 
-open class GitConfiguration(var diffBase: String = "") {
+open class GitConfiguration(@Input var diffBase: String = "") {
     fun compareWith(diffBase: String) {
         this.diffBase = diffBase
     }
@@ -57,11 +61,11 @@ open class GitConfiguration(var diffBase: String = "") {
 }
 
 open class ReportsConfiguration(
-        var html: Boolean = false,
-        var xml: Boolean = false,
-        var csv: Boolean = false,
-        var baseReportDir: String = Paths.get("build", "reports", "jacoco").toString(),
-        var fullCoverageReport: Boolean = false
+    @Input var html: Boolean = false,
+    @Input var xml: Boolean = false,
+    @Input var csv: Boolean = false,
+    @Input var baseReportDir: String = Paths.get("build", "reports", "jacoco").toString(),
+    @Input var fullCoverageReport: Boolean = false
 ) {
     override fun toString(): String {
         return "ReportsConfiguration(html=$html, baseReportDir='$baseReportDir', fullCoverageReport=$fullCoverageReport)"
@@ -69,10 +73,10 @@ open class ReportsConfiguration(
 }
 
 open class ViolationRules(
-        var minLines: Double = 0.0,
-        var minBranches: Double = 0.0,
-        var minInstructions: Double = 0.0,
-        var failOnViolation: Boolean = false
+    @Input var minLines: Double = 0.0,
+    @Input var minBranches: Double = 0.0,
+    @Input var minInstructions: Double = 0.0,
+    @Input var failOnViolation: Boolean = false
 ) {
     override fun toString(): String {
         return "ViolationRules(" +
