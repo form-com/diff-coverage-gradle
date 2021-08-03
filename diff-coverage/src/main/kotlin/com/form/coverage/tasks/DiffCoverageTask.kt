@@ -46,7 +46,10 @@ open class DiffCoverageTask : DefaultTask() {
 
     @OutputDirectory
     fun getOutputDir(): File {
-        return project.getReportOutputDir().toFile()
+        return project.getReportOutputDir().toFile().apply {
+            log.debug("Diff Coverage output dir: $absolutePath, " +
+                    "exists=${exists()}, isDir=$isDirectory, canRead=${canRead()}, canWrite=${canWrite()}")
+        }
     }
 
     init {
@@ -57,10 +60,7 @@ open class DiffCoverageTask : DefaultTask() {
     @TaskAction
     fun executeAction() {
         log.info("DiffCoverage configuration: $diffCoverageReport")
-        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(
-            project.rootProject.projectDir,
-            diffCoverageReport
-        )
+        val fileNameToModifiedLineNumbers = obtainUpdatesInfo(diffCoverageReport)
         fileNameToModifiedLineNumbers.forEach { (file, rows) ->
             log.info("File $file has ${rows.size} modified lines")
             log.debug("File $file has modified lines $rows")
@@ -99,13 +99,14 @@ open class DiffCoverageTask : DefaultTask() {
         return project.tasks.findByName("jacocoTestReport") as? JacocoReport
     }
 
-    private fun obtainUpdatesInfo(
-        projectRoot: File,
-        configuration: ChangesetCoverageConfiguration
-    ): Map<String, Set<Int>> {
-        val diffSource = getDiffSource(projectRoot, configuration.diffSource).apply {
+    private fun obtainUpdatesInfo(configuration: ChangesetCoverageConfiguration): Map<String, Set<Int>> {
+        val reportDir: File = getOutputDir().apply {
+            val isCreated = mkdirs()
+            log.debug("Creating of report dir '$absolutePath' is successful: $isCreated")
+        }
+        val diffSource = getDiffSource(project.rootProject.projectDir, configuration.diffSource).apply {
             log.debug("Starting to retrieve modified lines from $sourceDescription'")
-            saveDiffTo(projectRoot.resolve(configuration.reportConfiguration.baseReportDir)).apply {
+            saveDiffTo(reportDir).apply {
                 log.info("diff content saved to '$absolutePath'")
             }
         }

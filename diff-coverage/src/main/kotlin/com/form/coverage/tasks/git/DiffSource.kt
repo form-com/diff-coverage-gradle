@@ -14,7 +14,7 @@ interface DiffSource {
 }
 
 internal class FileDiffSource(
-        private val filePath: String
+    private val filePath: String
 ) : DiffSource {
 
     override val sourceDescription = "File: $filePath"
@@ -34,7 +34,7 @@ internal class FileDiffSource(
 }
 
 internal class UrlDiffSource(
-        private val url: String
+    private val url: String
 ) : DiffSource {
     override val sourceDescription = "URL: $url"
 
@@ -50,8 +50,8 @@ internal class UrlDiffSource(
 }
 
 internal class GitDiffSource(
-        private val projectRoot: File,
-        private val compareWith: String
+    private val projectRoot: File,
+    private val compareWith: String
 ) : DiffSource {
 
     private val diffContent: String by lazy {
@@ -70,13 +70,13 @@ internal class GitDiffSource(
 }
 
 fun getDiffSource(
-        projectRoot: File,
-        diffConfig: DiffSourceConfiguration
+    projectRoot: File,
+    diffConfig: DiffSourceConfiguration
 ): DiffSource = when {
 
     diffConfig.file.isNotBlank() && diffConfig.url.isNotBlank() -> throw IllegalStateException(
-            "Expected only Git configuration or file or URL diff source more than one: " +
-                    "git.diffBase=${diffConfig.git.diffBase} file=${diffConfig.file}, url=${diffConfig.url}"
+        "Expected only Git configuration or file or URL diff source more than one: " +
+                "git.diffBase=${diffConfig.git.diffBase} file=${diffConfig.file}, url=${diffConfig.url}"
     )
 
     diffConfig.file.isNotBlank() -> FileDiffSource(diffConfig.file)
