@@ -78,6 +78,13 @@ open class ViolationRules(
     @Input var minInstructions: Double = 0.0,
     @Input var failOnViolation: Boolean = false
 ) {
+    fun failIfCoverageLessThan(minCoverage: Double) {
+        minLines = minCoverage
+        minBranches = minCoverage
+        minInstructions = minCoverage
+        failOnViolation = true
+    }
+
     override fun toString(): String {
         return "ViolationRules(" +
                 "minLines=$minLines, " +
