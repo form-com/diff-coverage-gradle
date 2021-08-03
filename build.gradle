@@ -1,63 +1,60 @@
-import java.nio.file.Files
-
 buildscript {
-    ext.kotlin_version = '1.4.32'
+    ext.kotlin_version = '1.5.10'
 
     repositories {
-        jcenter()
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.1'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.2'
     }
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
 
-group 'com.form'
-
 ext {
     jacoco_version = '0.8.7'
-    kotest_version = '4.6.0'
+    kotest_version = '4.6.1'
 }
 
-subprojects{
+subprojects {
     apply plugin: 'kotlin'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
 
-    version '0.7.2'
+    version '0.7.3-SNAPSHOT'
 
     repositories {
-        jcenter()
         mavenCentral()
-        mavenLocal()
     }
 
     dependencies {
-        compile "org.jacoco:org.jacoco.core:$jacoco_version"
-        compile "org.jacoco:org.jacoco.report:$jacoco_version"
-        compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
+        implementation "org.jacoco:org.jacoco.core:$jacoco_version"
+        implementation "org.jacoco:org.jacoco.report:$jacoco_version"
+        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
 
         testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
         testImplementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"
         testImplementation "io.kotest:kotest-property-jvm:$kotest_version"
-        testImplementation 'io.mockk:mockk:1.11.0'
+        testImplementation 'io.mockk:mockk:1.12.0'
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = '1.8'
+        kotlinOptions.apiVersion = '1.3'
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = '1.8'
     }
     sourceCompatibility = 1.8
 
@@ -76,13 +73,22 @@ subprojects{
         archives javadocJar
     }
 
+    publishing {
+        publications {
+            mavenJava(MavenPublication){
+                artifact jar
+                artifact sourcesJar
+            }
+        }
+    }
+
     jacoco {
-        toolVersion = "0.8.6"
+        toolVersion = "0.8.7"
     }
 
     jacocoTestReport {
         reports {
-            html.enabled = true
+            html.required = true
         }
         executionData.from fileTree(buildDir).include("/jacoco/*.exec")
     }
@@ -99,8 +105,8 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     executionData.from = files(subprojects.jacocoTestReport.executionData)
 
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
 }
 

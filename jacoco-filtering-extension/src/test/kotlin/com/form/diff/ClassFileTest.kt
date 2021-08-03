@@ -3,7 +3,6 @@ package com.form.diff
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
-
 class ClassFileTest: StringSpec({
 
     "ClassFile.path should return relative path when class has no package" {

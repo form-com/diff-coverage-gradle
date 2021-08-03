@@ -6,18 +6,17 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.file.Paths
-
 
 class DiffCoveragePluginTest {
 
@@ -26,10 +25,10 @@ class DiffCoveragePluginTest {
 
     companion object {
         val expectedReportFiles = arrayOf(
-                "com.java.test",
-                "index.html",
-                "jacoco-resources",
-                "jacoco-sessions.html"
+            "com.java.test",
+            "index.html",
+            "jacoco-resources",
+            "jacoco-sessions.html"
         )
     }
 
@@ -41,7 +40,8 @@ class DiffCoveragePluginTest {
     fun setup() {
         buildFile = testProjectDir.newFile("build.gradle")
 
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             plugins {
                 id 'com.form.diff-coverage'
                 id 'java'
@@ -55,37 +55,42 @@ class DiffCoveragePluginTest {
             dependencies {
                 testImplementation 'junit:junit:4.12'
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         diffFilePath = getResourceFile<DiffCoveragePluginTest>("test.diff.file")
-                .copyTo(testProjectDir.newFile("1.diff"), true)
-                .absolutePath.replace("\\", "/")
+            .copyTo(testProjectDir.newFile("1.diff"), true)
+            .absolutePath.replace("\\", "/")
 
         getResourceFile<DiffCoveragePluginTest>("src")
-                .copyRecursively(
-                        testProjectDir.newFolder("src"),
-                        true
-                )
+            .copyRecursively(
+                testProjectDir.newFolder("src"),
+                true
+            )
 
         gradleRunner = GradleRunner.create()
-                .withPluginClasspath()
-                .withProjectDir(testProjectDir.root)
-                .withTestKitDir(testProjectDir.newFolder())
-                .apply {
-                    // gradle testkit jacoco support
-                    File("./build/testkit/testkit-gradle.properties")
-                            .copyTo(File(projectDir, "gradle.properties"))
+            .withPluginClasspath()
+            .withProjectDir(testProjectDir.root)
+            .withTestKitDir(testProjectDir.newFolder())
+            .apply {
+                // gradle testkit jacoco support
+                javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")?.use { inputStream ->
+                    File(projectDir, "gradle.properties").outputStream().use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
                 }
-                .apply {
-                    withArguments("test").build()
-                }
+            }
+            .apply {
+                withArguments("test").build()
+            }
     }
 
     @Test
     fun `diff-coverage should create diffCoverage dir and full coverage with html, csv and xml reports`() {
         // setup
         val baseReportDir = "build/custom/reports/dir/jacoco/"
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             
             diffCoverageReport {
                 diffSource {
@@ -99,28 +104,20 @@ class DiffCoveragePluginTest {
                     baseReportDir = '$baseReportDir'
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
-                .build()
+            .withArguments("diffCoverage")
+            .build()
 
         // assert
-        assertTrue(result.output.contains("diffCoverage"))
-        assertEquals(SUCCESS, result.task(":diffCoverage")!!.outcome)
-
+        result.assertDiffCoverageStatusEqualsTo(SUCCESS)
         testProjectDir.root.resolve(baseReportDir).apply {
             assertAllReportsCreated(resolve("diffCoverage"))
             assertAllReportsCreated(resolve("fullReport"))
         }
-    }
-
-    private fun assertAllReportsCreated(baseReportDir: File) {
-        assertThat(baseReportDir.list())
-                .containsExactlyInAnyOrder("report.xml", "report.csv", "html")
-        assertThat(baseReportDir.resolve("html").list())
-                .containsExactlyInAnyOrder(*expectedReportFiles)
     }
 
     @Test
@@ -134,10 +131,10 @@ class DiffCoveragePluginTest {
         }
         val repository: Repository = FileRepositoryBuilder.create(File(testProjectDir.root, ".git")).apply {
             config.setEnum(
-                    ConfigConstants.CONFIG_CORE_SECTION,
-                    null,
-                    ConfigConstants.CONFIG_KEY_AUTOCRLF,
-                    getCrlf()
+                ConfigConstants.CONFIG_CORE_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                getCrlf()
             )
             create()
         }
@@ -148,18 +145,19 @@ class DiffCoveragePluginTest {
             val oldVersionFile = "src/main/java/com/java/test/Class1.java"
             testProjectDir.root.toPath().resolve(oldVersionFile).let {
                 getResourceFile<DiffCoveragePluginTest>("Class1GitTest.java")
-                        .copyTo(it.toFile(), true)
+                    .copyTo(it.toFile(), true)
             }
             git.add().addFilepattern(oldVersionFile).call()
             git.commit().setMessage("Added old file version").call()
 
             getResourceFile<DiffCoveragePluginTest>("src").copyRecursively(
-                    testProjectDir.root.resolve(File("src")),
-                    true
+                testProjectDir.root.resolve(File("src")),
+                true
             )
         }
 
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
 
             diffCoverageReport {
                 diffSource {
@@ -170,28 +168,32 @@ class DiffCoveragePluginTest {
                     failOnViolation = true
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
-                .buildAndFail()
+            .withArguments("diffCoverage")
+            .buildAndFail()
 
         // assert
-        assertTrue(result.output.contains("lines covered ratio is 0.6, but expected minimum is 0.7"))
-        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
+        result.assertDiffCoverageStatusEqualsTo(FAILED)
+        assertThat(result.output).contains(
+            "lines covered ratio is 0.6, but expected minimum is 0.7"
+        )
     }
 
     @Test
     fun `diff-coverage should fail on violation and generate html report`() {
         // setup
         val absolutePathBaseReportDir = testProjectDir.root.toPath()
-                .resolve("build/absolute/path/reports/jacoco/")
-                .toAbsolutePath()
-                .toString()
-                .replace("\\", "/")
+            .resolve("build/absolute/path/reports/jacoco/")
+            .toAbsolutePath()
+            .toString()
+            .replace("\\", "/")
 
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             
             diffCoverageReport {
                 diffSource.file = '$diffFilePath' 
@@ -206,28 +208,32 @@ class DiffCoveragePluginTest {
                     failOnViolation = true 
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
-                .buildAndFail()
+            .withArguments("diffCoverage")
+            .buildAndFail()
 
         // assert
-        assertTrue(result.output.contains("instructions covered ratio is 0.5, but expected minimum is 0.8"))
-        assertTrue(result.output.contains("branches covered ratio is 0.5, but expected minimum is 0.6"))
-        assertTrue(result.output.contains("lines covered ratio is 0.6, but expected minimum is 0.7"))
-        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
+        result.assertDiffCoverageStatusEqualsTo(FAILED)
+        assertThat(result.output).contains(
+            "instructions covered ratio is 0.5, but expected minimum is 0.8",
+            "branches covered ratio is 0.5, but expected minimum is 0.6",
+            "lines covered ratio is 0.6, but expected minimum is 0.7"
+        )
 
         val diffCoverageReportDir = Paths.get(absolutePathBaseReportDir, "diffCoverage", "html").toFile()
         assertThat(diffCoverageReportDir.list())
-                .containsExactlyInAnyOrder(*expectedReportFiles)
+            .containsExactlyInAnyOrder(*expectedReportFiles)
     }
 
     @Test
     fun `diff-coverage should not fail on violation when failOnViolation is false`() {
         // setup
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             
             diffCoverageReport {
                 diffSource.file = '$diffFilePath' 
@@ -238,22 +244,23 @@ class DiffCoveragePluginTest {
                     failOnViolation = false 
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
-                .build()
+            .withArguments("diffCoverage")
+            .build()
 
         // assert
-        assertTrue(result.output.contains("diffCoverage"))
-        assertEquals(SUCCESS, result.task(":diffCoverage")!!.outcome)
+        result.assertDiffCoverageStatusEqualsTo(SUCCESS)
     }
 
     @Test
     fun `diff-coverage should get diff info by url`() {
         // setup
-        buildFile.appendText("""
+        buildFile.appendText(
+            """
             
             diffCoverageReport {
                 diffSource.url = '${File(diffFilePath).toURI().toURL()}'
@@ -262,16 +269,29 @@ class DiffCoveragePluginTest {
                     failOnViolation = true 
                 }
             }
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // run
         val result = gradleRunner
-                .withArguments("diffCoverage")
-                .buildAndFail()
+            .withArguments("diffCoverage")
+            .buildAndFail()
 
         // assert
-        assertTrue(result.output.contains("diffCoverage"))
-        assertTrue(result.output.contains("instructions covered ratio is 0.5, but expected minimum is 1"))
-        assertEquals(FAILED, result.task(":diffCoverage")!!.outcome)
+        result.assertDiffCoverageStatusEqualsTo(FAILED)
+        assertThat(result.output).contains(
+            "diffCoverage",
+            "instructions covered ratio is 0.5, but expected minimum is 1"
+        )
+    }
+
+    private fun assertAllReportsCreated(baseReportDir: File) {
+        assertThat(baseReportDir.list()).containsExactlyInAnyOrder("report.xml", "report.csv", "html")
+        assertThat(baseReportDir.resolve("html").list()).containsExactlyInAnyOrder(*expectedReportFiles)
+    }
+
+    private fun BuildResult.assertDiffCoverageStatusEqualsTo(status: TaskOutcome) {
+        assertThat(output).contains("diffCoverage")
+        assertThat(task(":diffCoverage")!!.outcome).isEqualTo(status)
     }
 }
