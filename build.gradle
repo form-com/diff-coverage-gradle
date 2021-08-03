@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.5.10'
+    ext.kotlin_version = '1.4.31'
 
     repositories {
         mavenCentral()
@@ -118,9 +118,7 @@ diffCoverageReport {
     classesDirs = files(subprojects.jacocoTestReport.classDirectories)
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
 
-    reports {
-        html = true
-    }
+    reportConfiguration.html = true
 
     violationRules {
         minBranches = 0.9
