@@ -238,10 +238,8 @@ class DiffCoveragePluginTest {
             diffCoverageReport {
                 diffSource.file = '$diffFilePath' 
                 violationRules {
-                    minBranches = 1.0
-                    minLines = 1.0
-                    minInstructions = 1.0 
-                    failOnViolation = false 
+                    failIfCoverageLessThan 1.0
+                    failOnViolation = false
                 }
             }
         """.trimIndent()
@@ -254,6 +252,9 @@ class DiffCoveragePluginTest {
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(SUCCESS)
+        assertThat(result.output).contains(
+            "Fail on violations: false. Found violations: 3"
+        )
     }
 
     @Test
