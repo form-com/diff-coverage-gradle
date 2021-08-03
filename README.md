@@ -75,6 +75,8 @@ diffCoverageReport {
     
         reports {
             html = true
+            xml = true
+            csv = true
         }
     }
     diffCoverage.dependsOn += check
@@ -102,6 +104,8 @@ diffCoverageReport {
 
     reports {
         html = true // Optional. default `false`
+        xml = true // Optional. default `false`
+        csv = true // Optional. default `false`
         reportDir = 'dir/to/store/reports' // Optional. Default 'build/reports/jacoco/diffCoverage'
     }
 

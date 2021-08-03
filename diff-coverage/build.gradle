@@ -1,35 +1,23 @@
 plugins {
     id 'java-gradle-plugin'
-    id "pl.droidsonroids.jacoco.testkit" version "1.0.5"
+    id "pl.droidsonroids.jacoco.testkit" version "1.0.8"
     id 'jacoco'
 }
 
 group 'com.form.coverage'
 
-repositories {
-    mavenCentral()
-    jcenter()
-}
-
-dependencies {
-    compile project(':jacoco-filtering-extension')
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '5.7.0.202003110725-r'
-
-    testCompile 'org.assertj:assertj-core:3.11.1'
-    testCompile 'junit:junit:4.12'
-}
-
-test {
-    useJUnitPlatform()
-}
-
 sourceSets {
     functionalTest {
         kotlin.srcDir file('src/funcTest/kotlin')
         resources.srcDir file('src/funcTest/resources')
-        compileClasspath += sourceSets.main.output + configurations.testRuntime
-        runtimeClasspath += output + compileClasspath
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output + compileClasspath
     }
+}
+
+configurations {
+    functionalTestImplementation.extendsFrom testImplementation
+    functionalTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
 task functionalTest(type: Test) {
@@ -37,12 +25,22 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
-    dependsOn += generateJacocoTestKitProperties
 }
-generateJacocoTestKitProperties.destinationFile=file("$buildDir.absolutePath/jacoco/integration.exec")
+check.dependsOn functionalTest
 
 gradlePlugin {
     testSourceSets sourceSets.functionalTest
 }
 
-check.dependsOn functionalTest
+jacocoTestKit {
+    applyTo('functionalTestRuntimeOnly', tasks.named('functionalTest'))
+}
+functionalTest.dependsOn += generateJacocoFunctionalTestKitProperties
+
+dependencies {
+    implementation project(':jacoco-filtering-extension')
+    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
+
+    testImplementation 'org.assertj:assertj-core:3.20.2'
+    testImplementation 'junit:junit:4.13.2'
+}
