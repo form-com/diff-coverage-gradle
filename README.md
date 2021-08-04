@@ -22,7 +22,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.2'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.8.0'
     }
 }
 ```
@@ -56,7 +56,7 @@ diffCoverageReport {
             maven { url 'https://jitpack.io' }
         }
         dependencies {
-            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.2'
+            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.8.0'
         }
     }
     
@@ -72,6 +72,8 @@ diffCoverageReport {
         jacocoExecFiles = files(jacocoTestReport.executionData)
         classesDirs = files(jacocoTestReport.classDirectories)
         srcDirs = files(jacocoTestReport.sourceDirectories)
+    
+        violationRules.failIfCoverageLessThan 0.9
     
         reports {
             html = true
@@ -109,7 +111,10 @@ diffCoverageReport {
         reportDir = 'dir/to/store/reports' // Optional. Default 'build/reports/jacoco/diffCoverage'
     }
 
-    violationRules {
+    violationRules.failIfCoverageLessThan 0.9 // Optional. The function sets all coverage metrics to a single value, sets failOnViolation to true
+    
+    // configuration below is equivalent to the configuration above
+    violationRules {        
         minBranches = 0.9 // Optional. Default `0.0`
         minLines = 0.9 // Optional. Default `0.0`
         minInstructions = 0.9 // Optional. Default `0.0`
