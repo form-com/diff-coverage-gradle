@@ -1,0 +1,40 @@
+Index: module2/src/main/java/com/module2/Class2.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/module2/src/main/java/com/module2/Class2.java b/module2/src/main/java/com/module2/Class2.java
+--- a/module2/src/main/java/com/module2/Class2.java	(revision 1f3bd4ec54e7b75ecfa600559afecc6c9dff680b)
++++ b/module2/src/main/java/com/module2/Class2.java	(date 1629490858723)
+@@ -3,12 +3,12 @@
+ public class Class2 {
+
+     public int max( int a, int b ) {
+-        return a > b ? a : b;
++        return a > b ? a : b; //
+     }
+
+     public int min( int a, int b ) {
+-        if (a < b) {
+-            return a;
++        if (a < b) {  //
++            return a; //
+         } else {
+             return b;
+         }
+Index: module1/src/main/java/com/module1/Class1.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/module1/src/main/java/com/module1/Class1.java b/module1/src/main/java/com/module1/Class1.java
+--- a/module1/src/main/java/com/module1/Class1.java	(revision 1f3bd4ec54e7b75ecfa600559afecc6c9dff680b)
++++ b/module1/src/main/java/com/module1/Class1.java	(date 1629490858735)
+@@ -4,6 +4,6 @@
+
+ public class Class1 {
+     public void printMax(int a, int b) {
+-        System.out.println(new Class2().max(a, b));
++        System.out.println(new Class2().max(a, b)); //
+     }
+ }

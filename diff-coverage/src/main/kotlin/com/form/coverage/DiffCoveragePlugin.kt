@@ -9,26 +9,16 @@ import org.gradle.api.Task
 class DiffCoveragePlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val extension = project.getExtension<ChangesetCoverageConfiguration>(DIFF_COV_EXTENSION)
+        val extension = project.extensions.create(DIFF_COV_EXTENSION, ChangesetCoverageConfiguration::class.java)
 
-        project.createTask<DiffCoverageTask>(DIFF_COV_TASK) {
-            diffCoverageReport = extension
+        project.tasks.create(DIFF_COV_TASK, DiffCoverageTask::class.java) {
+            it.diffCoverageReport = extension
         }
     }
 
-    private companion object {
+    companion object {
         const val DIFF_COV_EXTENSION = "diffCoverageReport"
         const val DIFF_COV_TASK = "diffCoverage"
     }
 
-    private inline fun <reified T : Task> Project.createTask(
-            taskName: String,
-            crossinline configuration: T.() -> Unit = {}
-    ): T = tasks.create(taskName, T::class.java) {
-        it.apply(configuration)
-    }
-
-    private inline fun <reified T> Project.getExtension(extensionName: String): T {
-        return extensions.create(extensionName, T::class.java)
-    }
 }

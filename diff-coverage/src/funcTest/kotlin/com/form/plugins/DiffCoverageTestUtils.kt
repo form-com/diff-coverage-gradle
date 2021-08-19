@@ -1,17 +1,21 @@
 package com.form.plugins
 
+import com.form.coverage.DiffCoveragePlugin.Companion.DIFF_COV_TASK
+import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.rules.TemporaryFolder
+import org.gradle.testkit.runner.TaskOutcome
 import java.io.File
 
-const val DIFF_COVERAGE_TASK = "diffCoverage"
-
-fun buildGradleRunner(testProjectDir: TemporaryFolder): GradleRunner {
+fun buildGradleRunner(
+    projectRoot: File
+): GradleRunner {
     return GradleRunner.create()
         .withPluginClasspath()
-        .withProjectDir(testProjectDir.root)
-        .withTestKitDir(testProjectDir.newFolder())
+        .withProjectDir(projectRoot)
+        .withTestKitDir(projectRoot.resolve("TestKitDir").apply {
+            mkdir()
+        })
         .apply {
             // gradle testkit jacoco support
             javaClass.classLoader.getResourceAsStream("testkit-gradle.properties")?.use { inputStream ->
@@ -26,3 +30,22 @@ fun GradleRunner.runTask(task: String): BuildResult = withArguments(task).build(
 
 fun GradleRunner.runTaskAndFail(task: String): BuildResult = withArguments(task).buildAndFail()
 
+fun expectedHtmlReportFiles(vararg packages: String): Array<String> = arrayOf(
+    "index.html",
+    "jacoco-resources",
+    "jacoco-sessions.html"
+) + packages
+
+
+fun BuildResult.assertOutputContainsStrings(vararg expectedString: String): BuildResult {
+    assertThat(output).contains(*expectedString)
+    return this
+}
+
+fun BuildResult.assertDiffCoverageStatusEqualsTo(status: TaskOutcome): BuildResult {
+    assertThat(task(":$DIFF_COV_TASK"))
+        .isNotNull
+        .extracting { it?.outcome }
+        .isEqualTo(status)
+    return this
+}
