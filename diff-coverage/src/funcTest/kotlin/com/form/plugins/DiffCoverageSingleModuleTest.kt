@@ -1,59 +1,34 @@
 package com.form.plugins
 
+import com.form.coverage.DiffCoveragePlugin.Companion.DIFF_COV_TASK
 import com.form.coverage.tasks.git.getCrlf
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.file.Paths
 
-class DiffCoverageSingleModuleTest {
-
-    @get:Rule
-    var testProjectDir: TemporaryFolder = TemporaryFolder()
+class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
 
     companion object {
         const val TEST_PROJECT_RESOURCE_NAME = "single-module-test-project"
-
-        val EXPECTED_REPORT_FILES = arrayOf(
-            "com.java.test",
-            "index.html",
-            "jacoco-resources",
-            "jacoco-sessions.html"
-        )
     }
 
-    private lateinit var buildFile: File
-    private lateinit var diffFilePath: String
-    private lateinit var gradleRunner: GradleRunner
+    override fun buildTestConfiguration() = TestConfiguration(
+        TEST_PROJECT_RESOURCE_NAME,
+        "build.gradle",
+        "test.diff.file"
+    )
 
     @Before
     fun setup() {
-        testProjectDir.copyResourceDir<DiffCoverageSingleModuleTest>("$TEST_PROJECT_RESOURCE_NAME/src", "src")
-
-        diffFilePath = testProjectDir.copyResourceFile<DiffCoverageSingleModuleTest>(
-            "$TEST_PROJECT_RESOURCE_NAME/test.diff.file",
-            "1.diff"
-        ).toUnixAbsolutePath()
-        buildFile = testProjectDir.copyResourceFile<DiffCoverageSingleModuleTest>(
-            "$TEST_PROJECT_RESOURCE_NAME/build.gradle",
-            "build.gradle"
-        )
-
-        gradleRunner = buildGradleRunner(testProjectDir).apply {
-            runTask("test")
-        }
+        initializeGradleTest()
     }
 
     @Test
@@ -67,6 +42,10 @@ class DiffCoverageSingleModuleTest {
                 diffSource {
                     file = '$diffFilePath'
                 }
+                jacocoExecFiles = files(jacocoTestReport.executionData)
+                classesDirs = files(jacocoTestReport.classDirectories)
+                srcDirs = files(jacocoTestReport.sourceDirectories)
+                
                 reports {
                     html = true
                     xml = true
@@ -79,11 +58,11 @@ class DiffCoverageSingleModuleTest {
         )
 
         // run
-        val result = gradleRunner.runTask(DIFF_COVERAGE_TASK)
+        val result = gradleRunner.runTask(DIFF_COV_TASK)
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(SUCCESS)
-        testProjectDir.root.resolve(baseReportDir).apply {
+        rootProjectDir.resolve(baseReportDir).apply {
             assertAllReportsCreated(resolve("diffCoverage"))
             assertAllReportsCreated(resolve("fullReport"))
         }
@@ -110,7 +89,7 @@ class DiffCoverageSingleModuleTest {
         )
 
         // run
-        val result = gradleRunner.runTaskAndFail(DIFF_COVERAGE_TASK)
+        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(FAILED)
@@ -120,9 +99,9 @@ class DiffCoverageSingleModuleTest {
     @Test
     fun `diff-coverage should fail on violation and generate html report`() {
         // setup
-        val absolutePathBaseReportDir = testProjectDir.root.toPath()
+        val absolutePathBaseReportDir = rootProjectDir
             .resolve("build/absolute/path/reports/jacoco/")
-            .toFile().toUnixAbsolutePath()
+            .toUnixAbsolutePath()
 
         buildFile.appendText(
             """
@@ -144,7 +123,7 @@ class DiffCoverageSingleModuleTest {
         )
 
         // run
-        val result = gradleRunner.runTaskAndFail(DIFF_COVERAGE_TASK)
+        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(FAILED)
@@ -156,7 +135,9 @@ class DiffCoverageSingleModuleTest {
 
         val diffCoverageReportDir = Paths.get(absolutePathBaseReportDir, "diffCoverage", "html").toFile()
         assertThat(diffCoverageReportDir.list())
-            .containsExactlyInAnyOrder(*EXPECTED_REPORT_FILES)
+            .containsExactlyInAnyOrder(
+                *expectedHtmlReportFiles("com.java.test")
+            )
     }
 
     @Test
@@ -176,7 +157,7 @@ class DiffCoverageSingleModuleTest {
         )
 
         // run
-        val result = gradleRunner.runTask(DIFF_COVERAGE_TASK)
+        val result = gradleRunner.runTask(DIFF_COV_TASK)
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(SUCCESS)
@@ -200,37 +181,21 @@ class DiffCoverageSingleModuleTest {
         )
 
         // run
-        val result = gradleRunner.runTaskAndFail(DIFF_COVERAGE_TASK)
+        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(FAILED)
             .assertOutputContainsStrings("instructions covered ratio is 0.5, but expected minimum is 1")
     }
 
-    private fun BuildResult.assertOutputContainsStrings(vararg expectedString: String): BuildResult {
-        assertThat(output).contains(*expectedString)
-        return this
-    }
-
-    private fun assertAllReportsCreated(baseReportDir: File) {
-        assertThat(baseReportDir.list()).containsExactlyInAnyOrder("report.xml", "report.csv", "html")
-        assertThat(baseReportDir.resolve("html").list()).containsExactlyInAnyOrder(*EXPECTED_REPORT_FILES)
-    }
-
-    private fun BuildResult.assertDiffCoverageStatusEqualsTo(status: TaskOutcome): BuildResult {
-        assertThat(output).contains("diffCoverage")
-        assertThat(task(":diffCoverage")!!.outcome).isEqualTo(status)
-        return this
-    }
-
     private fun prepareTestProjectWithGit() {
-        testProjectDir.root.resolve(".gitignore").apply {
+        rootProjectDir.resolve(".gitignore").apply {
             appendText("\n*")
             appendText("\n!*.java")
             appendText("\n!gitignore")
             appendText("\n!*/")
         }
-        val repository: Repository = FileRepositoryBuilder.create(File(testProjectDir.root, ".git")).apply {
+        val repository: Repository = FileRepositoryBuilder.create(File(rootProjectDir, ".git")).apply {
             config.setEnum(
                 ConfigConstants.CONFIG_CORE_SECTION,
                 null,
@@ -244,7 +209,7 @@ class DiffCoverageSingleModuleTest {
             git.commit().setMessage("Add all").call()
 
             val oldVersionFile = "src/main/java/com/java/test/Class1.java"
-            val targetFile = testProjectDir.root.resolve(oldVersionFile)
+            val targetFile = rootProjectDir.resolve(oldVersionFile)
             getResourceFile<DiffCoverageSingleModuleTest>("git-diff-source-test-files/Class1GitTest.java")
                 .copyTo(targetFile, true)
 
@@ -252,9 +217,17 @@ class DiffCoverageSingleModuleTest {
             git.commit().setMessage("Added old file version").call()
 
             getResourceFile<DiffCoverageSingleModuleTest>("$TEST_PROJECT_RESOURCE_NAME/src").copyRecursively(
-                testProjectDir.root.resolve("src"),
+                rootProjectDir.resolve("src"),
                 true
             )
         }
+    }
+
+    private fun assertAllReportsCreated(baseReportDir: File) {
+        assertThat(baseReportDir.list()).containsExactlyInAnyOrder("report.xml", "report.csv", "html")
+        assertThat(baseReportDir.resolve("html").list())
+            .containsExactlyInAnyOrder(
+                *expectedHtmlReportFiles("com.java.test")
+            )
     }
 }

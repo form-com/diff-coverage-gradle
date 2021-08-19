@@ -28,7 +28,7 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
 
-    version '0.8.0'
+    version '0.9.0-SNAPSHOT'
 
     repositories {
         mavenCentral()
@@ -120,13 +120,7 @@ diffCoverageReport {
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
 
     reportConfiguration.html = true
-
-    violationRules {
-        minBranches = 0.9
-        minLines = 0.9
-        minInstructions = 0.9
-        failOnViolation = true
-    }
+    violationRules.failIfCoverageLessThan 0.9
 }
 
 task clean {
