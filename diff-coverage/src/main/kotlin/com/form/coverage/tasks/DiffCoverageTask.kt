@@ -25,20 +25,26 @@ open class DiffCoverageTask : DefaultTask() {
     var diffCoverageReport: ChangesetCoverageConfiguration = ChangesetCoverageConfiguration()
 
     @InputFiles
-    fun getExecFiles(): FileCollection {
-        return (diffCoverageReport.jacocoExecFiles ?: jacocoReport()?.executionData)
-            ?: throw IllegalStateException("Execution data files not specified")
+    fun getExecFiles(): FileCollection  = getJacocoReportConfigurationOrThrow(
+        "Execution data files not specified",
+        diffCoverageReport.jacocoExecFiles
+    ) {
+        it.executionData
     }
 
     @InputFiles
-    fun getClassesFiles(): FileCollection {
-        return (diffCoverageReport.classesDirs ?: jacocoReport()?.allClassDirs)
-            ?: throw IllegalStateException("Classes directory not specified")
+    fun getClassesFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
+        "Classes directory not specified",
+        diffCoverageReport.classesDirs
+    ) {
+        it.allClassDirs
     }
 
-    private fun getSourcesFiles(): FileCollection {
-        return (diffCoverageReport.srcDirs ?: jacocoReport()?.allSourceDirs)
-            ?: throw IllegalStateException("Sources directory not specified")
+    private fun getSourcesFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
+        "Sources directory not specified",
+        diffCoverageReport.srcDirs
+    ) {
+        it.allSourceDirs
     }
 
     @Input
@@ -47,8 +53,10 @@ open class DiffCoverageTask : DefaultTask() {
     @OutputDirectory
     fun getOutputDir(): File {
         return project.getReportOutputDir().toFile().apply {
-            log.debug("Diff Coverage output dir: $absolutePath, " +
-                    "exists=${exists()}, isDir=$isDirectory, canRead=${canRead()}, canWrite=${canWrite()}")
+            log.debug(
+                "Diff Coverage output dir: $absolutePath, " +
+                        "exists=${exists()}, isDir=$isDirectory, canRead=${canRead()}, canWrite=${canWrite()}"
+            )
         }
     }
 
@@ -95,8 +103,28 @@ open class DiffCoverageTask : DefaultTask() {
         }
     }
 
-    private fun jacocoReport(): JacocoReport? {
-        return project.tasks.findByName("jacocoTestReport") as? JacocoReport
+    private fun getJacocoReportConfigurationOrThrow(
+        errorMessageOnMissed: String,
+        diffCoverageResourceFileCollection: FileCollection?,
+        jacocoResourceMapper: (JacocoReport) -> FileCollection
+    ): FileCollection {
+        return if (diffCoverageResourceFileCollection != null) {
+            diffCoverageResourceFileCollection
+        } else {
+            jacocoTestReportsSettings(jacocoResourceMapper)
+                .takeIf { !it.isEmpty }
+                ?: throw IllegalStateException(errorMessageOnMissed)
+        }
+    }
+
+    private fun jacocoTestReportsSettings(jacocoSettings: (JacocoReport) -> FileCollection): FileCollection {
+        return listOf(project).union(project.subprojects).asSequence()
+            .map { it.tasks.findByName(JACOCO_REPORT_TASK) }
+            .filterNotNull()
+            .map { jacocoSettings(it as JacocoReport) }
+            .fold(project.files() as FileCollection) { aggregated, nextCollection ->
+                aggregated.plus(nextCollection)
+            }
     }
 
     private fun obtainUpdatesInfo(configuration: ChangesetCoverageConfiguration): Map<String, Set<Int>> {
@@ -117,5 +145,7 @@ open class DiffCoverageTask : DefaultTask() {
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(DiffCoverageTask::class.java)
+        const val JACOCO_REPORT_TASK = "jacocoTestReport"
     }
+
 }
