@@ -38,6 +38,7 @@ subprojects {
         implementation "org.jacoco:org.jacoco.core:$jacoco_version"
         implementation "org.jacoco:org.jacoco.report:$jacoco_version"
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
+        implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
 
         testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
         testImplementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"

@@ -1,7 +1,7 @@
 package com.form.diff
 
+import org.eclipse.jgit.util.QuotedString
 import org.slf4j.LoggerFactory
-import java.util.*
 import java.util.regex.Pattern
 
 class ModifiedLinesDiffParser {
@@ -25,11 +25,22 @@ class ModifiedLinesDiffParser {
     }
 
     private fun parseFileRelativePath(diffFilePath: String): String {
-        val matcher = FILE_RELATIVE_PATH_PATTERN.matcher(diffFilePath)
-        return if(matcher.find()) {
-            matcher.group(1)
+        val parsedPath = parseFilePath(FILE_RELATIVE_PATH_PATTERN, diffFilePath)
+                ?: parseFilePath(FILE_RELATIVE_PATH_QUOTED_PATTERN, diffFilePath, QuotedString.GIT_PATH::dequote)
+
+        return parsedPath ?: throw IllegalArgumentException("Couldn't parse file relative path: $diffFilePath")
+    }
+
+    private fun parseFilePath(
+            pattern: Pattern,
+            diffFilePath: String,
+            pathMapper: (String) -> String = { it }
+    ): String? {
+        val matcher = pattern.matcher(diffFilePath)
+        return if (matcher.find()) {
+            pathMapper(matcher.group(1))
         } else {
-            throw IllegalArgumentException("Couldn't parse file relative path: $diffFilePath")
+            null
         }
     }
 
@@ -49,7 +60,7 @@ class ModifiedLinesDiffParser {
         val fileChangedLines = HashSet<Int>()
         while (iterator.hasNext()) {
             val nextLine = iterator.next()
-            if(nextLine.startsWith(HUNK_RANGE_INFO_SIGNS)) {
+            if (nextLine.startsWith(HUNK_RANGE_INFO_SIGNS)) {
                 val fileOffset = parseFileDiffBlockOffset(nextLine)
                 fileChangedLines += obtainFilesAddedOrUpdatedLines(iterator, fileOffset)
             } else {
@@ -62,7 +73,7 @@ class ModifiedLinesDiffParser {
 
     private fun parseFileDiffBlockOffset(line: String): Int {
         val matcher = FILE_OFFSET_PATTERN.matcher(line)
-        return if(matcher.find()) {
+        return if (matcher.find()) {
             matcher.group(1).toInt()
         } else {
             throw IllegalArgumentException("Couldn't parse file's range information: $line")
@@ -97,7 +108,8 @@ class ModifiedLinesDiffParser {
 
     private companion object {
         val FILE_OFFSET_PATTERN = Pattern.compile("^@@.*\\+(\\d+)(,\\d+)? @@")!!
-        val FILE_RELATIVE_PATH_PATTERN = Pattern.compile("^\\+\\+\\+\\s([\\w-_.<>$/]+)\\s*\\t*.*\$")!!
+        val FILE_RELATIVE_PATH_PATTERN = Pattern.compile("^\\+\\+\\+\\s([^\"][^\\t]*)([\\t]+.*)?\$")!!
+        val FILE_RELATIVE_PATH_QUOTED_PATTERN = Pattern.compile("^\\+\\+\\+\\s(\".+?\")\\s*\\t*.*\$")!!
 
         val log = LoggerFactory.getLogger(ModifiedLinesDiffParser::class.java)
 
