@@ -3,22 +3,16 @@ package com.form.coverage.tasks.git
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.ConfigConstants
-import org.eclipse.jgit.lib.CoreConfig
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
-import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.filter.TreeFilter
-import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.lang.IllegalArgumentException
-import java.util.logging.Logger
-
 
 class JgitDiff(workingDir: File) {
 
@@ -65,6 +59,7 @@ class JgitDiff(workingDir: File) {
                 ConfigConstants.CONFIG_KEY_AUTOCRLF,
                 getCrlf()
         )
+        setQuotePaths(false)
         pathFilter = TreeFilter.ALL
     }
 

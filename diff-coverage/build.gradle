@@ -39,7 +39,6 @@ functionalTest.dependsOn += generateJacocoFunctionalTestKitProperties
 
 dependencies {
     implementation project(':jacoco-filtering-extension')
-    implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
 
     testImplementation 'org.assertj:assertj-core:3.20.2'
     testImplementation 'junit:junit:4.13.2'

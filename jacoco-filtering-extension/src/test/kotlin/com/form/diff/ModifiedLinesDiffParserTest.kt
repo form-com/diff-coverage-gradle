@@ -183,4 +183,26 @@ class ModifiedLinesDiffParserTest: StringSpec( {
         // assert
         collectModifiedLines shouldContainExactly mapOf(filePath to setOf(1, 6, 7))
     }
+
+    "collectModifiedLines should parse quoted paths" {
+        // setup
+        val filePath = "b/#1{ }.txt"
+
+        val diffContent = """
+            diff --git "a/1\173 \175.txt" "b/1\173 \175.txt"
+            index 150c4fd..1ddd327 100644
+            --- "a/1\173 \175.txt"
+            +++ "b/\0431\173 \175.txt"
+            @@ -1 +1,2 @@
+             prev
+            +new
+        """.trimIndent().lines()
+
+        // run
+        val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+
+        // assert
+        collectModifiedLines shouldContainExactly mapOf(filePath to setOf(2))
+    }
+
 } )
