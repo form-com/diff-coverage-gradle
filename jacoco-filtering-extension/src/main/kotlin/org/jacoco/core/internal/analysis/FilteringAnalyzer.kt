@@ -1,6 +1,6 @@
 package org.jacoco.core.internal.analysis
 
-import com.form.diff.ClassFile
+import com.form.coverage.diff.parse.ClassFile
 import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.IClassCoverage
 import org.jacoco.core.analysis.ICoverageVisitor
