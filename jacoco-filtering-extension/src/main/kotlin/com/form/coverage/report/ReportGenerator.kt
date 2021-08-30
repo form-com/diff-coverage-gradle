@@ -1,6 +1,10 @@
 package com.form.coverage.report
 
+import com.form.coverage.config.DiffCoverageConfig
+import com.form.coverage.diff.DiffSource
+import com.form.coverage.diff.diffSourceFactory
 import com.form.coverage.report.analyzable.AnalyzableReport
+import com.form.coverage.report.analyzable.analyzableReportFactory
 import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.CoverageBuilder
 import org.jacoco.core.analysis.IBundleCoverage
@@ -14,17 +18,21 @@ import java.io.File
 import java.io.IOException
 
 class ReportGenerator(
-        private val projectDirectory: File,
-        private val jacocoExec: Set<File>,
-        classesSources: Set<File>,
-        src: Set<File>
+    projectRoot: File,
+    private val diffCoverageConfig: DiffCoverageConfig
 ) {
     private val tabWidth: Int = 4
 
-    private val classesSources: Set<File> = classesSources.filter(File::exists).toSet()
-    private val src: Set<File> = src.filter(File::exists).toSet()
+    private val jacocoExec: Set<File> = diffCoverageConfig.execFiles.filter(File::exists).toSet()
+    private val classesSources: Set<File> = diffCoverageConfig.classFiles.filter(File::exists).toSet()
+    private val src: Set<File> = diffCoverageConfig.sourceFiles.filter(File::exists).toSet()
 
-    fun create(analyzableReports: Set<AnalyzableReport>) {
+    private val diffSource: DiffSource = diffSourceFactory(projectRoot, diffCoverageConfig.diffSourceConfig)
+    private val analyzableReports: Set<AnalyzableReport> = analyzableReportFactory(diffCoverageConfig, diffSource)
+
+    fun saveDiffToDir(dir: File) = diffSource.saveDiffTo(dir)
+
+    fun create() {
         val execFileLoader = loadExecFiles()
 
         analyzableReports.forEach {
@@ -52,13 +60,13 @@ class ReportGenerator(
 
         analyzableReport.buildVisitor().run {
             visitInfo(
-                    execFileLoader.sessionInfoStore.infos,
-                    execFileLoader.executionDataStore.contents
+                execFileLoader.sessionInfoStore.infos,
+                execFileLoader.executionDataStore.contents
             )
 
             visitBundle(
-                    bundleCoverage,
-                    createSourcesLocator()
+                bundleCoverage,
+                createSourcesLocator()
             )
 
             visitEnd()
@@ -66,28 +74,28 @@ class ReportGenerator(
     }
 
     private fun analyzeStructure(
-            createAnalyzer: (ICoverageVisitor) -> Analyzer
+        createAnalyzer: (ICoverageVisitor) -> Analyzer
     ): IBundleCoverage {
         CoverageBuilder().let { builder ->
 
             val analyzer = createAnalyzer(builder)
 
-            classesSources.forEach{ analyzer.analyzeAll(it) }
+            classesSources.forEach { analyzer.analyzeAll(it) }
 
-            return builder.getBundle(projectDirectory.name)
+            return builder.getBundle(diffCoverageConfig.reportName)
         }
     }
 
     private fun createSourcesLocator(): ISourceFileLocator {
         return src.asSequence()
-                .map {
-                    DirectorySourceFileLocator(it, "utf-8", 4)
+            .map {
+                DirectorySourceFileLocator(it, "utf-8", 4)
+            }
+            .fold(MultiSourceFileLocator(tabWidth)) { accumulator, sourceLocator ->
+                accumulator.apply {
+                    add(sourceLocator)
                 }
-                .fold(MultiSourceFileLocator(tabWidth)) { accumulator, sourceLocator ->
-                    accumulator.apply {
-                        add(sourceLocator)
-                    }
-                }
+            }
     }
 
     companion object {
