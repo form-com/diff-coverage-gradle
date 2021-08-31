@@ -36,6 +36,8 @@ apply plugin: 'com.form.diff-coverage'
 diffCoverageReport {
     diffSource.file = ${PATH_TO_DIFF_FILE} 
 
+    violationRules.failIfCoverageLessThan 0.9
+    
     reports {
         html = true
     }
