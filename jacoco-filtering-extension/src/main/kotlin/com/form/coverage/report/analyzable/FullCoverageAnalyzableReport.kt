@@ -11,6 +11,7 @@ import org.jacoco.report.MultiReportVisitor
 import org.jacoco.report.csv.CSVFormatter
 import org.jacoco.report.html.HTMLFormatter
 import org.jacoco.report.xml.XMLFormatter
+import java.io.File
 import java.io.FileOutputStream
 
 internal open class FullCoverageAnalyzableReport(
@@ -19,13 +20,18 @@ internal open class FullCoverageAnalyzableReport(
 
     override fun buildVisitor(): IReportVisitor {
         return report.reports.map {
-            val reportFile = report.resolveReportAbsolutePath(it).toFile()
+            val reportFile: File = report.resolveReportAbsolutePath(it).toFile()
             when (it.reportType) {
                 ReportType.HTML -> FileMultiReportOutput(reportFile).let(HTMLFormatter()::createVisitor)
-                ReportType.XML -> FileOutputStream(reportFile).let(XMLFormatter()::createVisitor)
-                ReportType.CSV -> FileOutputStream(reportFile).let(CSVFormatter()::createVisitor)
+                ReportType.XML -> reportFile.createFileOutputStream().let(XMLFormatter()::createVisitor)
+                ReportType.CSV -> reportFile.createFileOutputStream().let(CSVFormatter()::createVisitor)
             }
         }.let(::MultiReportVisitor)
+    }
+
+    private fun File.createFileOutputStream(): FileOutputStream {
+        parentFile.mkdirs()
+        return FileOutputStream(this)
     }
 
     override fun buildAnalyzer(
