@@ -3,16 +3,11 @@ package com.form.coverage.gradle
 import com.form.coverage.gradle.DiffCoveragePlugin.Companion.DIFF_COV_TASK
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.TaskOutcome.FAILED
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 
 class DiffCoverageMultiModuleTest : BaseDiffCoverageTest() {
-
-    @get:Rule
-    var temporaryFolder: TemporaryFolder = TemporaryFolder()
 
     companion object {
         const val TEST_PROJECT_RESOURCE_NAME = "multi-module-test-project"
@@ -24,7 +19,7 @@ class DiffCoverageMultiModuleTest : BaseDiffCoverageTest() {
         "test.diff"
     )
 
-    @Before
+    @BeforeEach
     fun setup() {
         initializeGradleTest()
     }

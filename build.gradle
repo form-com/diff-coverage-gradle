@@ -116,6 +116,7 @@ diffCoverageReport {
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
 
     reportConfiguration.html = true
+    reportConfiguration.fullCoverageReport = true
     violationRules.failIfCoverageLessThan 0.9
 }
 

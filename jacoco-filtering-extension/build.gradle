@@ -1,9 +1,5 @@
 group 'com.form.coverage'
 
-test {
-    useJUnitPlatform()
-}
-
 ext {
     jacoco_version = '0.8.7'
 }

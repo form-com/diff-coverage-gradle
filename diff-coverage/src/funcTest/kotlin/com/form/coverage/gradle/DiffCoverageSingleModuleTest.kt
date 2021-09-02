@@ -9,8 +9,8 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 import java.nio.file.Paths
 
@@ -26,7 +26,7 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
         "test.diff.file"
     )
 
-    @Before
+    @BeforeEach
     fun setup() {
         initializeGradleTest()
     }
