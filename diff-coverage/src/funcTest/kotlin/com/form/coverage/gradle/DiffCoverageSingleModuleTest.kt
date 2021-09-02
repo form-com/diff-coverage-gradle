@@ -1,7 +1,7 @@
 package com.form.coverage.gradle
 
-import com.form.coverage.gradle.DiffCoveragePlugin.Companion.DIFF_COV_TASK
 import com.form.coverage.diff.git.getCrlf
+import com.form.coverage.gradle.DiffCoveragePlugin.Companion.DIFF_COV_TASK
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants
@@ -11,6 +11,8 @@ import org.gradle.testkit.runner.TaskOutcome.FAILED
 import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import java.io.File
 import java.nio.file.Paths
 
@@ -29,6 +31,76 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
     @BeforeEach
     fun setup() {
         initializeGradleTest()
+    }
+
+    @Test
+    fun `diff-coverage should validate coverage and fail without report creation`() {
+        // setup
+        val baseReportDir = "build/custom/reports/dir/jacoco/"
+        buildFile.appendText(
+            """
+            diffCoverageReport {
+                diffSource.file = '$diffFilePath'
+                reportConfiguration.baseReportDir = '$baseReportDir'
+                violationRules {
+                    failIfCoverageLessThan 1.0
+                    failOnViolation = true
+                }
+            }
+        """.trimIndent()
+        )
+
+        // run
+        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
+
+        // assert
+        result.assertDiffCoverageStatusEqualsTo(FAILED)
+            .assertOutputContainsStrings("Fail on violations: true. Found violations: 3")
+        assertThat(
+            rootProjectDir.resolve(baseReportDir).resolve("diffCoverage")
+        ).doesNotExist()
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        value = [
+            "html,  html,       true",
+            "csv,   report.csv, false",
+            "xml,   report.xml, false"
+        ]
+    )
+    fun `diff-coverage should create single report type`(
+        reportToGenerate: String,
+        expectedReportFile: String,
+        isDirectory: Boolean
+    ) {
+        // setup
+        val baseReportDir = "build/custom/reports/dir/jacoco/"
+        buildFile.appendText(
+            """
+            diffCoverageReport {
+                diffSource.file = '$diffFilePath'
+                reportConfiguration.baseReportDir = '$baseReportDir'
+                reportConfiguration.$reportToGenerate = true
+            }
+        """.trimIndent()
+        )
+
+        // run
+        val result = gradleRunner.runTask(DIFF_COV_TASK)
+
+        // assert
+        result.assertDiffCoverageStatusEqualsTo(SUCCESS)
+            .assertOutputContainsStrings("Fail on violations: false. Found violations: 0")
+
+        val diffReportDir: File = rootProjectDir.resolve(baseReportDir).resolve("diffCoverage")
+        assertThat(diffReportDir.list()!!.toList())
+            .hasSize(1).first()
+            .extracting(
+                { it },
+                { diffReportDir.resolve(it).isDirectory }
+            )
+            .containsExactly(expectedReportFile, isDirectory)
     }
 
     @Test
