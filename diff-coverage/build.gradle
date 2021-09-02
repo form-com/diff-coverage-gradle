@@ -25,6 +25,7 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
+    useJUnitPlatform()
 }
 check.dependsOn functionalTest
 
@@ -41,6 +42,8 @@ dependencies {
     implementation project(':jacoco-filtering-extension')
 
     testImplementation 'org.assertj:assertj-core:3.20.2'
-    testImplementation 'junit:junit:4.13.2'
+
     functionalTestImplementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
+    functionalTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
+    functionalTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
 }
