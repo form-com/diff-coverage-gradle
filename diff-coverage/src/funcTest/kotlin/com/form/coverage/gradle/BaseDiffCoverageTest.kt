@@ -1,14 +1,13 @@
 package com.form.coverage.gradle
 
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 abstract class BaseDiffCoverageTest {
 
-    @get:Rule
-    var tempTestDir: TemporaryFolder = TemporaryFolder()
+    @TempDir
+    lateinit var tempTestDir: File
 
     lateinit var rootProjectDir: File
     lateinit var buildFile: File
