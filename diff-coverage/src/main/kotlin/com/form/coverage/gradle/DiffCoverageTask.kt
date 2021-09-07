@@ -1,9 +1,6 @@
 package com.form.coverage.gradle
 
-import com.form.coverage.config.DiffCoverageConfig
-import com.form.coverage.config.DiffSourceConfig
-import com.form.coverage.config.ReportConfig
-import com.form.coverage.config.ViolationRuleConfig
+import com.form.coverage.config.*
 import com.form.coverage.report.ReportGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
@@ -111,7 +108,7 @@ open class DiffCoverageTask : DefaultTask() {
             }
     }
 
-    private fun buildDiffCoverageConfig() : DiffCoverageConfig {
+    private fun buildDiffCoverageConfig(): DiffCoverageConfig {
         return DiffCoverageConfig(
             reportName = project.projectDir.name,
             diffSourceConfig = DiffSourceConfig(
@@ -119,11 +116,11 @@ open class DiffCoverageTask : DefaultTask() {
                 url = diffCoverageReport.diffSource.url,
                 diffBase = diffCoverageReport.diffSource.git.diffBase
             ),
-            reportConfig = ReportConfig(
+            reportsConfig = ReportsConfig(
                 baseReportDir = project.getReportOutputDir().toAbsolutePath().toString(),
-                html = diffCoverageReport.reportConfiguration.html,
-                csv = diffCoverageReport.reportConfiguration.csv,
-                xml = diffCoverageReport.reportConfiguration.xml,
+                html = ReportConfig(enabled = diffCoverageReport.reportConfiguration.html, "html"),
+                csv = ReportConfig(enabled = diffCoverageReport.reportConfiguration.csv, "report.csv"),
+                xml = ReportConfig(enabled = diffCoverageReport.reportConfiguration.xml, "report.xml"),
                 fullCoverageReport = diffCoverageReport.reportConfiguration.fullCoverageReport
             ),
             violationRuleConfig = ViolationRuleConfig(
