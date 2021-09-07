@@ -1,7 +1,7 @@
 package com.form.coverage.report
 
 import com.form.coverage.config.DiffCoverageConfig
-import com.form.coverage.config.ReportConfig
+import com.form.coverage.config.ReportsConfig
 import com.form.coverage.config.ViolationRuleConfig
 import com.form.coverage.diff.DiffSource
 import org.jacoco.core.analysis.ICoverageNode
@@ -13,10 +13,10 @@ internal fun reportFactory(
     diffSourceConfig: DiffCoverageConfig,
     diffSource: DiffSource
 ): Set<FullReport> {
-    val reports: Set<Report> = diffSourceConfig.reportConfig.toReportTypes()
+    val reports: Set<Report> = diffSourceConfig.reportsConfig.toReportTypes()
 
     val violationRule: Rule = buildRule(diffSourceConfig.violationRuleConfig)
-    val baseReportDir = Paths.get(diffSourceConfig.reportConfig.baseReportDir)
+    val baseReportDir = Paths.get(diffSourceConfig.reportsConfig.baseReportDir)
     val report: MutableSet<FullReport> = mutableSetOf(
         DiffReport(
             baseReportDir.resolve("diffCoverage"),
@@ -29,7 +29,7 @@ internal fun reportFactory(
         )
     )
 
-    if (diffSourceConfig.reportConfig.fullCoverageReport) {
+    if (diffSourceConfig.reportsConfig.fullCoverageReport) {
         report += FullReport(
             baseReportDir.resolve("fullReport"),
             reports
@@ -39,19 +39,13 @@ internal fun reportFactory(
     return report
 }
 
-private fun ReportConfig.toReportTypes(): Set<Report> = sequenceOf(
+private fun ReportsConfig.toReportTypes(): Set<Report> = sequenceOf(
     ReportType.HTML to html,
     ReportType.CSV to csv,
     ReportType.XML to xml
-).filter { it.second }.map {
-    Report(it.first, it.first.defaultOutputFileName())
+).filter { it.second.enabled }.map {
+    Report(it.first, it.second.outputFileName)
 }.toSet()
-
-private fun ReportType.defaultOutputFileName(): String = when (this) {
-    ReportType.XML -> "report.xml"
-    ReportType.CSV -> "report.csv"
-    ReportType.HTML -> "html"
-}
 
 private fun buildRule(
     violationRulesOptions: ViolationRuleConfig

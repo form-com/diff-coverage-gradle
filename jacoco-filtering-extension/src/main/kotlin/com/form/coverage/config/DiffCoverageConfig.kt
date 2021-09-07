@@ -15,19 +15,24 @@ data class ViolationRuleConfig(
     val failOnViolation: Boolean = false
 )
 
-data class ReportConfig(
-    val html: Boolean = false,
-    val xml: Boolean = false,
-    val csv: Boolean = false,
+data class ReportsConfig(
+    val html: ReportConfig,
+    val xml: ReportConfig,
+    val csv: ReportConfig,
     val baseReportDir: String = "",
     val fullCoverageReport: Boolean = false
 )
 
+data class ReportConfig(
+    val enabled: Boolean,
+    val outputFileName: String
+)
+
 data class DiffCoverageConfig(
     val reportName: String,
-    val diffSourceConfig: DiffSourceConfig = DiffSourceConfig(),
-    val reportConfig: ReportConfig = ReportConfig(),
-    val violationRuleConfig: ViolationRuleConfig = ViolationRuleConfig(),
+    val diffSourceConfig: DiffSourceConfig,
+    val reportsConfig: ReportsConfig,
+    val violationRuleConfig: ViolationRuleConfig,
     val execFiles: Set<File>,
     val classFiles: Set<File>,
     val sourceFiles: Set<File>
