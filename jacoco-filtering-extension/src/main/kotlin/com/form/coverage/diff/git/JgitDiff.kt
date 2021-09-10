@@ -64,7 +64,7 @@ class JgitDiff(workingDir: File) {
     }
 
     private fun getTreeIterator(repo: Repository, name: String): AbstractTreeIterator {
-        val id: ObjectId = repo.resolve(name) ?: throw UnknownRevisionException("Unknown revision '$name'")
+        val id: ObjectId = repo.resolve(name) ?: throw buildUnknownRevisionException(name)
         val parser = CanonicalTreeParser()
         repo.newObjectReader().use { objectReader ->
             RevWalk(repo).use { revWalk ->
@@ -73,6 +73,23 @@ class JgitDiff(workingDir: File) {
             }
         }
     }
+
+    private fun buildUnknownRevisionException(name: String): UnknownRevisionException {
+        return UnknownRevisionException(
+            """
+            Unknown revision '$name'. Available branches: ${branches()}
+            """.trimIndent()
+        )
+    }
+
+    private fun branches(): String {
+        return Git(repository).branchList().call()
+            .asSequence()
+            .map { it.name }
+            .sorted()
+            .joinToString(", ")
+    }
+
 }
 
 class UnknownRevisionException(message: String) : RuntimeException(message)
