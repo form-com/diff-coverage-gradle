@@ -31,14 +31,14 @@ class JgitDiff(workingDir: File) {
         )
     }
 
-    fun obtain(commit: String): String {
+    fun obtain(revision: String): String {
         val diffContent = ByteArrayOutputStream()
         Git(repository).use {
             DiffFormatter(diffContent).apply {
                 initialize()
 
                 scan(
-                    getTreeIterator(repository, commit),
+                    getTreeIterator(repository, revision),
                     FileTreeIterator(repository)
                 ).forEach {
                     format(it)
@@ -64,7 +64,7 @@ class JgitDiff(workingDir: File) {
     }
 
     private fun getTreeIterator(repo: Repository, name: String): AbstractTreeIterator {
-        val id: ObjectId = repo.resolve(name)
+        val id: ObjectId = repo.resolve(name) ?: throw UnknownRevisionException("Unknown revision '$name'")
         val parser = CanonicalTreeParser()
         repo.newObjectReader().use { objectReader ->
             RevWalk(repo).use { revWalk ->
@@ -74,3 +74,5 @@ class JgitDiff(workingDir: File) {
         }
     }
 }
+
+class UnknownRevisionException(message: String) : RuntimeException(message)
