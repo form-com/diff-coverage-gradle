@@ -188,6 +188,37 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
             .assertOutputContainsStrings("instructions covered ratio is 0.5, but expected minimum is 1")
     }
 
+    @Test
+    fun `diff-coverage should fail and print available branches if provided branch not found`() {
+        // setup
+        val unknownBranch = "unknown-branch"
+        val newBranch = "new-branch"
+        buildGitRepository().apply {
+            add().addFilepattern(".").call()
+            commit().setMessage("Add all").call()
+            branchCreate().setName(newBranch).call()
+        }
+
+        buildFile.appendText(
+            """
+
+            diffCoverageReport {
+                diffSource.git.compareWith '$unknownBranch'
+            }
+        """.trimIndent()
+        )
+
+        // run
+        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
+
+        // assert
+        result.assertDiffCoverageStatusEqualsTo(FAILED)
+            .assertOutputContainsStrings(
+                "Unknown revision '$unknownBranch'",
+                "Available branches: refs/heads/master, refs/heads/$newBranch"
+            )
+    }
+
     private fun prepareTestProjectWithGit() {
         rootProjectDir.resolve(".gitignore").apply {
             appendText("\n*")
@@ -195,16 +226,7 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
             appendText("\n!gitignore")
             appendText("\n!*/")
         }
-        val repository: Repository = FileRepositoryBuilder.create(File(rootProjectDir, ".git")).apply {
-            config.setEnum(
-                ConfigConstants.CONFIG_CORE_SECTION,
-                null,
-                ConfigConstants.CONFIG_KEY_AUTOCRLF,
-                getCrlf()
-            )
-            create()
-        }
-        Git(repository).use { git ->
+        buildGitRepository().use { git ->
             git.add().addFilepattern(".").call()
             git.commit().setMessage("Add all").call()
 
@@ -221,6 +243,19 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
                 true
             )
         }
+    }
+
+    private fun buildGitRepository(): Git {
+        val repository: Repository = FileRepositoryBuilder.create(File(rootProjectDir, ".git")).apply {
+            config.setEnum(
+                ConfigConstants.CONFIG_CORE_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTOCRLF,
+                getCrlf()
+            )
+            create()
+        }
+        return Git(repository)
     }
 
     private fun assertAllReportsCreated(baseReportDir: File) {

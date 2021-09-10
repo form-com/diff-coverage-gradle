@@ -53,7 +53,9 @@ class JgitDiffTest : StringSpec() {
             }
 
             // assert
-            exception.message should match("Unknown revision '$branchName'")
+            exception.message should match(
+                "Unknown revision '$branchName'. Available branches: refs/heads/master"
+            )
         }
 
     }
