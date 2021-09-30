@@ -36,7 +36,6 @@ fun expectedHtmlReportFiles(vararg packages: String): Array<String> = arrayOf(
     "jacoco-sessions.html"
 ) + packages
 
-
 fun BuildResult.assertOutputContainsStrings(vararg expectedString: String): BuildResult {
     assertThat(output).contains(*expectedString)
     return this

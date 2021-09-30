@@ -3,6 +3,8 @@
 ## [0.9.0]
 ### Added
 - source file collection `diffCoverageReport.srcDirs` as `diffCoverage` task input
+### Changed
+  - fail build if any of `jacocoExecFiles`, `classesDirs` or `srcDirs` is not configured and cannot be autoconfigured from JaCoCo plugin
 ### Fixed
 - error message if provided Git revision doesn't exist [#19](https://github.com/form-com/diff-coverage-gradle/issues/19)
 - Diff Coverage task fail when only csv or xml report is enabled [#26](https://github.com/form-com/diff-coverage-gradle/issues/26)
