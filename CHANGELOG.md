@@ -2,7 +2,8 @@
 
 ## [0.9.0]
 ### Added
-- source file collection `diffCoverageReport.srcDirs` as `diffCoverage` task input
+- autoconfiguration of `jacocoExecFiles`, `classesDirs`, `srcDirs` if JaCoCo plugin is applied and custom values are not set [#24](https://github.com/form-com/diff-coverage-gradle/issues/24)
+- source file collection `diffCoverageReport.srcDirs` as `diffCoverage` task input [#28](https://github.com/form-com/diff-coverage-gradle/issues/28)
 ### Changed
   - fail build if any of `jacocoExecFiles`, `classesDirs` or `srcDirs` is not configured and cannot be autoconfigured from JaCoCo plugin
 ### Fixed
