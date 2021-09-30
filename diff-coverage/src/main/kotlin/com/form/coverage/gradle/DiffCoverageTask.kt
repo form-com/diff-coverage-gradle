@@ -34,7 +34,8 @@ open class DiffCoverageTask : DefaultTask() {
         it.allClassDirs
     }
 
-    private fun getSourcesFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
+    @InputFiles
+    fun getSourcesFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
         "Sources directory not specified",
         diffCoverageReport.srcDirs
     ) {
