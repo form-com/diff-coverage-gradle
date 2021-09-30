@@ -104,6 +104,25 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
     }
 
     @Test
+    fun `diff-coverage should fail if classes file collection is empty`() {
+        // setup
+        buildFile.appendText(
+            """
+            diffCoverageReport {
+                diffSource.file = '$diffFilePath'
+                classesDirs = files()
+            }
+        """.trimIndent()
+        )
+
+        // run
+        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
+
+        // assert
+        result.assertOutputContainsStrings("'diffCoverageReport.classesDirs' file collection is empty.")
+    }
+
+    @Test
     fun `diff-coverage should create diffCoverage dir and full coverage with html, csv and xml reports`() {
         // setup
         val baseReportDir = "build/custom/reports/dir/jacoco/"
