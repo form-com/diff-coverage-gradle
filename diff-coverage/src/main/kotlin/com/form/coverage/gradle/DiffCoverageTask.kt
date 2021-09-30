@@ -6,41 +6,28 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.*
-import org.gradle.testing.jacoco.tasks.JacocoReport
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
 
 open class DiffCoverageTask : DefaultTask() {
 
+    init {
+        group = "verification"
+        description = "Builds coverage report only for modified code"
+    }
+
     @Nested
     var diffCoverageReport: ChangesetCoverageConfiguration = ChangesetCoverageConfiguration()
 
     @InputFiles
-    fun getExecFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
-        "Execution data files not specified",
-        diffCoverageReport.jacocoExecFiles
-    ) {
-        it.executionData
-    }
+    fun getExecFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.EXEC)
 
     @InputFiles
-    fun getClassesFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
-        "Classes directory not specified",
-        diffCoverageReport.classesDirs
-    ) {
-        it.allClassDirs
-    }
+    fun getClassesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.CLASSES)
 
     @InputFiles
-    fun getSourcesFiles(): FileCollection = getJacocoReportConfigurationOrThrow(
-        "Sources directory not specified",
-        diffCoverageReport.srcDirs
-    ) {
-        it.allSourceDirs
-    }
+    fun getSourcesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.SOURCES)
 
     @Input
     fun getDiffSource(): String = diffCoverageReport.diffSource.let { it.url + it.file }
@@ -48,29 +35,24 @@ open class DiffCoverageTask : DefaultTask() {
     @OutputDirectory
     fun getOutputDir(): File {
         return project.getReportOutputDir().toFile().apply {
-            log.debug(
+            logger.debug(
                 "Diff Coverage output dir: $absolutePath, " +
                         "exists=${exists()}, isDir=$isDirectory, canRead=${canRead()}, canWrite=${canWrite()}"
             )
         }
     }
 
-    init {
-        group = "verification"
-        description = "Builds coverage report only for modified code"
-    }
-
     @TaskAction
     fun executeAction() {
-        log.info("DiffCoverage configuration: $diffCoverageReport")
+        logger.info("DiffCoverage configuration: $diffCoverageReport")
         val reportDir: File = getOutputDir().apply {
             val isCreated = mkdirs()
-            log.debug("Creating of report dir '$absolutePath' is successful: $isCreated")
+            logger.debug("Creating of report dir '$absolutePath' is successful: $isCreated")
         }
 
         val reportGenerator = ReportGenerator(project.rootProject.projectDir, buildDiffCoverageConfig())
         reportGenerator.saveDiffToDir(reportDir).apply {
-            log.info("diff content saved to '$absolutePath'")
+            logger.info("diff content saved to '$absolutePath'")
         }
         reportGenerator.create()
     }
@@ -83,30 +65,6 @@ open class DiffCoverageTask : DefaultTask() {
                 project.projectDir.toPath().resolve(it)
             }
         }
-    }
-
-    private fun getJacocoReportConfigurationOrThrow(
-        errorMessageOnMissed: String,
-        diffCoverageResourceFileCollection: FileCollection?,
-        jacocoResourceMapper: (JacocoReport) -> FileCollection
-    ): FileCollection {
-        return if (diffCoverageResourceFileCollection != null) {
-            diffCoverageResourceFileCollection
-        } else {
-            jacocoTestReportsSettings(jacocoResourceMapper)
-                .takeIf { !it.isEmpty }
-                ?: throw IllegalStateException(errorMessageOnMissed)
-        }
-    }
-
-    private fun jacocoTestReportsSettings(jacocoSettings: (JacocoReport) -> FileCollection): FileCollection {
-        return listOf(project).union(project.subprojects).asSequence()
-            .map { it.tasks.findByName(JACOCO_REPORT_TASK) }
-            .filterNotNull()
-            .map { jacocoSettings(it as JacocoReport) }
-            .fold(project.files() as FileCollection) { aggregated, nextCollection ->
-                aggregated.plus(nextCollection)
-            }
     }
 
     private fun buildDiffCoverageConfig(): DiffCoverageConfig {
@@ -137,7 +95,6 @@ open class DiffCoverageTask : DefaultTask() {
     }
 
     companion object {
-        val log: Logger = LoggerFactory.getLogger(DiffCoverageTask::class.java)
         const val JACOCO_REPORT_TASK = "jacocoTestReport"
     }
 
