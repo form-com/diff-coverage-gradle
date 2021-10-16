@@ -7,7 +7,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.7.2'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.8.0'
     }
 }
 
@@ -19,7 +19,6 @@ apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
 
 ext {
-    jacoco_version = '0.8.7'
     kotest_version = '4.6.1'
 }
 
@@ -28,17 +27,14 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
 
-    version '0.8.1'
+    version '0.9.0-SNAPSHOT'
 
     repositories {
         mavenCentral()
     }
 
     dependencies {
-        implementation "org.jacoco:org.jacoco.core:$jacoco_version"
-        implementation "org.jacoco:org.jacoco.report:$jacoco_version"
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
-        implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
 
         testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
         testImplementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"
@@ -120,13 +116,8 @@ diffCoverageReport {
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
 
     reportConfiguration.html = true
-
-    violationRules {
-        minBranches = 0.9
-        minLines = 0.9
-        minInstructions = 0.9
-        failOnViolation = true
-    }
+    reportConfiguration.fullCoverageReport = true
+    violationRules.failIfCoverageLessThan 0.9
 }
 
 task clean {

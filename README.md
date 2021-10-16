@@ -16,7 +16,7 @@ Why should I use it?
 
 ## Installation
 Add plugin dependency  
-```
+```groovy
 buildscript {
     repositories {
         maven { url 'https://jitpack.io' }
@@ -27,19 +27,17 @@ buildscript {
 }
 ```
 Apply `JaCoCo`(for coverage data generation) and `Diff Coverage`(for diff report generation) plugins  
-```
+```groovy
 apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
 ```
 ## Configuration
-```
+```groovy
 diffCoverageReport {
     diffSource.file = ${PATH_TO_DIFF_FILE} 
-    
-    jacocoExecFiles = files(jacocoTestReport.executionData)
-    classesDirs = files(jacocoTestReport.classDirectories)
-    srcDirs = files(jacocoTestReport.sourceDirectories)
 
+    violationRules.failIfCoverageLessThan 0.9
+    
     reports {
         html = true
     }
@@ -50,7 +48,7 @@ diffCoverageReport {
   <summary>Full example</summary> 
    
    
-  ```
+  ```groovy
     buildscript {
         repositories {
             maven { url 'https://jitpack.io' }
@@ -68,10 +66,6 @@ diffCoverageReport {
         diffSource {
             git.compareWith 'refs/remotes/origin/develop'
         }
-        
-        jacocoExecFiles = files(jacocoTestReport.executionData)
-        classesDirs = files(jacocoTestReport.classDirectories)
-        srcDirs = files(jacocoTestReport.sourceDirectories)
     
         violationRules.failIfCoverageLessThan 0.9
     
@@ -88,21 +82,21 @@ diffCoverageReport {
 
 ## Execute
 
-```
+```shell
 ./gradlew check diffCoverage
 ```
 
 ## Parameters description
-```
+```groovy
 diffCoverageReport {
     diffSource { // Required. Only one of `file`, `url` or git must be spesified
         file = 'path/to/file.diff' //  Path to diff file 
         url = 'http://domain.com/file.diff' // URL to retrieve diff by
         git.compareWith 'refs/remotes/origin/develop' // Compares current HEAD and all uncommited with provided branch, revision or tag 
     }
-    jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required
-    srcDirs = files('/path/to/sources')  // Required
-    classesDirs = files('/path/to/compiled/classes') // Required
+    jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required. By default exec files are taken from jacocoTestReport configuration if any
+    srcDirs = files('/path/to/sources')  // Required. By default sources are taken from jacocoTestReport configuration if any
+    classesDirs = files('/path/to/compiled/classes') // Required. By default classes are taken from jacocoTestReport configuration if any
 
     reports {
         html = true // Optional. default `false`

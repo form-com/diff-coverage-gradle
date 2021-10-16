@@ -6,6 +6,10 @@ plugins {
 
 group 'com.form.coverage'
 
+ext {
+    junit_version = '5.7.2'
+}
+
 sourceSets {
     functionalTest {
         kotlin.srcDir file('src/funcTest/kotlin')
@@ -25,6 +29,7 @@ task functionalTest(type: Test) {
     group = 'verification'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
+    useJUnitPlatform()
 }
 check.dependsOn functionalTest
 
@@ -41,5 +46,10 @@ dependencies {
     implementation project(':jacoco-filtering-extension')
 
     testImplementation 'org.assertj:assertj-core:3.20.2'
-    testImplementation 'junit:junit:4.13.2'
+
+    functionalTestImplementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
+    functionalTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
+    functionalTestImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
+    functionalTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_version"
+
 }

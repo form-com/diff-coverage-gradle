@@ -1,7 +1,7 @@
 package com.form.coverage.filters
 
-import com.form.diff.ClassFile
-import com.form.diff.CodeUpdateInfo
+import com.form.coverage.diff.CodeUpdateInfo
+import com.form.coverage.diff.parse.ClassFile
 import org.jacoco.core.internal.analysis.filter.IFilter
 import org.jacoco.core.internal.analysis.filter.IFilterContext
 import org.jacoco.core.internal.analysis.filter.IFilterOutput
@@ -12,14 +12,16 @@ import java.util.*
 class ModifiedLinesFilter(private val codeUpdateInfo: CodeUpdateInfo) : IFilter {
 
     override fun filter(
-            methodNode: MethodNode,
-            context: IFilterContext,
-            output: IFilterOutput
+        methodNode: MethodNode,
+        context: IFilterContext,
+        output: IFilterOutput
     ) {
-        val classModifications = codeUpdateInfo.getClassModifications(ClassFile(
+        val classModifications = codeUpdateInfo.getClassModifications(
+            ClassFile(
                 context.sourceFileName,
                 context.className
-        ))
+            )
+        )
         val groupedModifiedLines = collectLineNodes(methodNode.instructions).groupBy {
             classModifications.isLineModified(it.lineNode.line)
         }
@@ -28,14 +30,14 @@ class ModifiedLinesFilter(private val codeUpdateInfo: CodeUpdateInfo) : IFilter 
             output.ignore(it.lineNode.previous, it.lineNodeLastInstruction)
         }
 
-        if(log.isDebugEnabled) {
+        if (log.isDebugEnabled) {
             groupedModifiedLines[true]
-                    ?.map { it.lineNode.line }
-                    ?.takeIf { it.isNotEmpty() }
-                    ?.let {
-                        log.debug("Modified lines in ${context.className}#${methodNode.name}")
-                        log.debug("\tlines: $it")
-                    }
+                ?.map { it.lineNode.line }
+                ?.takeIf { it.isNotEmpty() }
+                ?.let {
+                    log.debug("Modified lines in ${context.className}#${methodNode.name}")
+                    log.debug("\tlines: $it")
+                }
         }
     }
 
@@ -70,11 +72,11 @@ class ModifiedLinesFilter(private val codeUpdateInfo: CodeUpdateInfo) : IFilter 
     }
 
     private class LineNode(
-            val lineNode: LineNumberNode,
-            var lineNodeLastInstruction: AbstractInsnNode = lineNode
+        val lineNode: LineNumberNode,
+        var lineNodeLastInstruction: AbstractInsnNode = lineNode
     )
 
     private companion object {
-        val log = LoggerFactory.getLogger( ModifiedLinesFilter::class.java )
+        val log = LoggerFactory.getLogger(ModifiedLinesFilter::class.java)
     }
 }
