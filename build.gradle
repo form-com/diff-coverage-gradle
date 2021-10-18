@@ -70,15 +70,6 @@ subprojects {
         archives javadocJar
     }
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication){
-                artifact jar
-                artifact sourcesJar
-            }
-        }
-    }
-
     jacoco {
         toolVersion = "0.8.7"
     }
