@@ -27,7 +27,7 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
 
-    version '0.9.0-SNAPSHOT'
+    version '0.9.0'
 
     repositories {
         mavenCentral()
