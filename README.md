@@ -1,7 +1,7 @@
 # Diff coverage gradle plugin 
 [![](https://jitpack.io/v/form-com/diff-coverage-gradle.svg)](https://jitpack.io/#form-com/diff-coverage-gradle) 
 ![CI](https://github.com/form-com/diff-coverage-gradle/workflows/CI/badge.svg) 
-[![codecov](https://codecov.io/gh/form-com/diff-coverage-gradle/branch/master/graph/badge.svg)](https://codecov.io/gh/form-com/diff-coverage-gradle)
+[![codecov](https://codecov.io/gh/form-com/diff-coverage-gradle/branch/develop/graph/badge.svg)](https://codecov.io/gh/form-com/diff-coverage-gradle)
 [![GitHub issues](https://img.shields.io/github/issues/form-com/diff-coverage-gradle)](https://github.com/form-com/diff-coverage-gradle/issues)
 [![GitHub stars](https://img.shields.io/github/stars/form-com/diff-coverage-gradle?style=flat-square)](https://github.com/form-com/diff-coverage-gradle/stargazers) 
 [![](https://jitpack.io/v/form-com/diff-coverage-gradle/month.svg)](https://jitpack.io/#form-com/diff-coverage-gradle)
@@ -22,7 +22,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.8.1'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.0'
     }
 }
 ```
@@ -54,7 +54,7 @@ diffCoverageReport {
             maven { url 'https://jitpack.io' }
         }
         dependencies {
-            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.8.1'
+            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.0'
         }
     }
     
