@@ -1,11 +1,37 @@
 # Diff-Coverage Gradle plugin Changelog
 
+## [0.10.0]
+### Added
+
+### Changed
+- `compareWith` and `failIfCoverageLessThan` are changed to infix function 
+  - <details>
+    <summary>Usage example</summary>
+    
+     ```kotlin
+    // kotlin gradle dsl 
+    configure<com.form.coverage.gradle.ChangesetCoverageConfiguration> {
+        // both are correct
+        diffSource.git compareWith "HEAD"
+        diffSource.git.compareWith("HEAD")
+        
+        // both are correct
+        violationRules failIfCoverageLessThan 0.7
+        violationRules.failIfCoverageLessThan(0.7)
+    }
+    
+    ```
+    </details>
+
+### Fixed
+
+
 ## [0.9.0]
 ### Added
 - autoconfiguration of `jacocoExecFiles`, `classesDirs`, `srcDirs` if JaCoCo plugin is applied and custom values are not set [#24](https://github.com/form-com/diff-coverage-gradle/issues/24)
 - source file collection `diffCoverageReport.srcDirs` as `diffCoverage` task input [#28](https://github.com/form-com/diff-coverage-gradle/issues/28)
 ### Changed
-  - fail build if any of `jacocoExecFiles`, `classesDirs` or `srcDirs` is not configured and cannot be autoconfigured from JaCoCo plugin [#29](https://github.com/form-com/diff-coverage-gradle/issues/29)
+- fail build if any of `jacocoExecFiles`, `classesDirs` or `srcDirs` is not configured and cannot be autoconfigured from JaCoCo plugin [#29](https://github.com/form-com/diff-coverage-gradle/issues/29)
 ### Fixed
 - error message if provided Git revision doesn't exist [#19](https://github.com/form-com/diff-coverage-gradle/issues/19)
 - Diff Coverage task fail when only csv or xml report is enabled [#26](https://github.com/form-com/diff-coverage-gradle/issues/26)
