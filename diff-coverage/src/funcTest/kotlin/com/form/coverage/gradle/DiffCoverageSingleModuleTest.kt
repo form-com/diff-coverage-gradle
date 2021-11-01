@@ -166,17 +166,27 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
         // setup
         prepareTestProjectWithGit()
 
-        buildFile.appendText(
+        buildFile.delete()
+        buildFile = File(rootProjectDir, "build.gradle.kts")
+        buildFile.writeText(
             """
+            plugins {
+                java
+                jacoco
+                id("com.form.diff-coverage")
+            }
+            
+            repositories {
+                mavenCentral()
+            }
 
-            diffCoverageReport {
-                diffSource {
-                    git.compareWith 'HEAD'
-                }
-                violationRules {
-                    minLines = 0.7
-                    failOnViolation = true
-                }
+            dependencies {
+                testImplementation("junit:junit:4.13.2")
+            }
+
+            configure<com.form.coverage.gradle.ChangesetCoverageConfiguration> {
+                diffSource.git compareWith "HEAD"
+                violationRules failIfCoverageLessThan 0.7
             }
         """.trimIndent()
         )
@@ -186,7 +196,11 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(FAILED)
-            .assertOutputContainsStrings("lines covered ratio is 0.6, but expected minimum is 0.7")
+            .assertOutputContainsStrings(
+                "instructions covered ratio is 0.5, but expected minimum is 0.7",
+                "branches covered ratio is 0.5, but expected minimum is 0.7",
+                "lines covered ratio is 0.6, but expected minimum is 0.7"
+            )
     }
 
     @Test

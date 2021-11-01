@@ -1,5 +1,31 @@
 # Diff-Coverage Gradle plugin Changelog
 
+## [0.10.0]
+### Added
+
+### Changed
+- `compareWith` and `failIfCoverageLessThan` are changed to infix function 
+  - <details>
+    <summary>Usage example</summary>
+    
+     ```kotlin
+    // kotlin gradle dsl 
+    configure<com.form.coverage.gradle.ChangesetCoverageConfiguration> {
+        // both are correct
+        diffSource.git compareWith "HEAD"
+        diffSource.git.compareWith("HEAD")
+        
+        // both are correct
+        violationRules failIfCoverageLessThan 0.7
+        violationRules.failIfCoverageLessThan(0.7)
+    }
+    
+    ```
+    </details>
+
+### Fixed
+
+
 ## [0.9.5]
 ### Dependency Upgrades
 - Updated log4j dependency to 2.18.0 #58
@@ -24,6 +50,7 @@
 ## [0.9.1]
 ### Fixed
 - Fixed incorrect diff generation by JGit [#34](https://github.com/form-com/diff-coverage-gradle/issues/34)
+
 
 ## [0.9.0]
 ### Added
