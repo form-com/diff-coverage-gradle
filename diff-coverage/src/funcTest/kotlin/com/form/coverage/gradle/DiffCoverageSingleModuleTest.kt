@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 import java.nio.file.Paths
 
@@ -33,6 +34,27 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
     @BeforeEach
     fun setup() {
         initializeGradleTest()
+    }
+
+    @ParameterizedTest
+    @ValueSource( strings = ["6.7.1", "7.3"] )
+    fun `diffCoverage task should be completed successfully on Gradle release`(
+        gradleVersion: String
+    ) {
+        // setup
+        buildFile.appendText(
+            """
+            diffCoverageReport {
+                diffSource.file = '$diffFilePath'
+            }
+        """.trimIndent()
+        )
+
+        // run
+        val result = gradleRunner.withGradleVersion(gradleVersion).runTask(DIFF_COV_TASK)
+
+        // assert
+        result.assertDiffCoverageStatusEqualsTo(SUCCESS)
     }
 
     @Test
