@@ -333,6 +333,7 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
                 rootProjectDir.resolve("src"),
                 true
             )
+            git.add().addFilepattern(".").call()
         }
     }
 
