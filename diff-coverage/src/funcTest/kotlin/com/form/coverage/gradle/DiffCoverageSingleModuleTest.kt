@@ -37,7 +37,7 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
     }
 
     @ParameterizedTest
-    @ValueSource( strings = ["6.7.1", "7.3"] )
+    @ValueSource( strings = ["6.7.1", "7.4.1"] )
     fun `diffCoverage task should be completed successfully on Gradle release`(
         gradleVersion: String
     ) {
