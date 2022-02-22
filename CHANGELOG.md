@@ -4,7 +4,6 @@
 ### Added
 
 ### Changed
-- min supported Gradle version is 7.+
 - `compareWith` and `failIfCoverageLessThan` are changed to infix function 
   - <details>
     <summary>Usage example</summary>
