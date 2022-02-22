@@ -15,6 +15,13 @@ Why should I use it?
 * reduces time of code review(you don't need to waste your time to track what code is covered)
 
 ## Installation
+
+### Compatibility
+| Diff Coverage plugin | Gradle              |
+|----------------------|---------------------|
+| **0.9.+**            | **6.7.1** - **7.4** |
+| **0.10.0**           | **6.7.1** - **7.4** |
+
 ### Add plugin dependency  
 
 <details open>
