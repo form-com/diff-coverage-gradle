@@ -48,7 +48,6 @@ subprojects {
 
     compileKotlin {
         kotlinOptions.jvmTarget = '1.8'
-        kotlinOptions.apiVersion = '1.3'
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = '1.8'
