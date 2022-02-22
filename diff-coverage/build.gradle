@@ -1,21 +1,51 @@
 plugins {
     id 'java-gradle-plugin'
     id "pl.droidsonroids.jacoco.testkit" version "1.0.8"
-    id 'jacoco'
 }
 
 group 'com.form.coverage'
 
-ext {
-    junit_version = '5.7.2'
+dependencies {
+    implementation project(':jacoco-filtering-extension')
 }
 
-sourceSets {
-    functionalTest {
-        kotlin.srcDir file('src/funcTest/kotlin')
-        resources.srcDir file('src/funcTest/resources')
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output + compileClasspath
+ext {
+    junit_version = '5.8.2'
+    kotest_version = '4.6.1'
+}
+
+testing {
+    suites {
+        test {
+            useJUnitJupiter()
+            dependencies {
+                implementation 'org.assertj:assertj-core:3.20.2'
+                implementation 'io.mockk:mockk:1.12.3'
+                implementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
+                implementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"
+                implementation "io.kotest:kotest-property-jvm:$kotest_version"
+            }
+        }
+
+        functionalTest(JvmTestSuite) {
+            testType = TestSuiteType.FUNCTIONAL_TEST
+            useJUnitJupiter()
+
+            sources {
+                kotlin.srcDir file('src/funcTest/kotlin')
+                resources.srcDir file('src/funcTest/resources')
+            }
+            gradlePlugin {
+                testSourceSets sources
+            }
+
+            dependencies {
+                implementation project
+                implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
+                implementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
+                implementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
+            }
+        }
     }
 }
 
@@ -24,32 +54,15 @@ configurations {
     functionalTestRuntimeOnly.extendsFrom runtimeOnly
 }
 
-task functionalTest(type: Test) {
+tasks.named('check') {
+    dependsOn(testing.suites.functionalTest)
+}
+
+tasks.named('functionalTest') {
     description = 'Runs the functional tests.'
     group = 'verification'
-    testClassesDirs = sourceSets.functionalTest.output.classesDirs
-    classpath = sourceSets.functionalTest.runtimeClasspath
-    useJUnitPlatform()
+    dependsOn(generateJacocoFunctionalTestKitProperties)
 }
-check.dependsOn functionalTest
-
-gradlePlugin {
-    testSourceSets sourceSets.functionalTest
-}
-
 jacocoTestKit {
     applyTo('functionalTestRuntimeOnly', tasks.named('functionalTest'))
-}
-functionalTest.dependsOn += generateJacocoFunctionalTestKitProperties
-
-dependencies {
-    implementation project(':jacoco-filtering-extension')
-
-    testImplementation 'org.assertj:assertj-core:3.20.2'
-
-    functionalTestImplementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
-    functionalTestImplementation "org.junit.jupiter:junit-jupiter-api:$junit_version"
-    functionalTestImplementation "org.junit.jupiter:junit-jupiter-params:$junit_version"
-    functionalTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junit_version"
-
 }
