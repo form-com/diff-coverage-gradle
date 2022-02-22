@@ -15,11 +15,32 @@ repositories {
     mavenCentral()
 }
 
+apply plugin: 'base'
 apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
+apply plugin: 'test-report-aggregation'
+
+dependencies {
+    allprojects {
+        testReportAggregation project
+    }
+}
+
+reporting {
+    reports {
+        testAggregateTestReport(AggregateTestReport) {
+            testType = TestSuiteType.UNIT_TEST
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn testAggregateTestReport
+    dependsOn subprojects.check
+}
 
 ext {
-    kotest_version = '4.6.1'
+    kotest_version = '5.1.0'
 }
 
 subprojects {
@@ -35,15 +56,6 @@ subprojects {
 
     dependencies {
         implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
-
-        testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
-        testImplementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"
-        testImplementation "io.kotest:kotest-property-jvm:$kotest_version"
-        testImplementation 'io.mockk:mockk:1.12.0'
-    }
-
-    test {
-        useJUnitPlatform()
     }
 
     compileKotlin {
@@ -71,7 +83,7 @@ subprojects {
     }
 
     jacoco {
-        toolVersion = "0.8.7"
+        toolVersion = "0.8.8"
     }
 
     jacocoTestReport {
@@ -100,19 +112,9 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
 
 diffCoverageReport {
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-
     diffSource.git.compareWith diffBase
-    jacocoExecFiles = files(subprojects.jacocoTestReport.executionData)
-    classesDirs = files(subprojects.jacocoTestReport.classDirectories)
-    srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
 
     reportConfiguration.html = true
     reportConfiguration.fullCoverageReport = true
     violationRules.failIfCoverageLessThan 0.9
-}
-
-task clean {
-    doLast {
-        delete project.buildDir
-    }
 }
