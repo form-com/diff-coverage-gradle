@@ -26,19 +26,13 @@ open class DiffCoverageTask : DefaultTask() {
     }
 
     @Nested
-    var diffCoverageReport: ChangesetCoverageConfiguration = ChangesetCoverageConfiguration()
+    lateinit var diffCoverageReport: ChangesetCoverageConfiguration
 
-    @InputFiles
-    fun getExecFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.EXEC)
+    internal fun obtainExecFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.EXEC)
 
-    @InputFiles
-    fun getClassesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.CLASSES)
+    internal fun obtainClassesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.CLASSES)
 
-    @InputFiles
-    fun getSourcesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.SOURCES)
-
-    @Input
-    fun getDiffSource(): String = diffCoverageReport.diffSource.let { it.url + it.file }
+    internal fun obtainSourcesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.SOURCES)
 
     @OutputDirectory
     fun getOutputDir(): File {
@@ -96,9 +90,9 @@ open class DiffCoverageTask : DefaultTask() {
                 minLines = diffCoverageReport.violationRules.minLines,
                 failOnViolation = diffCoverageReport.violationRules.failOnViolation
             ),
-            execFiles = getExecFiles().files,
-            classFiles = getClassesFiles().files,
-            sourceFiles = getSourcesFiles().files
+            execFiles = obtainExecFiles().files,
+            classFiles = obtainClassesFiles().files,
+            sourceFiles = obtainSourcesFiles().files
         )
     }
 

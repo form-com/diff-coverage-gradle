@@ -20,9 +20,9 @@ class DiffCoverageTaskTest : StringSpec() {
     init {
         "get input file collection should throw when file collection is not specified" {
             forAll(
-                row("'diffCoverageReport.jacocoExecFiles' is not configured.", DiffCoverageTask::getExecFiles),
-                row("'diffCoverageReport.classesDirs' is not configured.", DiffCoverageTask::getClassesFiles),
-                row("'diffCoverageReport.srcDirs' is not configured.", DiffCoverageTask::getSourcesFiles)
+                row("'diffCoverageReport.jacocoExecFiles' is not configured.", DiffCoverageTask::obtainExecFiles),
+                row("'diffCoverageReport.classesDirs' is not configured.", DiffCoverageTask::obtainClassesFiles),
+                row("'diffCoverageReport.srcDirs' is not configured.", DiffCoverageTask::obtainSourcesFiles)
             ) { expectedError, sourceAccessor ->
                 // setup
                 val coverageConfiguration = ChangesetCoverageConfiguration()
@@ -40,9 +40,9 @@ class DiffCoverageTaskTest : StringSpec() {
 
         "get input file collection should throw when file collection is empty" {
             forAll(
-                row("'diffCoverageReport.jacocoExecFiles' file collection is empty.", DiffCoverageTask::getExecFiles),
-                row("'diffCoverageReport.classesDirs' file collection is empty.", DiffCoverageTask::getClassesFiles),
-                row("'diffCoverageReport.srcDirs' file collection is empty.", DiffCoverageTask::getSourcesFiles)
+                row("'diffCoverageReport.jacocoExecFiles' file collection is empty.", DiffCoverageTask::obtainExecFiles),
+                row("'diffCoverageReport.classesDirs' file collection is empty.", DiffCoverageTask::obtainClassesFiles),
+                row("'diffCoverageReport.srcDirs' file collection is empty.", DiffCoverageTask::obtainSourcesFiles)
             ) { expectedError, sourceAccessor ->
                 // setup
                 val emptyFileCollection: FileCollection = mockk {
