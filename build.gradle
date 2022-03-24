@@ -1,55 +1,57 @@
-import java.nio.file.Files
-
 buildscript {
-    ext.kotlin_version = '1.3.71'
+    ext.kotlin_version = '1.4.31'
 
     repositories {
-        jcenter()
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.6.0'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.8.0'
     }
 }
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
 
-group 'com.form'
+ext {
+    kotest_version = '4.6.1'
+}
 
-subprojects{
+subprojects {
     apply plugin: 'kotlin'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
 
+    version '0.9.1'
+
     repositories {
-        jcenter()
         mavenCentral()
-        mavenLocal()
     }
 
     dependencies {
-        compile 'org.jacoco:org.jacoco.core:0.8.4'
-        compile 'org.jacoco:org.jacoco.report:0.8.4'
-        compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-        compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
+        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
 
-        testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
-        testImplementation "io.mockk:mockk:1.9.3.kotlin12"
+        testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
+        testImplementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"
+        testImplementation "io.kotest:kotest-property-jvm:$kotest_version"
+        testImplementation 'io.mockk:mockk:1.12.0'
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     compileKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = '1.8'
+        kotlinOptions.apiVersion = '1.3'
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = '1.8'
     }
     sourceCompatibility = 1.8
 
@@ -69,12 +71,12 @@ subprojects{
     }
 
     jacoco {
-        toolVersion = "0.8.5"
+        toolVersion = "0.8.7"
     }
 
     jacocoTestReport {
         reports {
-            html.enabled = true
+            html.required = true
         }
         executionData.from fileTree(buildDir).include("/jacoco/*.exec")
     }
@@ -91,43 +93,22 @@ task jacocoRootReport(type: JacocoReport, group: 'Coverage reports') {
     executionData.from = files(subprojects.jacocoTestReport.executionData)
 
     reports {
-        xml.enabled = true
-        html.enabled = true
+        xml.required = true
+        html.required = true
     }
-}
-
-ext.createDiffUrl = { ->
-    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-    afterEvaluate {
-        logger.info("Computing coverage for changes between $diffBase and current state (including uncommitted)")
-    }
-    def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
-    file.withOutputStream { out ->
-        exec {
-            commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
-            standardOutput = out
-        }
-    }
-    return file.toURI().toURL()
 }
 
 diffCoverageReport {
-    afterEvaluate {
-        diffSource.url = createDiffUrl()
-    }
+    def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
+
+    diffSource.git.compareWith diffBase
     jacocoExecFiles = files(subprojects.jacocoTestReport.executionData)
     classesDirs = files(subprojects.jacocoTestReport.classDirectories)
     srcDirs = files(subprojects.jacocoTestReport.sourceDirectories)
-    reports {
-        html = true
-    }
 
-    violationRules {
-        minBranches = 0.9
-        minLines = 0.9
-        minInstructions = 0.9
-        failOnViolation = true
-    }
+    reportConfiguration.html = true
+    reportConfiguration.fullCoverageReport = true
+    violationRules.failIfCoverageLessThan 0.9
 }
 
 task clean {

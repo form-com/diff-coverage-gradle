@@ -6,7 +6,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/form-com/diff-coverage-gradle?style=flat-square)](https://github.com/form-com/diff-coverage-gradle/stargazers) 
 [![](https://jitpack.io/v/form-com/diff-coverage-gradle/month.svg)](https://jitpack.io/#form-com/diff-coverage-gradle)
 
-`Diff coverage` is JaCoCo extension that computes code coverage of new/modified code based on a provided [diff](https://en.wikipedia.org/wiki/Diff#Unified_format) file. 
+`Diff coverage` is JaCoCo extension that computes code coverage of new/modified code based on a provided [diff](https://en.wikipedia.org/wiki/Diff#Unified_format). 
+The diff content can be provided via path to patch file, URL or using embedded git(see [parameters description](#Parameters-description)).   
 
 Why should I use it?
 * forces each developer to be responsible for its own code quality(see [diffCoverage task](#gradle-task-description))
@@ -14,111 +15,163 @@ Why should I use it?
 * reduces time of code review(you don't need to waste your time to track what code is covered)
 
 ## Installation
-Add plugin dependency  
-```
+### Add plugin dependency  
+
+<details open>
+
+<summary><b>Groovy</b></summary>
+
+```groovy
 buildscript {
     repositories {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.6.0'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.0'
     }
 }
 ```
-Apply `JaCoCo`(for coverage data generation) and `Diff Coverage`(for diff report generation) plugins  
+
+</details>
+<details>
+<summary><b>Kotlin</b></summary>
+
+```kotlin
+buildscript {
+    repositories {
+        maven("https://jitpack.io")
+    }
+    dependencies {
+        classpath("com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.0")
+    }
+}
 ```
+
+</details>
+
+### Apply `JaCoCo` and `Diff Coverage` plugins
+* `JaCoCo` is used to collect coverage data
+* `Diff Coverage` is used to generate diff report
+
+<details open>
+<summary><b>Groovy</b></summary>
+
+```groovy
 apply plugin: 'jacoco'
 apply plugin: 'com.form.diff-coverage'
 ```
-## Configuration
+
+</details>
+<details>
+<summary><b>Kotlin</b></summary>
+
+```kotlin
+plugins {
+    jacoco
+}
+apply(plugin = "com.form.diff-coverage")
 ```
+
+</details>
+
+## Configuration
+
+<details open>
+<summary><b>Groovy</b></summary>
+
+```groovy
 diffCoverageReport {
     diffSource.file = ${PATH_TO_DIFF_FILE} 
-    
-    jacocoExecFiles = files(jacocoTestReport.executionData)
-    classesDirs = files(jacocoTestReport.classDirectories)
-    srcDirs = files(jacocoTestReport.sourceDirectories)
 
+    violationRules.failIfCoverageLessThan 0.9
+    
     reports {
         html = true
     }
 }
 ```
 
+</details>
 <details>
-  <summary>Full example</summary> 
-   
-   
-  ```
-    import java.nio.file.Files
+<summary><b>Kotlin</b></summary>
 
-    buildscript {
-        repositories {
-            maven { url 'https://jitpack.io' }
-        }
-        dependencies {
-            classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.6.0'
-        }
-    }
-    
-    apply plugin: 'java'
-    apply plugin: 'jacoco'
-    apply plugin: 'com.form.diff-coverage'
+```kotlin
+configure<com.form.coverage.gradle.ChangesetCoverageConfiguration> {
+    diffSource.file = ${PATH_TO_DIFF_FILE}
 
-    // Generate diff file using `git diff` tool    
-    ext.createDiffUrl = { ->
-        def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
-        def file = Files.createTempFile(URLEncoder.encode(project.name, 'UTF-8'), '.diff').toFile()
-        file.withOutputStream { out ->
-            exec {
-                commandLine 'git', 'diff', '--no-color', '--minimal', diffBase
-                standardOutput = out
-            }
-        }
-        return file.toURI().toURL()
+    violationRules.failIfCoverageLessThan(0.9)
+    reports {
+        html = true
     }
-    
-    diffCoverageReport {
-        afterEvaluate {
-            diffSource.url =  createDiffUrl()
-        } 
-        
-        jacocoExecFiles = files(jacocoTestReport.executionData)
-        classesDirs = files(jacocoTestReport.classDirectories)
-        srcDirs = files(jacocoTestReport.sourceDirectories)
-    
-        reports {
-            html = true
-        }
+}
+```
+
+</details>
+
+<details>
+<summary>Full example</summary> 
+
+```groovy
+buildscript {
+    repositories {
+        maven { url 'https://jitpack.io' }
     }
-    diffCoverage.dependsOn += check
-  ```  
-    
+    dependencies {
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.0'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: 'com.form.diff-coverage'
+
+diffCoverageReport {
+    diffSource {
+        git.compareWith 'refs/remotes/origin/develop'
+    }
+
+    violationRules.failIfCoverageLessThan 0.9
+
+    reports {
+        html = true
+        xml = true
+        csv = true
+    }
+}
+diffCoverage.dependsOn += check
+```  
+
 </details>
 
 ## Execute
 
-```
+```shell
 ./gradlew check diffCoverage
 ```
 
 ## Parameters description
-```
+```groovy
 diffCoverageReport {
-    diffSource {
-        file = 'path/to/file.diff' // Required. Only one of `file` or `url` must be spesified 
-        url = 'http://domain.com/file.diff' // Required. Only one of `file` or `url` must be spesified
+    diffSource { // Required. Only one of `file`, `url` or git must be spesified
+        file = 'path/to/file.diff' //  Path to diff file 
+        url = 'http://domain.com/file.diff' // URL to retrieve diff by
+        git.compareWith 'refs/remotes/origin/develop' // Compares current HEAD and all uncommited with provided branch, revision or tag 
     }
-    jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required
-    srcDirs = files('/path/to/sources')  // Required
-    classesDirs = files('/path/to/compiled/classes') // Required
+    jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required. By default exec files are taken from jacocoTestReport configuration if any
+    srcDirs = files('/path/to/sources')  // Required. By default sources are taken from jacocoTestReport configuration if any
+    classesDirs = files('/path/to/compiled/classes') // Required. By default classes are taken from jacocoTestReport configuration if any
 
     reports {
         html = true // Optional. default `false`
+        xml = true // Optional. default `false`
+        csv = true // Optional. default `false`
         reportDir = 'dir/to/store/reports' // Optional. Default 'build/reports/jacoco/diffCoverage'
     }
 
-    violationRules {
+    violationRules.failIfCoverageLessThan 0.9 // Optional. The function sets all coverage metrics to a single value, sets failOnViolation to true
+    
+    // configuration below is equivalent to the configuration above
+    violationRules {        
         minBranches = 0.9 // Optional. Default `0.0`
         minLines = 0.9 // Optional. Default `0.0`
         minInstructions = 0.9 // Optional. Default `0.0`
@@ -167,7 +220,7 @@ Failed:
 <img src="https://user-images.githubusercontent.com/8483470/77781538-a74f3480-704d-11ea-9e39-051f1001b88a.png" width=500  alt="DiffCoverage HTML report"/>
 
 <details>
-  <summary>JaCoCo HTML report</summary> 
+  <summary><b>JaCoCo HTML report</b></summary> 
   <img src="https://user-images.githubusercontent.com/8483470/77781534-a61e0780-704d-11ea-871e-879fb45757cd.png" width=500 alt="JaCoCo HTML report"/>        
 </details>
 

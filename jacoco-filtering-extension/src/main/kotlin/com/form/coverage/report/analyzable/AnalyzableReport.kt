@@ -1,27 +1,31 @@
 package com.form.coverage.report.analyzable
 
-import com.form.coverage.DiffReport
-import com.form.coverage.FullReport
+import com.form.coverage.config.DiffCoverageConfig
+import com.form.coverage.diff.DiffSource
+import com.form.coverage.report.DiffReport
+import com.form.coverage.report.reportFactory
 import org.jacoco.core.analysis.Analyzer
 import org.jacoco.core.analysis.ICoverageVisitor
 import org.jacoco.core.data.ExecutionDataStore
 import org.jacoco.report.IReportVisitor
 
-interface AnalyzableReport {
+internal interface AnalyzableReport {
 
     fun buildVisitor(): IReportVisitor
     fun buildAnalyzer(executionDataStore: ExecutionDataStore, coverageVisitor: ICoverageVisitor): Analyzer
 }
 
-class AnalyzableReportFactory {
-    fun createCoverageAnalyzerFactory(reports: Set<FullReport>): Set<AnalyzableReport> {
-        return reports.map { reportMode ->
-            when(reportMode) {
+internal fun analyzableReportFactory(
+    diffCoverageConfig: DiffCoverageConfig,
+    diffSource: DiffSource
+): Set<AnalyzableReport> {
+    return reportFactory(diffCoverageConfig, diffSource)
+        .map { reportMode ->
+            when (reportMode) {
                 is DiffReport -> DiffCoverageAnalyzableReport(reportMode)
                 else -> FullCoverageAnalyzableReport(reportMode)
             }
         }.toSet()
-    }
 }
 
 
