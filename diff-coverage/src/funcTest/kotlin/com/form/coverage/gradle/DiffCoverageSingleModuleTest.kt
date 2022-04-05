@@ -37,7 +37,7 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
     }
 
     @ParameterizedTest
-    @ValueSource( strings = ["6.7.1", "7.4.1"] )
+    @ValueSource(strings = ["4.10.3", "5.0", "6.7.1", "7.4.2"])
     fun `diffCoverage task should be completed successfully on Gradle release`(
         gradleVersion: String
     ) {
@@ -46,6 +46,7 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
             """
             diffCoverageReport {
                 diffSource.file = '$diffFilePath'
+                jacocoExecFiles = fileTree('build') { include '*/**/*.exec' }
             }
         """.trimIndent()
         )
@@ -157,9 +158,9 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
                 diffSource {
                     file = '$diffFilePath'
                 }
-                jacocoExecFiles = files(jacocoTestReport.executionData)
-                classesDirs = files(jacocoTestReport.classDirectories)
-                srcDirs = files(jacocoTestReport.sourceDirectories)
+                jacocoExecFiles = jacocoTestReport.executionData
+                classesDirs = jacocoTestReport.classDirectories
+                srcDirs = jacocoTestReport.sourceDirectories
                 
                 reports {
                     html = true
@@ -194,7 +195,6 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
             """
             plugins {
                 java
-                jacoco
                 id("com.form.diff-coverage")
             }
             
