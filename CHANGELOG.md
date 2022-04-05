@@ -2,6 +2,11 @@
 
 ## [0.10.0]
 ### Added
+- DiffCoverage plugin applies JaCoCo plugin to a project and all it's subprojects
+  - could be disabled by adding property to `gradle.properties`:
+  ```
+  com.form.diff-coverage.auto-apply-jacoco=false
+  ```
 
 ### Changed
 - `compareWith` and `failIfCoverageLessThan` are changed to infix function 
