@@ -7,8 +7,6 @@ fun executeGetRequest(url: String): String {
     return HttpClientBuilder.create().build().use { httpClient ->
         val httpResponse = httpClient.execute(HttpGet(url))
 
-        httpResponse.entity.content
-            .bufferedReader()
-            .readText()
+        httpResponse.entity.content.reader().readText()
     }
 }
