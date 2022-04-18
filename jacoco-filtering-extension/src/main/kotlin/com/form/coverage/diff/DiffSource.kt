@@ -2,8 +2,8 @@ package com.form.coverage.diff
 
 import com.form.coverage.config.DiffSourceConfig
 import com.form.coverage.diff.git.JgitDiff
+import com.form.coverage.http.executeGetRequest
 import java.io.File
-import java.net.URL
 
 const val DEFAULT_PATCH_FILE_NAME: String = "diff.patch"
 
@@ -39,7 +39,7 @@ internal class UrlDiffSource(
 ) : DiffSource {
     override val sourceDescription = "URL: $url"
 
-    private val diffContent: String by lazy { URL(url).readText() }
+    private val diffContent: String by lazy { executeGetRequest(url) }
 
     override fun pullDiff(): List<String> = diffContent.lines()
 

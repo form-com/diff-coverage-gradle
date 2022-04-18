@@ -16,4 +16,5 @@ dependencies {
     implementation 'org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r'
     implementation "org.jacoco:org.jacoco.core:$jacoco_version"
     implementation "org.jacoco:org.jacoco.report:$jacoco_version"
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.1.3'
 }

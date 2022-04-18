@@ -20,6 +20,8 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
 
     companion object {
         const val TEST_PROJECT_RESOURCE_NAME = "single-module-test-project"
+
+        private const val MOCK_SERVER_PORT = 8888
     }
 
     override fun buildTestConfiguration() = TestConfiguration(
@@ -262,7 +264,8 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
             """
 
             diffCoverageReport {
-                diffSource.url = '${File(diffFilePath).toURI().toURL()}'
+                diffSource.url = 'http://localhost:$MOCK_SERVER_PORT/'
+                println diffSource.url
                 violationRules {
                     minInstructions = 1
                     failOnViolation = true
@@ -271,12 +274,14 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
         """.trimIndent()
         )
 
-        // run
-        val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
+        MockHttpServer(MOCK_SERVER_PORT, File(diffFilePath).readText()).use {
+            // run
+            val result = gradleRunner.runTaskAndFail(DIFF_COV_TASK)
 
-        // assert
-        result.assertDiffCoverageStatusEqualsTo(FAILED)
-            .assertOutputContainsStrings("instructions covered ratio is 0.5, but expected minimum is 1")
+            // assert
+            result.assertDiffCoverageStatusEqualsTo(FAILED)
+                .assertOutputContainsStrings("instructions covered ratio is 0.5, but expected minimum is 1")
+        }
     }
 
     @Test
