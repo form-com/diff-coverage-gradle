@@ -14,7 +14,7 @@ class UrlDiffSourceTest : StringSpec() {
 
             // run
             // assert
-            shouldThrow<MalformedURLException> {
+            shouldThrow<IllegalArgumentException> {
                 urlDiffSource.pullDiff()
             }
         }

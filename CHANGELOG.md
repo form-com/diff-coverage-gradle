@@ -1,5 +1,11 @@
 # Diff-Coverage Gradle plugin Changelog
 
+
+## [0.9.2]
+### Fixed
+- redirects handling for `diffSource.url`
+
+
 ## [0.9.1]
 ### Fixed
 - Fixed incorrect diff generation by JGit [#34](https://github.com/form-com/diff-coverage-gradle/issues/34)
