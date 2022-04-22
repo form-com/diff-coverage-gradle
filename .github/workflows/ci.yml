@@ -38,7 +38,7 @@ jobs:
       run: ./gradlew check    
 
     - name: run diff coverage check
-      run: ./gradlew diffCoverage -PdiffBase=refs/remotes/origin/master
+      run: ./gradlew diffCoverage -PdiffBase="refs/remotes/origin/$GITHUB_BASE_REF"
 
     - name: create coverage report
       run: ./gradlew jacocoRootReport
