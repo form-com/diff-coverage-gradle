@@ -34,19 +34,28 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: build & test
-      run: ./gradlew check
+    - name: Build & Test
+      run: ./gradlew check --parallel
 
-    - name: Publish test results
+    - name: Add test results to PR
       uses: EnricoMi/publish-unit-test-result-action@v1
       if: always()
       with:
         files: "*/build/test-results/**/*.xml"
 
-    - name: run diff coverage check
+    - name: Run diff coverage check
       run: ./gradlew diffCoverage -PdiffBase="refs/remotes/origin/$GITHUB_BASE_REF"
 
-    - name: create coverage report
+    - name: Add diff coverage report to PR
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.2
+      if: always()
+      continue-on-error: true
+      with:
+        paths: build/reports/jacoco/diffCoverage/report.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create full coverage report
       run: ./gradlew jacocoRootReport
     
     - name: Upload coverage to Codecov  
