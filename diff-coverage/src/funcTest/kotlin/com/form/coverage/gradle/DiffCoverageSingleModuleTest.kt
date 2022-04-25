@@ -325,10 +325,10 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
         // setup
         val unknownBranch = "unknown-branch"
         val newBranch = "new-branch"
-        buildGitRepository().apply {
-            add().addFilepattern(".").call()
-            commit().setMessage("Add all").call()
-            branchCreate().setName(newBranch).call()
+        buildGitRepository().use { git ->
+            git.add().addFilepattern(".").call()
+            git.commit().setMessage("Add all").call()
+            git.branchCreate().setName(newBranch).call()
         }
 
         buildFile.appendText(
