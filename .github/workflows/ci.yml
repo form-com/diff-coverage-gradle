@@ -35,7 +35,13 @@ jobs:
       run: chmod +x gradlew
       
     - name: build & test
-      run: ./gradlew check    
+      run: ./gradlew check
+
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: "*/build/test-results/**/*.xml"
 
     - name: run diff coverage check
       run: ./gradlew diffCoverage -PdiffBase="refs/remotes/origin/$GITHUB_BASE_REF"
