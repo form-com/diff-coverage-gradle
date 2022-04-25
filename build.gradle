@@ -114,7 +114,9 @@ diffCoverageReport {
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
     diffSource.git.compareWith diffBase
 
-    reportConfiguration.html = true
-    reportConfiguration.fullCoverageReport = true
+    reports {
+        html = true
+        xml = true
+    }
     violationRules.failIfCoverageLessThan 0.9
 }
