@@ -134,7 +134,7 @@ class ModifiedLinesDiffParserTest : StringSpec({
         collectModifiedLines shouldContainExactly expected
     }
 
-    "collectModifiedLines should not skip modified lines when patch file contains empty lines"{
+    "collectModifiedLines should not skip modified lines when patch file contains empty lines" {
         // setup
         val diffFileContent = ModifiedLinesDiffParserTest::class.java.classLoader
             .getResource("testintPatch1.patch")!!.file
@@ -206,6 +206,28 @@ class ModifiedLinesDiffParserTest : StringSpec({
 
         // assert
         collectModifiedLines shouldContainExactly mapOf(filePath to setOf(2))
+    }
+
+    "collectModifiedLines should properly parse when patch adds new line at end of file" {
+        // setup
+        val fileName = "no-new-line-at-the-end.txt"
+        val diffContent = """
+            --- a/$fileName
+            +++ b/$fileName
+            @@ -1,2 +1,3 @@
+             first line
+            -second line
+            \ No newline at end of file
+            +second line
+            +third line with line break
+
+        """.trimIndent().lines()
+
+        // run
+        val collectModifiedLines = ModifiedLinesDiffParser().collectModifiedLines(diffContent)
+
+        // assert
+        collectModifiedLines shouldContainExactly mapOf("b/$fileName" to setOf(3, 4))
     }
 
 })
