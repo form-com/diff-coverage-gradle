@@ -91,6 +91,7 @@ internal class ModifiedLinesDiffParser {
             when {
                 line.isLineAdded() -> modifiedOrAddedLinesNumbers += lineNumber
                 line.isLineDeleted() -> lineNumber -= 1
+                line.isNoNewLineAtEndOfFile() -> Unit // do nothing
                 line.isNotEmpty() && !line.isNoModLine() -> {
                     iterator.previous()
                     return modifiedOrAddedLinesNumbers
@@ -105,6 +106,7 @@ internal class ModifiedLinesDiffParser {
     private fun String.isLineAdded() = startsWith(ADDED_LINE_SIGN)
     private fun String.isLineDeleted() = startsWith(DELETED_LINE_SIGN) && !startsWith(FILE_NAME_FROM_SIGNS)
     private fun String.isNoModLine() = startsWith(NO_MOD_LINE_SIGN)
+    private fun String.isNoNewLineAtEndOfFile() = startsWith(NO_NEW_LINE_AT_END_OF_FILE)
 
     private companion object {
         val FILE_OFFSET_PATTERN = Pattern.compile("^@@.*\\+(\\d+)(,\\d+)? @@")!!
@@ -116,6 +118,7 @@ internal class ModifiedLinesDiffParser {
         const val ADDED_LINE_SIGN = '+'
         const val DELETED_LINE_SIGN = '-'
         const val NO_MOD_LINE_SIGN = ' '
+        const val NO_NEW_LINE_AT_END_OF_FILE = "\\ No newline at end of file"
 
         const val FILE_NAME_FROM_SIGNS = "--- "
         const val FILE_NAME_TO_SIGNS = "+++ "
