@@ -1,11 +1,19 @@
 package com.form.coverage.gradle
 
-import com.form.coverage.config.*
+import com.form.coverage.config.DiffCoverageConfig
+import com.form.coverage.config.DiffSourceConfig
+import com.form.coverage.config.ReportConfig
+import com.form.coverage.config.ReportsConfig
+import com.form.coverage.config.ViolationRuleConfig
 import com.form.coverage.report.ReportGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths

@@ -61,7 +61,9 @@ class DiffSourceFactoryTest : StringSpec() {
             }
 
             // assert
-            exception.message should startWith("Expected Git configuration or file or URL diff source but all are blank")
+            exception.message should startWith(
+                "Expected Git configuration or file or URL diff source but all are blank"
+            )
         }
 
         "diffSourceFactory should throw when both sources specified" {
