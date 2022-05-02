@@ -40,7 +40,10 @@ class DiffCoverageTaskTest : StringSpec() {
 
         "get input file collection should throw when file collection is empty" {
             forAll(
-                row("'diffCoverageReport.jacocoExecFiles' file collection is empty.", DiffCoverageTask::obtainExecFiles),
+                row(
+                    "'diffCoverageReport.jacocoExecFiles' file collection is empty.",
+                    DiffCoverageTask::obtainExecFiles
+                ),
                 row("'diffCoverageReport.classesDirs' file collection is empty.", DiffCoverageTask::obtainClassesFiles),
                 row("'diffCoverageReport.srcDirs' file collection is empty.", DiffCoverageTask::obtainSourcesFiles)
             ) { expectedError, sourceAccessor ->
