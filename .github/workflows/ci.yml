@@ -44,6 +44,7 @@ jobs:
         files: "*/build/test-results/**/*.xml"
 
     - name: Run diff coverage check
+      continue-on-error: ${{ contains(github.event.pull_request.labels.*.name, 'ignore-diff-coverage') }}
       run: ./gradlew diffCoverage -PdiffBase="refs/remotes/origin/$GITHUB_BASE_REF"
 
     - name: Add diff coverage report to PR
