@@ -67,9 +67,12 @@ open class ReportsConfiguration(
     @Input var baseReportDir: String = Paths.get("build", "reports", "jacoco").toString(),
     @Input var fullCoverageReport: Boolean = false
 ) {
-    override fun toString(): String {
-        return "ReportsConfiguration(html=$html, baseReportDir='$baseReportDir', fullCoverageReport=$fullCoverageReport)"
-    }
+
+    override fun toString() = "ReportsConfiguration(" +
+            "html=$html, " +
+            "xml=$xml, " +
+            "csv=$csv, " +
+            "baseReportDir='$baseReportDir'"
 }
 
 open class ViolationRules(

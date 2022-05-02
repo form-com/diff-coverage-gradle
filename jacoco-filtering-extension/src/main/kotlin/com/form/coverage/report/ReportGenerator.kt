@@ -21,8 +21,6 @@ class ReportGenerator(
     projectRoot: File,
     private val diffCoverageConfig: DiffCoverageConfig
 ) {
-    private val tabWidth: Int = 4
-
     private val jacocoExec: Set<File> = diffCoverageConfig.execFiles.filter(File::exists).toSet()
     private val classesSources: Set<File> = diffCoverageConfig.classFiles.filter(File::exists).toSet()
     private val src: Set<File> = diffCoverageConfig.sourceFiles.filter(File::exists).toSet()
@@ -89,9 +87,9 @@ class ReportGenerator(
     private fun createSourcesLocator(): ISourceFileLocator {
         return src.asSequence()
             .map {
-                DirectorySourceFileLocator(it, "utf-8", 4)
+                DirectorySourceFileLocator(it, "utf-8", DEFAULT_TAB_WIDTH)
             }
-            .fold(MultiSourceFileLocator(tabWidth)) { accumulator, sourceLocator ->
+            .fold(MultiSourceFileLocator(DEFAULT_TAB_WIDTH)) { accumulator, sourceLocator ->
                 accumulator.apply {
                     add(sourceLocator)
                 }
@@ -100,5 +98,7 @@ class ReportGenerator(
 
     companion object {
         val log = LoggerFactory.getLogger(ReportGenerator::class.java)
+
+        const val DEFAULT_TAB_WIDTH = 4
     }
 }
