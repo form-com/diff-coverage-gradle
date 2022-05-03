@@ -1,5 +1,9 @@
 # Diff-Coverage Gradle plugin Changelog
 
+## [0.9.3]
+### Fixed
+- Fixed incorrect diff parsing when it contains `\ No newline at end of file`
+
 
 ## [0.9.2]
 ### Fixed
