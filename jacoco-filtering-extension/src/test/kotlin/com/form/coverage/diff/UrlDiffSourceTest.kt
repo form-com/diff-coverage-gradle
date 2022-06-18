@@ -2,7 +2,6 @@ package com.form.coverage.diff
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import java.net.MalformedURLException
 import java.net.UnknownHostException
 
 class UrlDiffSourceTest : StringSpec() {

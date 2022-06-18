@@ -15,7 +15,7 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.tasks.DefaultTaskContainer
 import org.gradle.testfixtures.ProjectBuilder
 
-class DiffSourceKtTest : StringSpec() {
+class DiffCoverageTaskTest : StringSpec() {
 
     init {
         "get input file collection should throw when file collection is not specified" {

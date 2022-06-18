@@ -27,7 +27,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.2'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.4'
     }
 }
 ```
@@ -42,7 +42,7 @@ buildscript {
         maven("https://jitpack.io")
     }
     dependencies {
-        classpath("com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.2")
+        classpath("com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.4")
     }
 }
 ```
@@ -117,7 +117,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.2'
+        classpath 'com.github.form-com.diff-coverage-gradle:diff-coverage:0.9.4'
     }
 }
 
