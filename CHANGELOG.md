@@ -1,5 +1,12 @@
 # Diff-Coverage Gradle plugin Changelog
 
+
+## [0.9.4]
+### Dependency Upgrades
+- Updated [JaCoCo] to [0.8.8](https://github.com/jacoco/jacoco/releases/tag/v0.8.8) #54
+  - Diff-Coverage now supports Java 18
+
+
 ## [0.9.3]
 ### Fixed
 - Fixed incorrect diff parsing when it contains `\ No newline at end of file`
@@ -64,3 +71,6 @@ diffCoverageReport {
 
 ## [0.6.0]
 first public release :birthday:
+
+
+[JaCoCo]: https://github.com/jacoco/jacoco/releases/tag/v0.8.8
