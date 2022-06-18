@@ -1,7 +1,7 @@
 group 'com.form.coverage'
 
 ext {
-    jacoco_version = '0.8.7'
+    jacoco_version = '0.8.8'
 }
 
 publishing {
