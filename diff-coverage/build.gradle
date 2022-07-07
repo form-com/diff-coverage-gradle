@@ -1,10 +1,29 @@
 plugins {
     id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.21.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+
     id "pl.droidsonroids.jacoco.testkit" version "1.0.8"
     id 'jacoco'
 }
 
 group 'com.form.coverage'
+
+gradlePlugin {
+    plugins {
+        diffCoveragePlugin {
+            id = "com.form.diff-coverage"
+            displayName = "Diff Coverage"
+            description = "Plugin that computes code coverage on modified code"
+            implementationClass = "com.form.coverage.gradle.DiffCoveragePlugin"
+        }
+    }
+}
+pluginBundle {
+    website = 'https://github.com/form-com/diff-coverage-gradle'
+    vcsUrl = 'https://github.com/form-com/diff-coverage-gradle.git'
+    tags = ["coverage", "jacoco", "differential-coverage", "diff-coverage", "code-coverage"]
+}
 
 ext {
     junit_version = '5.7.2'

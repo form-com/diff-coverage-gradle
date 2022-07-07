@@ -1,5 +1,9 @@
 # Diff-Coverage Gradle plugin Changelog
 
+## [0.9.5]
+### Dependency Upgrades
+- Updated log4j dependency to 2.18.0 #58
+
 
 ## [0.9.4]
 ### Dependency Upgrades
