@@ -34,7 +34,7 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.0'
+        implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.18.0'
 
         testImplementation "io.kotest:kotest-runner-junit5-jvm:$kotest_version"
         testImplementation "io.kotest:kotest-assertions-core-jvm:$kotest_version"
