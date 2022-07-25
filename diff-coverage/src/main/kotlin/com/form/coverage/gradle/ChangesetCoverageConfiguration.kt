@@ -51,7 +51,7 @@ open class DiffSourceConfiguration(
 }
 
 open class GitConfiguration(@Input var diffBase: String = "") {
-    fun compareWith(diffBase: String) {
+    infix fun compareWith(diffBase: String) {
         this.diffBase = diffBase
     }
 
@@ -81,7 +81,7 @@ open class ViolationRules(
     @Input var minInstructions: Double = 0.0,
     @Input var failOnViolation: Boolean = false
 ) {
-    fun failIfCoverageLessThan(minCoverage: Double) {
+    infix fun failIfCoverageLessThan(minCoverage: Double) {
         minLines = minCoverage
         minBranches = minCoverage
         minInstructions = minCoverage

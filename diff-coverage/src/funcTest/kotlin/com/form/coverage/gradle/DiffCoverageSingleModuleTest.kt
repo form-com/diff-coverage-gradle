@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 import java.nio.file.Paths
 
@@ -33,6 +34,28 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
     @BeforeEach
     fun setup() {
         initializeGradleTest()
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["4.10.3", "5.0", "6.7.1", "7.4.2"])
+    fun `diffCoverage task should be completed successfully on Gradle release`(
+        gradleVersion: String
+    ) {
+        // setup
+        buildFile.appendText(
+            """
+            diffCoverageReport {
+                diffSource.file = '$diffFilePath'
+                jacocoExecFiles = fileTree('build') { include '*/**/*.exec' }
+            }
+        """.trimIndent()
+        )
+
+        // run
+        val result = gradleRunner.withGradleVersion(gradleVersion).runTask(DIFF_COV_TASK)
+
+        // assert
+        result.assertDiffCoverageStatusEqualsTo(SUCCESS)
     }
 
     @Test
@@ -135,9 +158,9 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
                 diffSource {
                     file = '$diffFilePath'
                 }
-                jacocoExecFiles = files(jacocoTestReport.executionData)
-                classesDirs = files(jacocoTestReport.classDirectories)
-                srcDirs = files(jacocoTestReport.sourceDirectories)
+                jacocoExecFiles = jacocoTestReport.executionData
+                classesDirs = jacocoTestReport.classDirectories
+                srcDirs = jacocoTestReport.sourceDirectories
                 
                 reports {
                     html = true
@@ -166,17 +189,26 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
         // setup
         prepareTestProjectWithGit()
 
-        buildFile.appendText(
+        buildFile.delete()
+        buildFile = File(rootProjectDir, "build.gradle.kts")
+        buildFile.writeText(
             """
+            plugins {
+                java
+                id("com.form.diff-coverage")
+            }
+            
+            repositories {
+                mavenCentral()
+            }
 
-            diffCoverageReport {
-                diffSource {
-                    git.compareWith 'HEAD'
-                }
-                violationRules {
-                    minLines = 0.7
-                    failOnViolation = true
-                }
+            dependencies {
+                testImplementation("junit:junit:4.13.2")
+            }
+
+            configure<com.form.coverage.gradle.ChangesetCoverageConfiguration> {
+                diffSource.git compareWith "HEAD"
+                violationRules failIfCoverageLessThan 0.7
             }
         """.trimIndent()
         )
@@ -186,7 +218,11 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
 
         // assert
         result.assertDiffCoverageStatusEqualsTo(FAILED)
-            .assertOutputContainsStrings("lines covered ratio is 0.6, but expected minimum is 0.7")
+            .assertOutputContainsStrings(
+                "instructions covered ratio is 0.5, but expected minimum is 0.7",
+                "branches covered ratio is 0.5, but expected minimum is 0.7",
+                "lines covered ratio is 0.6, but expected minimum is 0.7"
+            )
     }
 
     @Test
@@ -289,10 +325,10 @@ class DiffCoverageSingleModuleTest : BaseDiffCoverageTest() {
         // setup
         val unknownBranch = "unknown-branch"
         val newBranch = "new-branch"
-        buildGitRepository().apply {
-            add().addFilepattern(".").call()
-            commit().setMessage("Add all").call()
-            branchCreate().setName(newBranch).call()
+        buildGitRepository().use { git ->
+            git.add().addFilepattern(".").call()
+            git.commit().setMessage("Add all").call()
+            git.branchCreate().setName(newBranch).call()
         }
 
         buildFile.appendText(

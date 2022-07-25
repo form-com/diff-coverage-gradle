@@ -9,8 +9,6 @@ import com.form.coverage.report.ReportGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -26,19 +24,13 @@ open class DiffCoverageTask : DefaultTask() {
     }
 
     @Nested
-    var diffCoverageReport: ChangesetCoverageConfiguration = ChangesetCoverageConfiguration()
+    lateinit var diffCoverageReport: ChangesetCoverageConfiguration
 
-    @InputFiles
-    fun getExecFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.EXEC)
+    internal fun obtainExecFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.EXEC)
 
-    @InputFiles
-    fun getClassesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.CLASSES)
+    internal fun obtainClassesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.CLASSES)
 
-    @InputFiles
-    fun getSourcesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.SOURCES)
-
-    @Input
-    fun getDiffSource(): String = diffCoverageReport.diffSource.let { it.url + it.file }
+    internal fun obtainSourcesFiles(): FileCollection = collectFileCollectionOrThrow(ConfigurationSourceType.SOURCES)
 
     @OutputDirectory
     fun getOutputDir(): File {
@@ -96,9 +88,9 @@ open class DiffCoverageTask : DefaultTask() {
                 minLines = diffCoverageReport.violationRules.minLines,
                 failOnViolation = diffCoverageReport.violationRules.failOnViolation
             ),
-            execFiles = getExecFiles().files,
-            classFiles = getClassesFiles().files,
-            sourceFiles = getSourcesFiles().files
+            execFiles = obtainExecFiles().files,
+            classFiles = obtainClassesFiles().files,
+            sourceFiles = obtainSourcesFiles().files
         )
     }
 
