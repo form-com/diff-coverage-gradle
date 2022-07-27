@@ -19,12 +19,12 @@ Why should I use it?
 
 ### Compatibility
 
-Diff Coverage plugin was tested over the next Gradle releases:
+Diff Coverage plugin compatibility table:
 
 | Diff Coverage plugin | Gradle                 |
 |----------------------|------------------------|
-| **0.9.+**            | **4.10.3** - **7.4.2** |
-| **0.10.0**           | **4.10.3** - **7.4.2** |
+| **0.9.+**            | **4.10.3** - **7.5.+** |
+| **1.0.0**            | **5.0** - **7.5.+**    |
 
 > **_NOTE:_**  for Gradle **v4.10.3** `jacocoExecFiles` must be set explicitly. See [Parameters description](#parameters-description).
 

@@ -26,9 +26,9 @@ fun buildGradleRunner(
         }
 }
 
-fun GradleRunner.runTask(task: String): BuildResult = withArguments(task).build()
+fun GradleRunner.runTask(task: String): BuildResult = withArguments(task, "-si").build()
 
-fun GradleRunner.runTaskAndFail(task: String): BuildResult = withArguments(task).buildAndFail()
+fun GradleRunner.runTaskAndFail(task: String): BuildResult = withArguments(task, "-si").buildAndFail()
 
 fun expectedHtmlReportFiles(vararg packages: String): Array<String> = arrayOf(
     "index.html",
