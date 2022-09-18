@@ -1,6 +1,7 @@
 package com.form.coverage.report.analyzable
 
 import com.form.coverage.diff.CodeUpdateInfo
+import com.form.coverage.diff.parse.ClassFile
 import com.form.coverage.diff.parse.ModifiedLinesDiffParser
 import com.form.coverage.filters.ModifiedLinesFilter
 import com.form.coverage.report.DiffReport
@@ -34,11 +35,10 @@ internal class DiffCoverageAnalyzableReport(
         coverageVisitor: ICoverageVisitor
     ): Analyzer {
         val codeUpdateInfo = obtainCodeUpdateInfo()
-        return FilteringAnalyzer(
-            executionDataStore,
-            coverageVisitor,
-            codeUpdateInfo::isInfoExists
-        ) {
+        val classFileFilter: (ClassFile) -> Boolean = {
+            codeUpdateInfo.isInfoExists(it)
+        }
+        return FilteringAnalyzer(executionDataStore, coverageVisitor, classFileFilter) {
             ModifiedLinesFilter(codeUpdateInfo)
         }
     }

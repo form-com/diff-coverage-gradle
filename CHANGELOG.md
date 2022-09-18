@@ -1,15 +1,17 @@
 # Diff-Coverage Gradle plugin Changelog
 
-## [0.10.0]
+## [<NEXT-RELEASE>]
 ### Added
 - DiffCoverage plugin applies JaCoCo plugin to a project and all it's subprojects
   - could be disabled by adding property to `gradle.properties`:
   ```
   com.form.diff-coverage.auto-apply-jacoco=false
   ```
+- Support of Gradle configuration cache
 
 ### Changed
-- `compareWith` and `failIfCoverageLessThan` are changed to infix function 
+- Min supported Gradle is `5.0`.
+- `compareWith` and `failIfCoverageLessThan` are changed to infix function: 
   - <details>
     <summary>Usage example</summary>
     
@@ -27,7 +29,8 @@
     
     ```
     </details>
-
+- `diffCoverage` task depends on `classes` tasks.
+  
 ### Fixed
 
 
