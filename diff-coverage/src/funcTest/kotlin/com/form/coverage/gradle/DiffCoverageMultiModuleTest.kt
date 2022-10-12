@@ -66,7 +66,7 @@ class DiffCoverageMultiModuleTest : BaseDiffCoverageTest() {
         buildFile.writeText(rootBuildScriptWithoutJacocoPlugin(expectedCoverageRatio))
 
         // run // assert
-        gradleRunner.runTaskAndFail(DIFF_COV_TASK)
+        gradleRunner.runTaskAndFail("test", DIFF_COV_TASK)
             .assertDiffCoverageStatusEqualsTo(FAILED)
             .assertOutputContainsStrings(
                 "Fail on violations: true. Found violations: 1.",
@@ -93,31 +93,31 @@ class DiffCoverageMultiModuleTest : BaseDiffCoverageTest() {
 
         // run // assert
         gradleRunner
-            .runTask(DIFF_COV_TASK)
+            .runTask("test", DIFF_COV_TASK)
             .assertDiffCoverageStatusEqualsTo(SUCCESS)
     }
 
     private fun rootBuildScriptWithoutJacocoPlugin(expectedCoverageRatio: Double) = """
         plugins {
-                id 'java'
-                id 'com.form.diff-coverage'
-            }
+            id 'java'
+            id 'com.form.diff-coverage'
+        }
+        repositories {
+            mavenCentral()
+        }
+        subprojects {
+            apply plugin: 'java'
             repositories {
                 mavenCentral()
             }
-            subprojects {
-                apply plugin: 'java'
-                repositories {
-                    mavenCentral()
-                }
-                test {
-                    useJUnitPlatform()
-                }
+            dependencies {
+                testImplementation 'junit:junit:4.13.2'
             }
-            diffCoverageReport {
-                diffSource.file = '$diffFilePath'
-                violationRules.failIfCoverageLessThan $expectedCoverageRatio
-            }
+        }
+        diffCoverageReport {
+            diffSource.file = '$diffFilePath'
+            violationRules.failIfCoverageLessThan $expectedCoverageRatio
+        }
     """.trimIndent()
 
 }

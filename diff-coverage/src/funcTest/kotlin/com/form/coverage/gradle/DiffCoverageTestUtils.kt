@@ -26,9 +26,18 @@ fun buildGradleRunner(
         }
 }
 
-fun GradleRunner.runTask(task: String): BuildResult = withArguments(task, "-si").build()
+fun GradleRunner.runTask(vararg task: String): BuildResult {
+    return tasksWithDebugOption(*task).build()
+}
 
-fun GradleRunner.runTaskAndFail(task: String): BuildResult = withArguments(task, "-si").buildAndFail()
+fun GradleRunner.runTaskAndFail(vararg task: String): BuildResult {
+    return tasksWithDebugOption(*task).buildAndFail()
+}
+
+private fun GradleRunner.tasksWithDebugOption(vararg task: String): GradleRunner {
+    val arguments: List<String> = mutableListOf(*task) + "-si"
+    return withArguments(*arguments.toTypedArray())
+}
 
 fun expectedHtmlReportFiles(vararg packages: String): Array<String> = arrayOf(
     "index.html",
