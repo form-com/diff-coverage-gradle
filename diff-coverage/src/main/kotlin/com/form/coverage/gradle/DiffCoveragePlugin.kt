@@ -2,6 +2,7 @@ package com.form.coverage.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.plugins.JavaPlugin
@@ -39,21 +40,25 @@ open class DiffCoveragePlugin @Inject constructor(
         }
     }
 
-    private fun configureDependencies(
-        project: Project,
-        diffCoverageTask: DiffCoverageTask
-    ) = project.gradle.taskGraph.whenReady {
-        project.allprojects.asSequence().map { it.tasks }.forEach { projectTasks ->
-            projectTasks.named(JavaPlugin.CLASSES_TASK_NAME).configure { classesTask ->
-                diffCoverageTask.dependsOn(classesTask)
+    private fun configureDependencies(project: Project, diffCoverageTask: DiffCoverageTask) = project.afterEvaluate {
+        project.getAllTasks(true).values.asSequence()
+            .flatMap { it.asSequence() }
+            .forEach { task ->
+                configureDependencyFromTask(diffCoverageTask, task)
             }
+    }
 
-            projectTasks.withType(Test::class.java).forEach { testTask ->
-                val jacocoExtensionConfigured: Boolean =
-                    testTask.extensions.findByType(JacocoTaskExtension::class.java) != null
-                if (jacocoExtensionConfigured) {
-                    diffCoverageTask.mustRunAfter(testTask)
-                }
+    private fun configureDependencyFromTask(diffCoverageTask: DiffCoverageTask, task: Task) {
+        if (task.name == JavaPlugin.CLASSES_TASK_NAME) {
+            log.info("Configuring {} to depend on {}", diffCoverageTask, task)
+            diffCoverageTask.dependsOn(task)
+        }
+
+        if (task is Test) {
+            val isJacocoExtensionConfigured = task.extensions.findByType(JacocoTaskExtension::class.java) != null
+            if (isJacocoExtensionConfigured) {
+                log.info("Configuring {} to run after {}", diffCoverageTask, task)
+                diffCoverageTask.mustRunAfter(task)
             }
         }
     }
@@ -83,8 +88,7 @@ open class DiffCoveragePlugin @Inject constructor(
     }
 
     private fun collectJacocoPluginInputs(project: Project): JacocoInputs {
-        return listOf(project).union(project.subprojects)
-            .asSequence()
+        return project.allprojects.asSequence()
             .map { it.tasks.findByName(DiffCoverageTask.JACOCO_REPORT_TASK) }
             .filterNotNull()
             .map { it as JacocoReportBase }

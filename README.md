@@ -23,14 +23,43 @@ Diff Coverage plugin compatibility table:
 
 | Diff Coverage plugin | Gradle                 |
 |----------------------|------------------------|
-| **0.9.+**            | **4.10.3** - **7.5.+** |
 | **1.0.0**            | **5.0** - **7.5.+**    |
+| **0.9.+**            | **4.10.3** - **7.5.+** |
 
 > **_NOTE:_**  for Gradle **v4.10.3** `jacocoExecFiles` must be set explicitly. See [Parameters description](#parameters-description).
 
 ### Apply `Diff Coverage` plugin
 
-The plugin should be applied to the root project.
+The plugin should be applied to the **root** project.
+
+Starting from version `0.9.5` the plugin is published to [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.form.diff-coverage).
+
+<details open>
+
+<summary><b>Groovy</b></summary>
+
+```groovy
+plugins {
+  id "com.form.diff-coverage" version "0.9.5"
+}
+```
+</details>
+
+<details>
+
+<summary><b>Kotlin</b></summary>
+
+```groovy
+plugins {
+  id("com.form.diff-coverage") version "0.9.5"
+}
+```
+
+</details>
+
+#### Older versions
+
+The plugin should be applied from `jitpack` if the plugin's version is less than `0.9.5`.
 
 <details open>
 
