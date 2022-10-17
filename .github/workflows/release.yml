@@ -1,0 +1,45 @@
+name: Release plugin
+
+on:
+  create:
+    tags:
+      - '*'
+
+jobs:
+
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Clone project
+        uses: actions/checkout@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build artifacts
+        run: ./gradlew assemble
+
+      - name: Get version
+        id: release_version
+        run: |
+          echo ::set-output name=version::$(grep 'version=' gradle.properties | cut -d '=' -f 2)
+
+      - name: Create Github release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: ${{ steps.release_version.outputs.version }}
+          prerelease: true
+          title: "Release ${{ steps.release_version.outputs.version }}"
+
+      - name: Publish plugin
+        run: ./gradlew publishPlugins -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
+
+      - name: Create PR main to develop
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: 'master'
+          destination_branch: 'develop'
+          pr_title: 'Merge master to develop'
+          github_token: ${{ secrets.GITHUB_TOKEN }}

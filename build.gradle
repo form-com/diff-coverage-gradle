@@ -114,6 +114,10 @@ diffCoverageReport {
     def diffBase = project.hasProperty('diffBase') ? project.diffBase : 'HEAD'
     diffSource.git.compareWith diffBase
 
+    if (project.hasProperty("github")) {
+        jacocoExecFiles = fileTree("tests-artifacts/jacoco") { include("**/*.exec") }
+    }
+
     reports {
         html = true
         xml = true
