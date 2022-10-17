@@ -1,0 +1,11 @@
+name: Main branch checks
+
+on:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+
+  check-main:
+    uses: ./.github/workflows/base-ci.yml
