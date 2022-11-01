@@ -89,7 +89,7 @@ open class DiffCoveragePlugin @Inject constructor(
 
     private fun collectJacocoPluginInputs(project: Project): JacocoInputs {
         return project.allprojects.asSequence()
-            .map { it.tasks.findByName(DiffCoverageTask.JACOCO_REPORT_TASK) }
+            .map { it.tasks.findByName(JACOCO_REPORT_TASK) }
             .filterNotNull()
             .map { it as JacocoReportBase }
             .fold(newJacocoInputs()) { jacocoInputs, jacocoReport ->
@@ -122,6 +122,7 @@ open class DiffCoveragePlugin @Inject constructor(
         const val DIFF_COVERAGE_REPORT_EXTENSION = "diffCoverageReport"
         const val DIFF_COV_TASK = "diffCoverage"
         const val JACOCO_PLUGIN = "jacoco"
+        const val JACOCO_REPORT_TASK = "jacocoTestReport"
 
         val log: Logger = LoggerFactory.getLogger(DiffCoveragePlugin::class.java)
     }

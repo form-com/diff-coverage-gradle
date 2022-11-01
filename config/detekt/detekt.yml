@@ -119,6 +119,7 @@ complexity:
     ignoreDefaultParameters: false
     ignoreDataClasses: true
     ignoreAnnotatedParameter: []
+    excludes: ['**/ChangesetCoverageConfiguration.kt']
   MethodOverloading:
     active: false
     threshold: 6

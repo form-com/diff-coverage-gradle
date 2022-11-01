@@ -1,0 +1,12 @@
+plugins {
+    id 'com.form.diff-coverage'
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.12'
+}

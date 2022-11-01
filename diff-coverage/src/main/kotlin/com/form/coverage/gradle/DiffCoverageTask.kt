@@ -118,13 +118,25 @@ open class DiffCoverageTask @Inject constructor(
                 failOnViolation = diffCovConfig.violationRules.failOnViolation
             ),
             execFiles = sourcesConfigurator.obtainExecFiles().files,
-            classFiles = sourcesConfigurator.obtainClassesFiles().files,
+            classFiles = collectClassesToAnalyze(diffCovConfig).files,
             sourceFiles = sourcesConfigurator.obtainSourcesFiles().files
         )
     }
 
+    private fun collectClassesToAnalyze(
+        diffCovConfig: ChangesetCoverageConfiguration
+    ): FileCollection {
+        val classesFromConfiguration: FileCollection = sourcesConfigurator.obtainClassesFiles()
+        return if (diffCovConfig.excludeClasses.isEmpty()) {
+            classesFromConfiguration
+        } else {
+            return classesFromConfiguration.asFileTree.matching { pattern ->
+                pattern.exclude(diffCovConfig.excludeClasses)
+            }
+        }
+    }
+
     companion object {
-        const val JACOCO_REPORT_TASK = "jacocoTestReport"
         val log: Logger = LoggerFactory.getLogger(DiffCoverageTask::class.java)
     }
 
