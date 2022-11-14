@@ -165,7 +165,7 @@ diffCoverageReport {
         html = true // Optional. default `false`
         xml = true // Optional. default `false`
         csv = true // Optional. default `false`
-        reportDir = 'dir/to/store/reports' // Optional. Default 'build/reports/jacoco/diffCoverage'
+        baseReportDir = 'base/dir/to/store/reports' // Optional. Default 'build/reports/jacoco/'
     }
 
     violationRules.failIfCoverageLessThan 0.9 // Optional. The function sets all coverage metrics to a single value, sets failOnViolation to true
