@@ -8,6 +8,7 @@
   com.form.diff-coverage.auto-apply-jacoco=false
   ```
 - Support of Gradle configuration cache
+- Support of classes exclusion #69
 
 ### Changed
 - Min supported Gradle is `5.0`.

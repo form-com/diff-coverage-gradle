@@ -1,0 +1,51 @@
+Index: diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/sub/SubUncoveredClass.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/sub/SubUncoveredClass.java b/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/sub/SubUncoveredClass.java
+new file mode 100644
+--- /dev/null	(date 1667331624222)
++++ b/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/sub/SubUncoveredClass.java	(date 1667331624222)
+@@ -0,0 +1,6 @@
++package com.excludes.sub;
++public class SubUncoveredClass {
++    public void method() {
++        System.out.println(1);
++    }
++}
+Index: diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/UncoveredClass.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/UncoveredClass.java b/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/UncoveredClass.java
+new file mode 100644
+--- /dev/null	(date 1667331624210)
++++ b/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/UncoveredClass.java	(date 1667331624210)
+@@ -0,0 +1,6 @@
++package com.excludes;
++public class UncoveredClass {
++    public void method() {
++        System.out.println(1);
++    }
++}
+Index: diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/CoveredClass.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/CoveredClass.java b/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/CoveredClass.java
+new file mode 100644
+--- /dev/null	(date 1667331624230)
++++ b/diff-coverage/src/funcTest/resources/test-excludes-classes-project/src/main/java/com/excludes/CoveredClass.java	(date 1667331624230)
+@@ -0,0 +1,9 @@
++package com.excludes;
++
++public class CoveredClass {
++
++    public int covered() {
++        return 0;
++    }
++
++}

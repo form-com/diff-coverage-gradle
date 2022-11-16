@@ -193,7 +193,15 @@ diffCoverageReport {
     jacocoExecFiles = files('/path/to/jacoco/exec/file.exec') // Required. By default exec files are taken from jacocoTestReport configuration if any
     srcDirs = files('/path/to/sources')  // Required. By default sources are taken from jacocoTestReport configuration if any
     classesDirs = files('/path/to/compiled/classes') // Required. By default classes are taken from jacocoTestReport configuration if any
-
+    
+    excludeClasses = [ // Optional. Excludes classes from coverage report by set of patterns 
+            '**/com/package/ExcludeClass.class', // Excludes class 'com.package.ExcludeClass'
+            '**/com/package/**/ExcludeClass.class', // Excludes classes like 'com.package.ExcludeClass', 'com.package.sub1.sub2.ExcludeClass', etc.
+            '**/ExcludeClass$NestedClass.class', // Excludes nested class(es) '<any-package>.ExcludeClass.NestedClass'
+            '**/com/package/exclude/**/*.*' // Excludes all in package 'com.package.exclude'
+            // See more info about pattern rules: https://docs.gradle.org/current/javadoc/org/gradle/api/tasks/util/PatternFilterable.html
+    ]
+    
     reports {
         html = true // Optional. default `false`
         xml = true // Optional. default `false`

@@ -12,6 +12,7 @@ open class ChangesetCoverageConfiguration(
     @Optional @InputFiles var jacocoExecFiles: FileCollection? = null,
     @Optional @InputFiles var classesDirs: FileCollection? = null,
     @Optional @InputFiles var srcDirs: FileCollection? = null,
+    @Optional @Input var excludeClasses: MutableList<String> = mutableListOf(),
     @Nested val diffSource: DiffSourceConfiguration = DiffSourceConfiguration(),
     @Nested val reportConfiguration: ReportsConfiguration = ReportsConfiguration(),
     @Nested val violationRules: ViolationRules = ViolationRules()
@@ -34,6 +35,7 @@ open class ChangesetCoverageConfiguration(
                 "jacocoExecFiles=$jacocoExecFiles, " +
                 "classesDirs=$classesDirs, " +
                 "srcDirs=$srcDirs, " +
+                "excludeClasses=$excludeClasses, " +
                 "diffSource=$diffSource, " +
                 "reportConfiguration=$reportConfiguration, " +
                 "violationRules=$violationRules)"
