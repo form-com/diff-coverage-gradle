@@ -42,6 +42,10 @@ class ModifiedLinesFilter(private val codeUpdateInfo: CodeUpdateInfo) : IFilter 
                     log.debug("\tlines: $it")
                 }
         }
+
+        if (groupedModifiedLines[true].isNullOrEmpty()) {
+            output.ignore(methodNode.instructions.first, methodNode.instructions.last)
+        }
     }
 
     private fun collectLineNodes(instructionNodes: InsnList): Sequence<LineNode> {
