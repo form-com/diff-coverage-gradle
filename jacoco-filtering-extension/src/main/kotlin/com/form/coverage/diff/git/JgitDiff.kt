@@ -3,6 +3,7 @@ package com.form.coverage.diff.git
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.diff.RawTextComparator
 import org.eclipse.jgit.lib.ConfigConstants
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
@@ -39,6 +40,8 @@ class JgitDiff(workingDir: File) {
         Git(repository).use { git ->
             DiffFormatter(diffContent).apply {
                 initialize()
+
+                setDiffComparator(RawTextComparator.WS_IGNORE_ALL)
 
                 obtainDiffEntries(git, revision).forEach {
                     format(it)
